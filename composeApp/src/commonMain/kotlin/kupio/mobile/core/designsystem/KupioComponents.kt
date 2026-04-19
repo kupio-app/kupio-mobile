@@ -3,7 +3,6 @@ package kupio.mobile.core.designsystem
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,7 +18,7 @@ import androidx.compose.ui.Modifier
 @Composable
 fun KupioScaffold(
     title: String,
-    content: @Composable (PaddingValues) -> Unit,
+    content: @Composable () -> Unit,
 ) {
     Scaffold { paddingValues ->
         Box(
@@ -37,7 +36,7 @@ fun KupioScaffold(
                     text = title,
                     style = MaterialTheme.typography.headlineMedium,
                 )
-                content(PaddingValues())
+                content()
             }
         }
     }

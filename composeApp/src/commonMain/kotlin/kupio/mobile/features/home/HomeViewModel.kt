@@ -13,9 +13,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 data class HomeState(
-    val title: String = "",
-    val body: String = "",
-    val note: String = "",
+    val isStarter: Boolean = true,
 ) : UiState
 
 sealed interface HomeAction : UiAction {
@@ -26,18 +24,8 @@ sealed interface HomeEffect : UiEffect {
     data object NavigateToSettings : HomeEffect
 }
 
-class HomeViewModel(
-    private val homeContentRepository: HomeContentRepository,
-) : ViewModel() {
-    private val _state = MutableStateFlow(
-        homeContentRepository.getContent().let { content ->
-            HomeState(
-                title = content.title,
-                body = content.body,
-                note = content.note,
-            )
-        },
-    )
+class HomeViewModel : ViewModel() {
+    private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
 
     private val effectChannel = Channel<HomeEffect>(Channel.BUFFERED)

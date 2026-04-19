@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_title">Kupio štartér</string>
+    <string name="home_title">Kupio štartér</string>
+    <string name="home_body">Tento štartér definuje zdieľaný základ aplikácie a ukazuje počiatočnú MVI-lite štruktúru.</string>
+    <string name="home_note">Voyager, Koin a DataStore sú už zapojené do štartovacieho toku aplikácie.</string>
+    <string name="open_settings">Otvoriť nastavenia</string>
+    <string name="settings_title">Nastavenia</string>
+    <string name="settings_body">Režim témy sa ukladá do DataStore ako ukážka zdieľaných aplikačných preferencií.</string>
+    <string name="back">Späť</string>
+    <string name="theme_mode_label">Režim témy</string>
+    <string name="theme_mode_system">Systém</string>
+    <string name="theme_mode_light">Svetlá</string>
+    <string name="theme_mode_dark">Tmavá</string>
+    <string name="theme_mode_current">Aktuálny režim: %1$s</string>
+</resources>

@@ -10,6 +10,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.home_body
+import mobile.composeapp.generated.resources.home_note
+import mobile.composeapp.generated.resources.home_title
+import mobile.composeapp.generated.resources.open_settings
+import org.jetbrains.compose.resources.stringResource
 import kupio.mobile.core.designsystem.KupioButton
 import kupio.mobile.core.designsystem.KupioScaffold
 import kupio.mobile.core.designsystem.KupioText
@@ -43,15 +49,15 @@ private fun HomeRoute(
     state: HomeState,
     onAction: (HomeAction) -> Unit,
 ) {
-    KupioScaffold(title = state.title) {
+    KupioScaffold(title = stringResource(Res.string.home_title)) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
         ) {
-            KupioText(text = state.body)
-            KupioText(text = state.note)
+            KupioText(text = stringResource(Res.string.home_body))
+            KupioText(text = stringResource(Res.string.home_note))
             KupioButton(
-                text = "Open settings",
+                text = stringResource(Res.string.open_settings),
                 onClick = { onAction(HomeAction.OpenSettingsClicked) },
             )
         }

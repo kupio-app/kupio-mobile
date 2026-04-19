@@ -1,5 +1,8 @@
 package kupio.mobile.core.di
 
+import io.ktor.client.HttpClient
+import kupio.mobile.core.config.BackendConfig
+import kupio.mobile.core.network.createKupioHttpClient
 import kupio.mobile.core.preferences.DataStorePreferencesRepository
 import kupio.mobile.core.preferences.PreferencesRepository
 import kupio.mobile.features.home.HomeViewModel
@@ -13,6 +16,11 @@ expect val platformModule: Module
 val kupioAppModules: List<Module> = listOf(
     platformModule,
     module {
+        single<HttpClient> {
+            createKupioHttpClient(
+                baseUrl = get<BackendConfig>().baseUrl,
+            )
+        }
         single<PreferencesRepository> { DataStorePreferencesRepository(get()) }
         viewModelOf(::HomeViewModel)
         viewModelOf(::SettingsViewModel)

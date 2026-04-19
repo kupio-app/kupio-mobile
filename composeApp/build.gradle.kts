@@ -30,6 +30,9 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.credentials)
+            implementation(libs.androidx.credentials.play.services.auth)
+            implementation(libs.googleid)
             implementation(libs.koin.android)
             implementation(libs.ktor.client.android)
         }
@@ -60,6 +63,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
             implementation(libs.ktor.client.mock)
         }
     }
@@ -69,6 +73,10 @@ android {
     namespace = "kupio.mobile"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "kupio.mobile"
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -76,6 +84,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "KUPIO_BACKEND_BASE_URL", "\"http://10.0.2.2:8000\"")
+        buildConfigField("String", "KUPIO_GOOGLE_SERVER_CLIENT_ID", "\"\"")
     }
     packaging {
         resources {

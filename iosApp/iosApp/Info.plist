@@ -4,6 +4,19 @@
     <dict>
         <key>CADisableMinimumFrameDurationOnPhone</key>
         <true/>
+        <key>CFBundleURLTypes</key>
+        <array>
+            <dict>
+                <key>CFBundleURLSchemes</key>
+                <array>
+                    <string>$(KUPIO_GOOGLE_REVERSED_CLIENT_ID)</string>
+                </array>
+            </dict>
+        </array>
+        <key>GIDClientID</key>
+        <string>$(KUPIO_GOOGLE_IOS_CLIENT_ID)</string>
+        <key>GIDServerClientID</key>
+        <string>$(KUPIO_GOOGLE_SERVER_CLIENT_ID)</string>
         <key>KupioBackendBaseUrl</key>
         <string>$(KUPIO_BACKEND_BASE_URL)</string>
         <key>NSAppTransportSecurity</key>

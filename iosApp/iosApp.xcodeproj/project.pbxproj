@@ -10,6 +10,10 @@
 		EF7F0C278B33300C60DE68D0 /* mobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXBuildFile section */
+		7E42D56BF6FA0F1A6683289B /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 36722B8C37D2AB4E85A548D5 /* GoogleSignIn */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		B7C89EEA6BB317AF430E4769 /* Exceptions for "iosApp" folder in "iosApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -41,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E42D56BF6FA0F1A6683289B /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +90,7 @@
 			);
 			name = iosApp;
 			packageProductDependencies = (
+				36722B8C37D2AB4E85A548D5 /* GoogleSignIn */,
 			);
 			productName = iosApp;
 			productReference = EF7F0C278B33300C60DE68D0 /* mobile.app */;
@@ -118,11 +124,33 @@
 			productRefGroup = F786C1FB21279B094DD2424F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
+			packageReferences = (
+				04F629D6D8D38FB57412852E /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			targets = (
 				6C49E799B27B558749FC5A26 /* iosApp */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		04F629D6D8D38FB57412852E /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = exactVersion;
+				version = 9.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		36722B8C37D2AB4E85A548D5 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 04F629D6D8D38FB57412852E /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin PBXResourcesBuildPhase section */
 		CD81F175CFEF138C81D5239D /* Resources */ = {

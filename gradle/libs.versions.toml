@@ -6,6 +6,7 @@ android-targetSdk = "36"
 androidx-activity = "1.13.0"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.18.0"
+androidx-credentials = "1.6.0"
 androidx-datastore = "1.2.1"
 androidx-espresso = "3.7.0"
 androidx-lifecycle = "2.10.0"
@@ -15,9 +16,11 @@ composeMaterial3 = "1.8.2"
 junit = "4.13.2"
 koin = "4.2.0"
 kotlin = "2.3.20"
+kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.9.0"
 ktor = "3.4.2"
 kvault = "1.12.0"
+googleid = "1.2.0"
 voyager = "1.0.1"
 
 [libraries]
@@ -31,7 +34,10 @@ androidx-testExt-junit = { module = "androidx.test.ext:junit", version.ref = "an
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
+androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "androidx-credentials" }
+androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "androidx-credentials" }
 compose-uiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatform" }
+googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 androidx-lifecycle-viewmodelCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
@@ -45,6 +51,7 @@ koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 kvault = { module = "com.liftric:kvault", version.ref = "kvault" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }

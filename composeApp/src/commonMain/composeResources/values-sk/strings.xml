@@ -12,4 +12,22 @@
     <string name="theme_mode_light">Svetlá</string>
     <string name="theme_mode_dark">Tmavá</string>
     <string name="theme_mode_current">Aktuálny režim: %1$s</string>
+    <string name="auth_login">Prihlásiť sa</string>
+    <string name="auth_create_account">Vytvoriť účet</string>
+    <string name="auth_sign_in_subtitle">Prihlás sa a pokračuj v nakupovaní a predaji na Kupio.</string>
+    <string name="auth_register_subtitle">Vytvor si účet a začni používať Kupio.</string>
+    <string name="auth_email">E-mail</string>
+    <string name="auth_password">Heslo</string>
+    <string name="auth_username">Používateľské meno</string>
+    <string name="auth_continue">Pokračovať</string>
+    <string name="auth_or">alebo</string>
+    <string name="auth_google">Pokračovať s Google</string>
+    <string name="auth_loading">Po úspešnom prihlásení budeš presmerovaný na domovskú stránku.</string>
+    <string name="auth_error_required">Toto pole je povinné.</string>
+    <string name="auth_error_email_invalid">Zadaj platnú e-mailovú adresu.</string>
+    <string name="auth_error_password_short">Heslo musí mať aspoň 8 znakov.</string>
+    <string name="auth_error_username_short">Používateľské meno musí mať aspoň 3 znaky.</string>
+    <string name="auth_error_username_long">Používateľské meno môže mať najviac 50 znakov.</string>
+    <string name="auth_one_last_step">Ešte jeden krok</string>
+    <string name="auth_username_hint">Vyber si používateľské meno a dokonči nastavenie účtu.</string>
 </resources>

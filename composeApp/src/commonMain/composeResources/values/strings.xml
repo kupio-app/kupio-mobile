@@ -12,4 +12,22 @@
     <string name="theme_mode_light">Light</string>
     <string name="theme_mode_dark">Dark</string>
     <string name="theme_mode_current">Current mode: %1$s</string>
+    <string name="auth_login">Sign in</string>
+    <string name="auth_create_account">Create account</string>
+    <string name="auth_sign_in_subtitle">Sign in to continue buying and selling on Kupio.</string>
+    <string name="auth_register_subtitle">Create your account to start using Kupio.</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_username">Username</string>
+    <string name="auth_continue">Continue</string>
+    <string name="auth_or">or</string>
+    <string name="auth_google">Continue with Google</string>
+    <string name="auth_loading">You will be redirected to the home page after a successful sign-in.</string>
+    <string name="auth_error_required">This field is required.</string>
+    <string name="auth_error_email_invalid">Enter a valid email address.</string>
+    <string name="auth_error_password_short">Password must have at least 8 characters.</string>
+    <string name="auth_error_username_short">Username must have at least 3 characters.</string>
+    <string name="auth_error_username_long">Username must have at most 50 characters.</string>
+    <string name="auth_one_last_step">One last step</string>
+    <string name="auth_username_hint">Choose a username to finish setting up your account.</string>
 </resources>

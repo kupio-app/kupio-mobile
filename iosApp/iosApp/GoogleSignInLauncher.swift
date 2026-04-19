@@ -2,8 +2,8 @@ import ComposeApp
 import GoogleSignIn
 import UIKit
 
-final class IOSGoogleSignInLauncher: NSObject, KupioMobileGoogleSignInLauncher {
-    func signIn(callback: any KupioMobileGoogleSignInCallback) {
+final class IOSGoogleSignInLauncher: NSObject, GoogleSignInLauncher {
+    func signIn(callback: any GoogleSignInCallback) {
         guard !configuredClientId().isEmpty else {
             callback.onFailure(message: "Set KUPIO_GOOGLE_IOS_CLIENT_ID before using Google sign-in.")
             return

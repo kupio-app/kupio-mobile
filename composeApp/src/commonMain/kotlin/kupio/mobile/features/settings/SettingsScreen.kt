@@ -1,4 +1,4 @@
-package kupio.mobile.features.home
+package kupio.mobile.features.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,22 +16,21 @@ import kupio.mobile.core.designsystem.KupioScaffold
 import kupio.mobile.core.designsystem.KupioText
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.presentation.CollectEffect
-import kupio.mobile.features.settings.SettingsScreen
 
-class HomeScreen : Screen {
+class SettingsScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = viewModel { HomeViewModel() }
+        val viewModel = viewModel { SettingsViewModel() }
         val state by viewModel.state.collectAsStateWithLifecycle()
 
         CollectEffect(viewModel.effects) { effect ->
             when (effect) {
-                HomeEffect.NavigateToSettings -> navigator.push(SettingsScreen())
+                SettingsEffect.NavigateBack -> navigator.pop()
             }
         }
 
-        HomeRoute(
+        SettingsRoute(
             state = state,
             onAction = viewModel::onAction,
         )
@@ -39,9 +38,9 @@ class HomeScreen : Screen {
 }
 
 @Composable
-private fun HomeRoute(
-    state: HomeState,
-    onAction: (HomeAction) -> Unit,
+private fun SettingsRoute(
+    state: SettingsState,
+    onAction: (SettingsAction) -> Unit,
 ) {
     KupioScaffold(title = state.title) {
         Column(
@@ -49,15 +48,12 @@ private fun HomeRoute(
             verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
         ) {
             KupioText(text = state.body)
-            KupioText(
-                text = "The next commit adds DI. The final starter will also persist theme selection in settings.",
-            )
             KupioButton(
-                text = "Open settings",
-                onClick = { onAction(HomeAction.OpenSettingsClicked) },
+                text = "Back",
+                onClick = { onAction(SettingsAction.NavigateBackClicked) },
             )
         }
     }
 }
 
-// TODO: Expand the home feature into the real post-auth landing flow once app modules are implemented.
+// TODO: Replace the placeholder settings content with real preference controls backed by DataStore.

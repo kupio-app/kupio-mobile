@@ -36,6 +36,36 @@ The project uses a lightweight screen-level MVI approach:
 
 This is intentionally MVI-lite, not a generic framework. The code should stay explicit and easy to follow.
 
+## MVI and MVVM
+
+The project uses `ViewModel` as the host for screen logic, but the state flow inside the screen follows `MVI-lite`.
+
+That means:
+
+- `MVVM` answers where screen state and logic live: in a `ViewModel`
+- `MVI` answers how state flows: `Action -> state update -> UI render -> Effect`
+
+So these are not competing choices in this project. We use:
+
+- `ViewModel` as the implementation container
+- `State`, `Action`, and `Effect` as the screen contract
+- one `onAction(...)` entry point for user interactions
+
+This is different from classic callback-heavy MVVM where a screen exposes many public methods such as:
+
+- `onBackClick()`
+- `onThemeChanged()`
+- `loadData()`
+
+Instead, the preferred pattern is:
+
+- one immutable `State`
+- one sealed `Action`
+- one sealed `Effect`
+- one `ViewModel` coordinating the flow
+
+In short: this project uses `ViewModel` plus `MVI-lite`, not plain classic MVVM.
+
 ## Project Structure
 
 The project stays in a single shared Gradle module for now: `:composeApp`.
@@ -57,6 +87,62 @@ Rule of thumb:
 - `features` contains product functionality and screen-specific logic
 
 Do not create `core.network`, `core.database`, or `core.storage` until real feature work needs them.
+
+### Feature Layers
+
+Real features will gradually adopt `presentation`, `data`, and sometimes `domain` packages inside the feature.
+
+Example:
+
+- `features/listings/presentation`
+- `features/listings/data`
+- `features/listings/domain`
+
+The starter does not include these folders everywhere yet because empty architectural folders add noise before the first real feature exists.
+
+#### Presentation
+
+`presentation` should exist in every real feature.
+
+It contains:
+
+- screens and composables
+- `ViewModel`
+- `State`, `Action`, and `Effect`
+- UI-specific models and mappers
+- feature-local reusable UI pieces
+
+#### Data
+
+`data` should be added when a feature starts working with backend, database, files, or platform storage.
+
+It contains:
+
+- repository implementations
+- API services
+- DTOs
+- local and remote data sources
+- database entities
+- mapper implementations
+
+#### Domain
+
+`domain` is optional and should be added only when the feature has enough business logic to justify it.
+
+It contains:
+
+- business models
+- validation rules
+- use cases / interactors
+- business logic that should not depend on UI or storage
+
+Do not force `domain` into every feature from day one. Use it when the feature becomes complex enough that separating business rules improves clarity.
+
+Practical rule:
+
+- always add `presentation`
+- add `data` when the feature talks to backend, database, or storage
+- add `domain` when business logic becomes non-trivial
 
 ## UI and Design System
 

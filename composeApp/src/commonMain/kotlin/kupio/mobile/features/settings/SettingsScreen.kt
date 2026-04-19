@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -16,12 +15,13 @@ import kupio.mobile.core.designsystem.KupioScaffold
 import kupio.mobile.core.designsystem.KupioText
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.presentation.CollectEffect
+import org.koin.compose.viewmodel.koinViewModel
 
 class SettingsScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = viewModel { SettingsViewModel() }
+        val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
 
         CollectEffect(viewModel.effects) { effect ->

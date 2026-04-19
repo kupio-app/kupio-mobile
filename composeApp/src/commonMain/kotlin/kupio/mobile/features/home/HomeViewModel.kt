@@ -13,8 +13,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 data class HomeState(
-    val title: String = "Kupio Starter",
-    val body: String = "This starter defines the shared app shell and demonstrates the initial MVI-lite structure.",
+    val title: String = "",
+    val body: String = "",
+    val note: String = "",
 ) : UiState
 
 sealed interface HomeAction : UiAction {
@@ -25,8 +26,18 @@ sealed interface HomeEffect : UiEffect {
     data object NavigateToSettings : HomeEffect
 }
 
-class HomeViewModel : ViewModel() {
-    private val _state = MutableStateFlow(HomeState())
+class HomeViewModel(
+    private val homeContentRepository: HomeContentRepository,
+) : ViewModel() {
+    private val _state = MutableStateFlow(
+        homeContentRepository.getContent().let { content ->
+            HomeState(
+                title = content.title,
+                body = content.body,
+                note = content.note,
+            )
+        },
+    )
     val state = _state.asStateFlow()
 
     private val effectChannel = Channel<HomeEffect>(Channel.BUFFERED)

@@ -1,8 +1,6 @@
-# Kupio Mobile Frontend
+# Kupio Mobile
 
 Kupio Mobile is a Kotlin Multiplatform mobile application targeting Android and iOS with shared UI built in Compose Multiplatform.
-
-This repository intentionally starts with a small, opinionated skeleton. The goal is to give the team one clear way to structure new code without overbuilding infrastructure before the first real features exist.
 
 ## Technology Stack
 
@@ -112,43 +110,3 @@ The app itself is prepared for:
 - Slovak
 
 Localization uses shared Compose resources.
-
-## TODO Policy
-
-Starter code is allowed to be incomplete only when it is clearly marked.
-
-Every meaningful temporary or simplified implementation must include a `TODO` that explains what should happen next, for example:
-
-- replace a temporary implementation with a real backend-backed one
-- expand minimal design system components
-- replace starter navigation with the real feature graph
-- move simplified logic into a proper feature-specific implementation
-
-Do not add vague or decorative `TODO`s.
-
-## Build and Run
-
-Build Android debug:
-
-```shell
-./gradlew :composeApp:assembleDebug
-```
-
-Open and run iOS from Xcode:
-
-- open `iosApp/iosApp.xcodeproj`
-- run the `iosApp` target
-
-## Current Scope of the Starter
-
-The starter intentionally demonstrates only:
-
-- shared app bootstrapping
-- theme setup
-- navigation between `home` and `settings`
-- screen-level MVI conventions
-- Koin DI setup
-- DataStore-backed theme preference
-- EN/SK localization pattern
-
-No backend integration is included in the starter.

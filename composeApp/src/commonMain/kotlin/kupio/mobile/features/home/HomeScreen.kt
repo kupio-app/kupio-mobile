@@ -56,10 +56,12 @@ private fun HomeRoute(
         ) {
             KupioText(text = stringResource(Res.string.home_body))
             KupioText(text = stringResource(Res.string.home_note))
-            KupioButton(
-                text = stringResource(Res.string.open_settings),
-                onClick = { onAction(HomeAction.OpenSettingsClicked) },
-            )
+            if (state.isStarter) {
+                KupioButton(
+                    text = stringResource(Res.string.open_settings),
+                    onClick = { onAction(HomeAction.OpenSettingsClicked) },
+                )
+            }
         }
     }
 }

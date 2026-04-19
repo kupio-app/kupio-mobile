@@ -13,15 +13,13 @@ private val ThemeModeKey = stringPreferencesKey("theme_mode")
 
 internal const val KupioPreferencesFileName = "kupio.preferences_pb"
 
-internal fun createPreferencesDataStore(
+fun createPreferencesDataStore(
     producePath: () -> String,
 ): DataStore<Preferences> {
     return PreferenceDataStoreFactory.createWithPath(
         produceFile = { producePath().toPath() },
     )
 }
-
-expect fun createPlatformPreferencesDataStore(): DataStore<Preferences>
 
 class DataStorePreferencesRepository(
     private val dataStore: DataStore<Preferences>,

@@ -5,31 +5,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kupio.mobile.core.designsystem.KupioTheme
-import kupio.mobile.core.di.kupioAppModules
 import kupio.mobile.core.navigation.KupioNavigator
 import kupio.mobile.core.preferences.PreferencesRepository
 import kupio.mobile.core.preferences.ThemeMode
 import kupio.mobile.core.preferences.resolveDarkTheme
-import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 
 @Composable
 fun App() {
-    KoinApplication(
-        application = {
-            modules(kupioAppModules)
-        },
-    ) {
-        val preferencesRepository = koinInject<PreferencesRepository>()
-        val themeMode by preferencesRepository.themeMode.collectAsStateWithLifecycle(
-            initialValue = ThemeMode.SYSTEM,
-        )
-        val useDarkTheme = themeMode.resolveDarkTheme(
-            systemDarkTheme = isSystemInDarkTheme(),
-        )
+    val preferencesRepository = koinInject<PreferencesRepository>()
+    val themeMode by preferencesRepository.themeMode.collectAsStateWithLifecycle(
+        initialValue = ThemeMode.SYSTEM,
+    )
+    val useDarkTheme = themeMode.resolveDarkTheme(
+        systemDarkTheme = isSystemInDarkTheme(),
+    )
 
-        KupioTheme(darkTheme = useDarkTheme) {
-            KupioNavigator()
-        }
+    KupioTheme(darkTheme = useDarkTheme) {
+        KupioNavigator()
     }
 }

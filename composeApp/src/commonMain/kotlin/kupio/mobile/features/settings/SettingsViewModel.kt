@@ -58,6 +58,7 @@ class SettingsViewModel(
     }
 
     private fun updateThemeMode(mode: ThemeMode) {
+        if (_state.value.selectedThemeMode == mode) return
         viewModelScope.launch {
             preferencesRepository.setThemeMode(mode)
         }

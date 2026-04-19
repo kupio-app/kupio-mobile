@@ -6,7 +6,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kupio.mobile.core.preferences.KupioPreferencesFileName
 import kupio.mobile.core.preferences.createPreferencesDataStore
 import org.koin.dsl.module
-import platform.Foundation.NSDocumentDirectory
+import platform.Foundation.NSApplicationSupportDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
@@ -16,14 +16,21 @@ actual val platformModule = module {
     single<DataStore<Preferences>> {
         createPreferencesDataStore(
             producePath = {
-                val documentDirectory: NSURL? = NSFileManager.defaultManager.URLForDirectory(
-                    directory = NSDocumentDirectory,
+                val applicationSupportDirectory: NSURL? = NSFileManager.defaultManager.URLForDirectory(
+                    directory = NSApplicationSupportDirectory,
                     inDomain = NSUserDomainMask,
                     appropriateForURL = null,
-                    create = false,
+                    create = true,
                     error = null,
                 )
-                requireNotNull(documentDirectory).path + "/$KupioPreferencesFileName"
+                val basePath = requireNotNull(
+                    requireNotNull(applicationSupportDirectory) {
+                        "Application Support directory is unavailable."
+                    }.path,
+                ) {
+                    "Application Support path is unavailable."
+                }
+                "$basePath/$KupioPreferencesFileName"
             },
         )
     }

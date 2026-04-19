@@ -1,36 +1,154 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# Kupio Mobile Frontend
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-    - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-    - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-      For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-      the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-      Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-      folder is the appropriate location.
+Kupio Mobile is a Kotlin Multiplatform mobile application targeting Android and iOS with shared UI built in Compose Multiplatform.
 
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+This repository intentionally starts with a small, opinionated skeleton. The goal is to give the team one clear way to structure new code without overbuilding infrastructure before the first real features exist.
 
-### Build and Run Android Application
+## Technology Stack
 
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
+- Kotlin Multiplatform + Compose Multiplatform for shared UI
+- Material 3 as theme and design-token infrastructure, not as the final visual identity
+- Voyager for navigation
+- Koin for dependency injection
+- AndroidX Lifecycle ViewModel for screen logic
+- DataStore Preferences for app preferences
+- Compose Multiplatform resources for localization
 
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
+Deferred until the first real feature needs them:
 
-### Build and Run iOS Application
+- Ktor for HTTP and WebSockets
+- Room KMP for relational and offline-first app data
+- Coil 3 for image loading
+- Okio for file storage
+- Secure storage for tokens and secrets
+- Push notification and permissions libraries
 
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+These are intentionally deferred because they need feature-driven wiring. Adding them too early would make the starter heavier without increasing clarity.
 
----
+## Architecture
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+The project uses a lightweight screen-level MVI approach:
+
+- each screen has immutable `State`
+- user interactions are modeled as sealed `Action`
+- one-shot UI commands are modeled as sealed `Effect`
+- each screen owns one `ViewModel`
+- composables render state and emit actions
+- navigation is triggered from effects, not from business logic directly
+
+This is intentionally MVI-lite, not a generic framework. The code should stay explicit and easy to follow.
+
+## Project Structure
+
+The project stays in a single shared Gradle module for now: `:composeApp`.
+
+Shared code in `commonMain` is organized like this:
+
+- `kupio.mobile.app`
+- `kupio.mobile.core.designsystem`
+- `kupio.mobile.core.navigation`
+- `kupio.mobile.core.presentation`
+- `kupio.mobile.core.di`
+- `kupio.mobile.core.preferences`
+- `kupio.mobile.features.home`
+- `kupio.mobile.features.settings`
+
+Rule of thumb:
+
+- `core` contains app-wide infrastructure reused by multiple features
+- `features` contains product functionality and screen-specific logic
+
+Do not create `core.network`, `core.database`, or `core.storage` until real feature work needs them.
+
+## UI and Design System
+
+Compose Multiplatform is shared across Android and iOS.
+
+Material is used only for:
+
+- theme structure
+- color scheme support
+- typography and spacing tokens
+- accessibility-friendly defaults where useful
+
+Visible UI should gradually move toward custom shared components such as:
+
+- `KupioScaffold`
+- `KupioButton`
+- `KupioText`
+
+This avoids the app looking like a stock Android Material app on iOS while still keeping a shared design system.
+
+## Preferences, Database, and Secure Storage
+
+Use DataStore Preferences for small app preferences:
+
+- theme mode
+- language override
+- onboarding flags
+- simple UI settings
+
+Use Room later for relational or offline-first app data:
+
+- listings cache
+- favourites
+- draft listings
+- sync metadata
+- chat cache
+
+Use secure storage later for secrets:
+
+- access token
+- refresh token
+- any credential-like data
+
+## Localization
+
+Project code and documentation stay in English.
+
+The app itself is prepared for:
+
+- English
+- Slovak
+
+Localization uses shared Compose resources.
+
+## TODO Policy
+
+Starter code is allowed to be incomplete only when it is clearly marked.
+
+Every meaningful temporary or simplified implementation must include a `TODO` that explains what should happen next, for example:
+
+- replace a temporary implementation with a real backend-backed one
+- expand minimal design system components
+- replace starter navigation with the real feature graph
+- move simplified logic into a proper feature-specific implementation
+
+Do not add vague or decorative `TODO`s.
+
+## Build and Run
+
+Build Android debug:
+
+```shell
+./gradlew :composeApp:assembleDebug
+```
+
+Open and run iOS from Xcode:
+
+- open `iosApp/iosApp.xcodeproj`
+- run the `iosApp` target
+
+## Current Scope of the Starter
+
+The starter intentionally demonstrates only:
+
+- shared app bootstrapping
+- theme setup
+- navigation between `home` and `settings`
+- screen-level MVI conventions
+- Koin DI setup
+- DataStore-backed theme preference
+- EN/SK localization pattern
+
+No backend integration is included in the starter.

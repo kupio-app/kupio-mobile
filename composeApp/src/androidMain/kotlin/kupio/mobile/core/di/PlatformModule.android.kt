@@ -3,6 +3,7 @@ package kupio.mobile.core.di
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.liftric.kvault.KVault
 import kupio.mobile.BuildConfig
 import kupio.mobile.core.config.BackendConfig
 import kupio.mobile.core.preferences.KupioPreferencesFileName
@@ -15,6 +16,7 @@ actual val platformModule = module {
             override val baseUrl: String = BuildConfig.KUPIO_BACKEND_BASE_URL
         }
     }
+    single { KVault(get<Context>(), "kupio.mobile.secure_store") }
     single<DataStore<Preferences>> {
         val context: Context = get()
         createPreferencesDataStore(

@@ -1,0 +1,28 @@
+package kupio.mobile.features.auth.data
+
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.flow.first
+import kupio.mobile.features.auth.domain.DeviceIdProvider
+
+private val DeviceIdKey = stringPreferencesKey("device_id")
+
+class DataStoreDeviceIdProvider(
+    private val dataStore: DataStore<Preferences>,
+) : DeviceIdProvider {
+    override suspend fun getOrCreate(): String {
+        val existingValue = dataStore.data.first()[DeviceIdKey]
+        if (existingValue != null) return existingValue
+
+        val generatedValue = randomUuid()
+        dataStore.edit { preferences ->
+            if (preferences[DeviceIdKey] == null) {
+                preferences[DeviceIdKey] = generatedValue
+            }
+        }
+
+        return dataStore.data.first()[DeviceIdKey] ?: generatedValue
+    }
+}

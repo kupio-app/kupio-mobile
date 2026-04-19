@@ -2,6 +2,7 @@ package kupio.mobile.core.di
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.liftric.kvault.KVault
 import kotlinx.cinterop.ExperimentalForeignApi
 import kupio.mobile.core.config.BackendConfig
 import kupio.mobile.core.preferences.KupioPreferencesFileName
@@ -24,6 +25,7 @@ actual val platformModule = module {
             }
         }
     }
+    single { KVault("kupio.mobile.secure_store") }
     single<DataStore<Preferences>> {
         createPreferencesDataStore(
             producePath = {

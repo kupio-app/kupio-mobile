@@ -6,6 +6,7 @@
     <string name="open_settings">Open settings</string>
     <string name="settings_title">Settings</string>
     <string name="settings_body">Theme mode is stored in DataStore to demonstrate shared app preferences.</string>
+    <string name="settings_logout">Log out</string>
     <string name="back">Back</string>
     <string name="theme_mode_label">Theme mode</string>
     <string name="theme_mode_system">System</string>

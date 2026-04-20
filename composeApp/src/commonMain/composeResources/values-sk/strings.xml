@@ -6,6 +6,7 @@
     <string name="open_settings">Otvoriť nastavenia</string>
     <string name="settings_title">Nastavenia</string>
     <string name="settings_body">Režim témy sa ukladá do DataStore ako ukážka zdieľaných aplikačných preferencií.</string>
+    <string name="settings_logout">Odhlásiť sa</string>
     <string name="back">Späť</string>
     <string name="theme_mode_label">Režim témy</string>
     <string name="theme_mode_system">Systém</string>

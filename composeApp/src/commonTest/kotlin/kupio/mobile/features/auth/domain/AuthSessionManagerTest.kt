@@ -69,6 +69,25 @@ class AuthSessionManagerTest {
         )
     }
 
+    @Test
+    fun `sign out clears local session even when backend revoke fails`() = runTest {
+        val secureSessionStore = FakeSecureSessionStore(session = sampleSession())
+        val repository = FakeAuthRepository(
+            logoutError = IllegalStateException("logout failed"),
+        )
+        val manager = createManager(
+            repository = repository,
+            secureSessionStore = secureSessionStore,
+        )
+
+        manager.signOut()
+
+        assertEquals(1, repository.logoutCalls)
+        assertEquals("refresh", repository.loggedOutRefreshToken)
+        assertEquals(SessionState.SignedOut, manager.sessionState.value)
+        assertEquals(null, secureSessionStore.readSession())
+    }
+
     private fun createManager(
         repository: FakeAuthRepository = FakeAuthRepository(),
         secureSessionStore: FakeSecureSessionStore = FakeSecureSessionStore(),
@@ -135,7 +154,11 @@ class AuthSessionManagerTest {
             avatarUrl = null,
         ),
         private val refreshError: Throwable? = null,
+        private val logoutError: Throwable? = null,
     ) : AuthRepository {
+        var logoutCalls: Int = 0
+        var loggedOutRefreshToken: String? = null
+
         override suspend fun login(email: String, password: String): AuthSession = refreshedSession
 
         override suspend fun register(email: String, password: String, username: String): AuthSession = refreshedSession
@@ -153,6 +176,12 @@ class AuthSessionManagerTest {
             username = username,
             needsUsername = false,
         )
+
+        override suspend fun logout(refreshToken: String) {
+            logoutCalls += 1
+            loggedOutRefreshToken = refreshToken
+            logoutError?.let { throw it }
+        }
 
         override suspend fun clearSession() = Unit
     }

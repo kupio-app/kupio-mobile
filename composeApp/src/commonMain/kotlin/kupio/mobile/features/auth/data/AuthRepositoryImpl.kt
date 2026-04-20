@@ -77,6 +77,16 @@ class AuthRepositoryImpl(
         ).toDomain()
     }
 
+    override suspend fun logout(
+        refreshToken: String,
+    ) {
+        authApi.logout(
+            request = LogoutRequestDto(
+                refreshToken = refreshToken,
+            ),
+        )
+    }
+
     override suspend fun clearSession() {
         secureSessionStore.clear()
     }

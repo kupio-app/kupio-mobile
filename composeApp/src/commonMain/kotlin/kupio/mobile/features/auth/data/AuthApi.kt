@@ -9,6 +9,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpHeaders
 import kupio.mobile.core.network.bodyOrThrow
+import kupio.mobile.core.network.toApiException
 
 class AuthApi(
     private val httpClient: HttpClient,
@@ -43,6 +44,17 @@ class AuthApi(
         return httpClient.post("/api/auth/refresh") {
             setBody(request)
         }.bodyOrThrow()
+    }
+
+    suspend fun logout(
+        request: LogoutRequestDto,
+    ) {
+        val response = httpClient.post("/api/auth/logout") {
+            setBody(request)
+        }
+        if (response.status.value !in 200..299) {
+            throw response.toApiException()
+        }
     }
 
     suspend fun getCurrentUser(

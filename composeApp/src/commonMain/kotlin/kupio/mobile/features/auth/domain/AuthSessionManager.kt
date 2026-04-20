@@ -24,9 +24,7 @@ class AuthSessionManager(
             val refreshedSession = authRepository.refreshSession()
             establishSession(refreshedSession)
         } catch (_: Throwable) {
-            authRepository.clearSession()
-            secureSessionStore.clear()
-            _sessionState.value = SessionState.SignedOut
+            clearPersistedSession()
         }
     }
 
@@ -37,9 +35,7 @@ class AuthSessionManager(
         val user = runCatching {
             authRepository.getCurrentUser()
         }.getOrElse { throwable ->
-            authRepository.clearSession()
-            secureSessionStore.clear()
-            _sessionState.value = SessionState.SignedOut
+            clearPersistedSession()
             throw throwable
         }
 
@@ -53,6 +49,16 @@ class AuthSessionManager(
     }
 
     suspend fun signOut() {
+        val refreshToken = secureSessionStore.readSession()?.refreshToken
+        clearPersistedSession()
+        refreshToken?.let { token ->
+            runCatching {
+                authRepository.logout(refreshToken = token)
+            }
+        }
+    }
+
+    private suspend fun clearPersistedSession() {
         authRepository.clearSession()
         secureSessionStore.clear()
         _sessionState.value = SessionState.SignedOut

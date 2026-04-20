@@ -172,6 +172,19 @@ class AuthRepositoryImplTest {
         assertEquals(false, user.needsUsername)
     }
 
+    @Test
+    fun `logout sends provided refresh token`() = kotlinx.coroutines.test.runTest {
+        val repository = createRepository(
+            mockEngine = MockEngine { request ->
+                assertEquals("/api/auth/logout", request.url.encodedPath)
+                assertTrue(request.bodyText().contains("\"refresh_token\":\"stored-refresh\""))
+                respondJson("{}", status = HttpStatusCode.Accepted)
+            },
+        )
+
+        repository.logout(refreshToken = "stored-refresh")
+    }
+
     private fun createRepository(
         mockEngine: MockEngine,
         secureSessionStore: FakeSecureSessionStore = FakeSecureSessionStore(),

@@ -24,5 +24,9 @@ interface AuthRepository {
         username: String,
     ): AuthenticatedUser
 
+    suspend fun logout(
+        refreshToken: String,
+    )
+
     suspend fun clearSession()
 }

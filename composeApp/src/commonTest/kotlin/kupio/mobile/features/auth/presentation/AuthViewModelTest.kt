@@ -143,6 +143,8 @@ class AuthViewModelTest {
 
         override suspend fun setUsername(username: String): AuthenticatedUser = SampleUser.copy(username = username)
 
+        override suspend fun logout(refreshToken: String) = Unit
+
         override suspend fun clearSession() = Unit
     }
 

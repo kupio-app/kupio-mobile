@@ -33,6 +33,11 @@ data class RefreshRequestDto(
 )
 
 @Serializable
+data class LogoutRequestDto(
+    @SerialName("refresh_token") val refreshToken: String,
+)
+
+@Serializable
 data class SetUsernameRequestDto(
     val username: String,
 )

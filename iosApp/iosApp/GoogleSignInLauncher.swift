@@ -4,15 +4,22 @@ import UIKit
 
 final class IOSGoogleSignInLauncher: NSObject, GoogleSignInLauncher {
     func signIn(callback: any GoogleSignInCallback) {
-        guard !configuredClientId().isEmpty else {
+        let clientId = configuredClientId()
+        guard !clientId.isEmpty else {
             callback.onFailure(message: "Set KUPIO_GOOGLE_IOS_CLIENT_ID before using Google sign-in.")
             return
         }
+        let serverClientId = configuredServerClientId()
 
         guard let presentingViewController = UIApplication.shared.topViewController() else {
             callback.onFailure(message: "Unable to open the Google sign-in flow.")
             return
         }
+
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(
+            clientID: clientId,
+            serverClientID: serverClientId.isEmpty ? nil : serverClientId
+        )
 
         GIDSignIn.sharedInstance.signIn(withPresenting: presentingViewController) { signInResult, error in
             if let error {
@@ -50,6 +57,10 @@ final class IOSGoogleSignInLauncher: NSObject, GoogleSignInLauncher {
 
     private func configuredClientId() -> String {
         Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String ?? ""
+    }
+
+    private func configuredServerClientId() -> String {
+        Bundle.main.object(forInfoDictionaryKey: "GIDServerClientID") as? String ?? ""
     }
 }
 

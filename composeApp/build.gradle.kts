@@ -83,8 +83,8 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("String", "KUPIO_BACKEND_BASE_URL", "\"http://10.0.2.2:8000\"")
-        buildConfigField("String", "KUPIO_GOOGLE_SERVER_CLIENT_ID", "\"\"")
+        buildConfigField("String", "KUPIO_BACKEND_BASE_URL", "\"http://10.0.2.2:9988\"")
+        buildConfigField("String", "KUPIO_GOOGLE_SERVER_CLIENT_ID", "\"905374249912-bn3cog47744hbor0dgbk1p8u6h0e1uer.apps.googleusercontent.com\"")
     }
     packaging {
         resources {

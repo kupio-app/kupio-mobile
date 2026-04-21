@@ -26,6 +26,7 @@ class KVaultSecureSessionStore(
             accessExpiresAt == null ||
             refreshExpiresAt == null
         ) {
+            clear()
             return null
         }
 
@@ -51,6 +52,11 @@ class KVaultSecureSessionStore(
     }
 
     override suspend fun clear() {
-        vault.clear()
+        vault.deleteObject(forKey = AccessTokenKey)
+        vault.deleteObject(forKey = RefreshTokenKey)
+        vault.deleteObject(forKey = AccessExpiresAtKey)
+        vault.deleteObject(forKey = RefreshExpiresAtKey)
+        vault.deleteObject(forKey = TokenTypeKey)
+        vault.deleteObject(forKey = NeedsUsernameKey)
     }
 }

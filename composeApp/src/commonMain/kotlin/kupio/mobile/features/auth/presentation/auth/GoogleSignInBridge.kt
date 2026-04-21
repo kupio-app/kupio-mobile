@@ -14,17 +14,26 @@ interface GoogleSignInCallback {
     )
 
     fun onFailure(
-        message: String,
+        errorCode: String,
     )
 
     fun onCancelled()
+}
+
+object GoogleSignInFailureCode {
+    const val NotConfigured = "not_configured"
+    const val ActivityUnavailable = "activity_unavailable"
+    const val MissingIdToken = "missing_id_token"
+    const val NoCredential = "no_credential"
+    const val InvalidResponse = "invalid_response"
+    const val Failed = "failed"
 }
 
 private object UnavailableGoogleSignInLauncher : GoogleSignInLauncher {
     override fun signIn(
         callback: GoogleSignInCallback,
     ) {
-        callback.onFailure("Google sign-in is not configured.")
+        callback.onFailure(GoogleSignInFailureCode.NotConfigured)
     }
 }
 

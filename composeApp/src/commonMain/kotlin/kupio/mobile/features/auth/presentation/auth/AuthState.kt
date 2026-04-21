@@ -18,13 +18,18 @@ sealed interface AuthIntent : UiAction {
     data class UsernameChanged(val value: String) : AuthIntent
     data object GoogleClicked : AuthIntent
     data object GoogleCancelled : AuthIntent
-    data class GoogleFailure(val message: String) : AuthIntent
+    data class GoogleFailure(val errorCode: String) : AuthIntent
     data class GoogleSuccess(val idToken: String) : AuthIntent
     data object SubmitClicked : AuthIntent
 }
 
 sealed interface AuthEffect : UiEffect {
     data object LaunchGoogleSignIn : AuthEffect
+}
+
+sealed interface AuthFormError {
+    data class Text(val message: String) : AuthFormError
+    data class GoogleSignIn(val errorCode: String) : AuthFormError
 }
 
 data class AuthState(
@@ -37,7 +42,7 @@ data class AuthState(
     val passwordError: FieldValidationError? = null,
     val confirmPasswordError: FieldValidationError? = null,
     val usernameError: FieldValidationError? = null,
-    val formError: String? = null,
+    val formError: AuthFormError? = null,
     val isSubmitting: Boolean = false,
     val isGoogleSubmitting: Boolean = false,
 ) : UiState {

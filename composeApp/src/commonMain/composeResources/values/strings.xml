@@ -37,6 +37,12 @@
     <string name="auth_or">or</string>
     <string name="auth_google">Continue with Google</string>
     <string name="auth_google_loading">Waiting for Google sign-in…</string>
+    <string name="auth_google_error_not_configured">Google sign-in is not configured.</string>
+    <string name="auth_google_error_activity_unavailable">Google sign-in cannot be opened right now.</string>
+    <string name="auth_google_error_missing_id_token">Google did not return a valid sign-in token.</string>
+    <string name="auth_google_error_no_credential">No Google account is available on this device.</string>
+    <string name="auth_google_error_invalid_response">Google returned an invalid sign-in response.</string>
+    <string name="auth_google_error_failed">Google sign-in failed. Please try again.</string>
     <string name="auth_bootstrap_failed">We could not restore your session. Check your connection and try again.</string>
     <string name="auth_error_required">This field is required.</string>
     <string name="auth_error_email_invalid">Enter a valid email address.</string>

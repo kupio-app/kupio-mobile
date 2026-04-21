@@ -62,8 +62,8 @@ class AuthScreen : Screen {
                                 viewModel.onIntent(AuthIntent.GoogleSuccess(idToken))
                             }
 
-                            override fun onFailure(message: String) {
-                                viewModel.onIntent(AuthIntent.GoogleFailure(message))
+                            override fun onFailure(errorCode: String) {
+                                viewModel.onIntent(AuthIntent.GoogleFailure(errorCode))
                             }
 
                             override fun onCancelled() {
@@ -107,7 +107,7 @@ private fun AuthContent(
                 title = stringResource(Res.string.auth_form_title),
                 supporting = stringResource(Res.string.auth_form_supporting),
             )
-            AuthInlineError(message = state.formError)
+            AuthInlineError(message = state.formError.toErrorMessage())
             KupioOutlinedTextField(
                 value = state.email,
                 onValueChange = { onIntent(AuthIntent.EmailChanged(it)) },

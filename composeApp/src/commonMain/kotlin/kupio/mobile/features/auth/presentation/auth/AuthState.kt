@@ -14,6 +14,7 @@ sealed interface AuthIntent : UiAction {
     data class ModeSelected(val mode: AuthMode) : AuthIntent
     data class EmailChanged(val value: String) : AuthIntent
     data class PasswordChanged(val value: String) : AuthIntent
+    data class ConfirmPasswordChanged(val value: String) : AuthIntent
     data class UsernameChanged(val value: String) : AuthIntent
     data object GoogleClicked : AuthIntent
     data object GoogleCancelled : AuthIntent
@@ -30,9 +31,11 @@ data class AuthState(
     val mode: AuthMode = AuthMode.LOGIN,
     val email: String = "",
     val password: String = "",
+    val confirmPassword: String = "",
     val username: String = "",
     val emailError: FieldValidationError? = null,
     val passwordError: FieldValidationError? = null,
+    val confirmPasswordError: FieldValidationError? = null,
     val usernameError: FieldValidationError? = null,
     val formError: String? = null,
     val isSubmitting: Boolean = false,

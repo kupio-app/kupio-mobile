@@ -26,6 +26,17 @@ class AuthValidator {
         }
     }
 
+    fun validateConfirmPassword(
+        password: String,
+        confirmPassword: String,
+    ): FieldValidationError? {
+        return when {
+            confirmPassword.isBlank() -> FieldValidationError.Required
+            confirmPassword != password -> FieldValidationError.PasswordsDoNotMatch
+            else -> null
+        }
+    }
+
     fun validateUsername(
         rawValue: String,
     ): FieldValidationError? {

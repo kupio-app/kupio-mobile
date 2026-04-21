@@ -22,6 +22,7 @@
     <string name="auth_entry_subtitle">Prihlás sa alebo si vytvor účet a pokračuj v nakupovaní a predaji na Kupio.</string>
     <string name="auth_email_placeholder">ty@example.com</string>
     <string name="auth_password_placeholder">Zadaj svoje heslo</string>
+    <string name="auth_confirm_password_placeholder">Zopakuj svoje heslo</string>
     <string name="auth_username_placeholder">Vyber si používateľské meno</string>
     <string name="auth_form_title">Prihlás sa alebo si vytvor účet</string>
     <string name="auth_form_supporting">Použi e-mail a heslo alebo pokračuj cez Google.</string>
@@ -30,6 +31,7 @@
     <string name="auth_username_supporting">Neskôr ho môžeš zmeniť v nastaveniach profilu.</string>
     <string name="auth_email">E-mail</string>
     <string name="auth_password">Heslo</string>
+    <string name="auth_confirm_password">Potvrď heslo</string>
     <string name="auth_username">Používateľské meno</string>
     <string name="auth_continue">Pokračovať</string>
     <string name="auth_or">alebo</string>
@@ -39,6 +41,7 @@
     <string name="auth_error_required">Toto pole je povinné.</string>
     <string name="auth_error_email_invalid">Zadaj platnú e-mailovú adresu.</string>
     <string name="auth_error_password_short">Heslo musí mať aspoň 8 znakov.</string>
+    <string name="auth_error_passwords_do_not_match">Heslá sa nezhodujú.</string>
     <string name="auth_error_username_short">Používateľské meno musí mať aspoň 3 znaky.</string>
     <string name="auth_error_username_long">Používateľské meno môže mať najviac 50 znakov.</string>
     <string name="auth_one_last_step">Ešte jeden krok</string>

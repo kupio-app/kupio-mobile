@@ -33,6 +33,7 @@ class AuthViewModel(
             is AuthIntent.ModeSelected -> updateMode(intent.mode)
             is AuthIntent.EmailChanged -> updateEmail(intent.value)
             is AuthIntent.PasswordChanged -> updatePassword(intent.value)
+            is AuthIntent.ConfirmPasswordChanged -> updateConfirmPassword(intent.value)
             is AuthIntent.UsernameChanged -> updateUsername(intent.value)
             AuthIntent.GoogleCancelled -> resetGoogleSubmission()
             AuthIntent.GoogleClicked -> requestGoogleSignIn()
@@ -50,8 +51,11 @@ class AuthViewModel(
         _state.update {
             it.copy(
                 mode = mode,
+                confirmPassword = if (mode == AuthMode.LOGIN) "" else it.confirmPassword,
+                username = if (mode == AuthMode.LOGIN) "" else it.username,
                 emailError = null,
                 passwordError = null,
+                confirmPasswordError = null,
                 usernameError = null,
                 formError = null,
                 isSubmitting = false,
@@ -83,6 +87,21 @@ class AuthViewModel(
             it.copy(
                 password = value,
                 passwordError = null,
+                confirmPasswordError = null,
+                formError = null,
+            )
+        }
+    }
+
+    private fun updateConfirmPassword(
+        value: String,
+    ) {
+        if (_state.value.confirmPassword == value) return
+
+        _state.update {
+            it.copy(
+                confirmPassword = value,
+                confirmPasswordError = null,
                 formError = null,
             )
         }
@@ -108,17 +127,26 @@ class AuthViewModel(
 
         val emailError = authValidator.validateEmail(currentState.email)
         val passwordError = authValidator.validatePassword(currentState.password)
+        val confirmPasswordError = if (currentState.mode == AuthMode.REGISTER) {
+            authValidator.validateConfirmPassword(
+                password = currentState.password,
+                confirmPassword = currentState.confirmPassword,
+            )
+        } else {
+            null
+        }
         val usernameError = if (currentState.mode == AuthMode.REGISTER) {
             authValidator.validateUsername(currentState.username)
         } else {
             null
         }
 
-        if (emailError != null || passwordError != null || usernameError != null) {
+        if (emailError != null || passwordError != null || confirmPasswordError != null || usernameError != null) {
             _state.update {
                 it.copy(
                     emailError = emailError,
                     passwordError = passwordError,
+                    confirmPasswordError = confirmPasswordError,
                     usernameError = usernameError,
                     formError = null,
                 )

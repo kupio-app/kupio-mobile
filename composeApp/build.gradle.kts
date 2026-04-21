@@ -1,5 +1,23 @@
+import org.gradle.api.DefaultTask
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.TaskAction
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
+
+abstract class ValidateReleaseRuntimeConfigTask : DefaultTask() {
+    @get:Input
+    abstract val requiredConfig: MapProperty<String, String>
+
+    @TaskAction
+    fun validate() {
+        val missing = requiredConfig.get().filterValues { it.isBlank() }.keys
+        check(missing.isEmpty()) {
+            "Missing release runtime config: ${missing.joinToString()}. " +
+                "Set them via Gradle properties, environment variables, or local.properties."
+        }
+    }
+}
 
 val localProperties = Properties().apply {
     val file = rootProject.file("local.properties")
@@ -27,27 +45,27 @@ val releaseRuntimeConfigNames = listOf(
     "KUPIO_GOOGLE_SERVER_CLIENT_ID",
 )
 
-gradle.taskGraph.whenReady {
-    val validatesReleaseRuntimeConfig = allTasks.any { task ->
-        task.path == ":composeApp:assembleRelease" ||
-            task.path == ":composeApp:bundleRelease" ||
-            task.path == ":composeApp:packageRelease"
-    }
-    if (validatesReleaseRuntimeConfig) {
-        val missing = releaseRuntimeConfigNames.filter { runtimeConfigValue(it).isBlank() }
-        check(missing.isEmpty()) {
-            "Missing release runtime config: ${missing.joinToString()}. " +
-                "Set them via Gradle properties, environment variables, or local.properties."
-        }
-    }
-}
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
+}
+
+val validateReleaseRuntimeConfig by tasks.registering(ValidateReleaseRuntimeConfigTask::class) {
+    group = "verification"
+    description = "Fails release Android builds when required runtime config is missing."
+    requiredConfig.set(
+        releaseRuntimeConfigNames.associateWith { runtimeConfigValue(it) },
+    )
+}
+
+tasks.matching { task ->
+    task.name.endsWith("Release") &&
+        listOf("assemble", "bundle", "package").any { prefix -> task.name.startsWith(prefix) }
+}.configureEach {
+    dependsOn(validateReleaseRuntimeConfig)
 }
 
 kotlin {

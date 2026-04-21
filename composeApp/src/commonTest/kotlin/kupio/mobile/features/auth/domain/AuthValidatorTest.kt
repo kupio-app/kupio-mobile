@@ -23,6 +23,22 @@ class AuthValidatorTest {
     }
 
     @Test
+    fun `confirm password validation requires matching password`() {
+        assertEquals(
+            FieldValidationError.Required,
+            validator.validateConfirmPassword(password = "password123", confirmPassword = ""),
+        )
+        assertEquals(
+            FieldValidationError.PasswordsDoNotMatch,
+            validator.validateConfirmPassword(password = "password123", confirmPassword = "password124"),
+        )
+        assertEquals(
+            null,
+            validator.validateConfirmPassword(password = "password123", confirmPassword = "password123"),
+        )
+    }
+
+    @Test
     fun `username validation follows openapi length bounds`() {
         assertEquals(FieldValidationError.Required, validator.validateUsername(""))
         assertEquals(FieldValidationError.UsernameTooShort, validator.validateUsername("ab"))

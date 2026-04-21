@@ -6,6 +6,7 @@ import kupio.mobile.features.auth.domain.model.FieldValidationError
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.auth_error_email_invalid
 import mobile.composeapp.generated.resources.auth_error_password_short
+import mobile.composeapp.generated.resources.auth_error_passwords_do_not_match
 import mobile.composeapp.generated.resources.auth_error_required
 import mobile.composeapp.generated.resources.auth_error_username_long
 import mobile.composeapp.generated.resources.auth_error_username_short
@@ -76,6 +77,7 @@ internal fun FieldValidationError?.toErrorMessage(): String? {
     return when (this) {
         FieldValidationError.InvalidEmail -> stringResource(Res.string.auth_error_email_invalid)
         FieldValidationError.PasswordTooShort -> stringResource(Res.string.auth_error_password_short)
+        FieldValidationError.PasswordsDoNotMatch -> stringResource(Res.string.auth_error_passwords_do_not_match)
         FieldValidationError.Required -> stringResource(Res.string.auth_error_required)
         FieldValidationError.UsernameTooLong -> stringResource(Res.string.auth_error_username_long)
         FieldValidationError.UsernameTooShort -> stringResource(Res.string.auth_error_username_short)

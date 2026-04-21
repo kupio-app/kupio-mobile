@@ -59,10 +59,41 @@ class AuthViewModelTest {
         viewModel.onIntent(AuthIntent.ModeSelected(AuthMode.REGISTER))
         viewModel.onIntent(AuthIntent.EmailChanged("hello@kupio.dev"))
         viewModel.onIntent(AuthIntent.PasswordChanged("password123"))
+        viewModel.onIntent(AuthIntent.ConfirmPasswordChanged("password123"))
         viewModel.onIntent(AuthIntent.UsernameChanged("ab"))
         viewModel.onIntent(AuthIntent.SubmitClicked)
 
         assertEquals(FieldValidationError.UsernameTooShort, viewModel.state.value.usernameError)
+    }
+
+    @Test
+    fun `register validates confirm password before submit`() = runTest(dispatcher) {
+        val repository = FakeAuthRepository()
+        val viewModel = createViewModel(repository = repository)
+
+        viewModel.onIntent(AuthIntent.ModeSelected(AuthMode.REGISTER))
+        viewModel.onIntent(AuthIntent.EmailChanged("hello@kupio.dev"))
+        viewModel.onIntent(AuthIntent.PasswordChanged("password123"))
+        viewModel.onIntent(AuthIntent.ConfirmPasswordChanged("password124"))
+        viewModel.onIntent(AuthIntent.UsernameChanged("kupio"))
+        viewModel.onIntent(AuthIntent.SubmitClicked)
+        advanceUntilIdle()
+
+        assertEquals(FieldValidationError.PasswordsDoNotMatch, viewModel.state.value.confirmPasswordError)
+        assertEquals(0, repository.registerCalls)
+    }
+
+    @Test
+    fun `mode switch to login clears register only fields`() = runTest(dispatcher) {
+        val viewModel = createViewModel()
+
+        viewModel.onIntent(AuthIntent.ModeSelected(AuthMode.REGISTER))
+        viewModel.onIntent(AuthIntent.ConfirmPasswordChanged("password123"))
+        viewModel.onIntent(AuthIntent.UsernameChanged("kupio"))
+        viewModel.onIntent(AuthIntent.ModeSelected(AuthMode.LOGIN))
+
+        assertEquals("", viewModel.state.value.confirmPassword)
+        assertEquals("", viewModel.state.value.username)
     }
 
     @Test
@@ -104,6 +135,7 @@ class AuthViewModelTest {
         viewModel.onIntent(AuthIntent.ModeSelected(AuthMode.REGISTER))
         viewModel.onIntent(AuthIntent.EmailChanged("hello@kupio.dev"))
         viewModel.onIntent(AuthIntent.PasswordChanged("password123"))
+        viewModel.onIntent(AuthIntent.ConfirmPasswordChanged("password123"))
         viewModel.onIntent(AuthIntent.UsernameChanged("ab"))
         viewModel.onIntent(AuthIntent.SubmitClicked)
         advanceUntilIdle()
@@ -127,6 +159,7 @@ class AuthViewModelTest {
         viewModel.onIntent(AuthIntent.ModeSelected(AuthMode.REGISTER))
         viewModel.onIntent(AuthIntent.EmailChanged("hello@kupio.dev"))
         viewModel.onIntent(AuthIntent.PasswordChanged("password123"))
+        viewModel.onIntent(AuthIntent.ConfirmPasswordChanged("password123"))
         viewModel.onIntent(AuthIntent.UsernameChanged("kupio"))
         viewModel.onIntent(AuthIntent.SubmitClicked)
         advanceUntilIdle()
@@ -170,9 +203,12 @@ class AuthViewModelTest {
     private class FakeAuthRepository(
         private val registerError: Throwable? = null,
     ) : AuthRepository {
+        var registerCalls: Int = 0
+
         override suspend fun login(email: String, password: String): AuthSession = SampleSession
 
         override suspend fun register(email: String, password: String, username: String): AuthSession {
+            registerCalls += 1
             registerError?.let { throw it }
             return SampleSession
         }

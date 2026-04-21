@@ -5,9 +5,11 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -29,6 +31,8 @@ import mobile.composeapp.generated.resources.auth_continue
 import mobile.composeapp.generated.resources.auth_create_account
 import mobile.composeapp.generated.resources.auth_email
 import mobile.composeapp.generated.resources.auth_email_placeholder
+import mobile.composeapp.generated.resources.auth_confirm_password
+import mobile.composeapp.generated.resources.auth_confirm_password_placeholder
 import mobile.composeapp.generated.resources.auth_form_supporting
 import mobile.composeapp.generated.resources.auth_form_title
 import mobile.composeapp.generated.resources.auth_google
@@ -132,17 +136,33 @@ private fun AuthContent(
                 enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
                 exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
             ) {
-                KupioOutlinedTextField(
-                    value = state.username,
-                    onValueChange = { onIntent(AuthIntent.UsernameChanged(it)) },
-                    label = stringResource(Res.string.auth_username),
-                    placeholder = stringResource(Res.string.auth_username_placeholder),
-                    errorMessage = state.usernameError.toErrorMessage(),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Done,
-                    ),
-                )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(metrics.sectionSpacing),
+                ) {
+                    KupioOutlinedTextField(
+                        value = state.confirmPassword,
+                        onValueChange = { onIntent(AuthIntent.ConfirmPasswordChanged(it)) },
+                        label = stringResource(Res.string.auth_confirm_password),
+                        placeholder = stringResource(Res.string.auth_confirm_password_placeholder),
+                        errorMessage = state.confirmPasswordError.toErrorMessage(),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Next,
+                        ),
+                        visualTransformation = PasswordVisualTransformation(),
+                    )
+                    KupioOutlinedTextField(
+                        value = state.username,
+                        onValueChange = { onIntent(AuthIntent.UsernameChanged(it)) },
+                        label = stringResource(Res.string.auth_username),
+                        placeholder = stringResource(Res.string.auth_username_placeholder),
+                        errorMessage = state.usernameError.toErrorMessage(),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Done,
+                        ),
+                    )
+                }
             }
             KupioPrimaryButton(
                 text = submitLabel,

@@ -62,7 +62,7 @@ class SettingsViewModelTest {
 
         assertEquals(1, authRepository.logoutCalls)
         assertEquals(SessionState.SignedOut, sessionManager.sessionState.value)
-        assertEquals(true, viewModel.state.value.isSigningOut)
+        assertEquals(false, viewModel.state.value.isSigningOut)
         assertEquals(null, secureSessionStore.readSession())
     }
 

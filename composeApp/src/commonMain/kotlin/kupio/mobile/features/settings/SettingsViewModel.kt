@@ -76,6 +76,8 @@ class SettingsViewModel(
             _state.value = _state.value.copy(isSigningOut = true)
             runCatching {
                 sessionManager.signOut()
+            }.onSuccess {
+                _state.value = _state.value.copy(isSigningOut = false)
             }.onFailure {
                 _state.value = _state.value.copy(isSigningOut = false)
             }

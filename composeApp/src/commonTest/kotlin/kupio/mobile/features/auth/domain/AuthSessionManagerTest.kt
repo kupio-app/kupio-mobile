@@ -4,6 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.test.runTest
 import kupio.mobile.features.auth.domain.model.AuthSession
+import kupio.mobile.features.auth.domain.model.AuthSessionExpiredException
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.repository.AuthRepository
@@ -29,7 +30,7 @@ class AuthSessionManagerTest {
         val manager = createManager(
             secureSessionStore = secureSessionStore,
             repository = FakeAuthRepository(
-                refreshError = IllegalStateException("refresh failed"),
+                refreshError = AuthSessionExpiredException(),
             ),
         )
 
@@ -37,6 +38,23 @@ class AuthSessionManagerTest {
 
         assertEquals(SessionState.SignedOut, manager.sessionState.value)
         assertEquals(null, secureSessionStore.readSession())
+    }
+
+    @Test
+    fun `bootstrap keeps session when refresh fails transiently`() = runTest {
+        val storedSession = sampleSession()
+        val secureSessionStore = FakeSecureSessionStore(session = storedSession)
+        val manager = createManager(
+            secureSessionStore = secureSessionStore,
+            repository = FakeAuthRepository(
+                refreshError = IllegalStateException("network unavailable"),
+            ),
+        )
+
+        manager.bootstrap()
+
+        assertEquals(SessionState.SignedOut, manager.sessionState.value)
+        assertEquals(storedSession, secureSessionStore.readSession())
     }
 
     @Test
@@ -74,6 +92,41 @@ class AuthSessionManagerTest {
             SessionState.SignedIn(sampleUser(needsUsername = false)),
             manager.sessionState.value,
         )
+    }
+
+    @Test
+    fun `establish session keeps tokens when current user fails transiently`() = runTest {
+        val secureSessionStore = FakeSecureSessionStore()
+        val manager = createManager(
+            secureSessionStore = secureSessionStore,
+            repository = FakeAuthRepository(
+                currentUserError = IllegalStateException("server unavailable"),
+            ),
+        )
+
+        kotlin.test.assertFailsWith<IllegalStateException> {
+            manager.establishSession(sampleSession())
+        }
+
+        assertEquals(sampleSession(), secureSessionStore.readSession())
+    }
+
+    @Test
+    fun `establish session clears tokens when current user session expired`() = runTest {
+        val secureSessionStore = FakeSecureSessionStore()
+        val manager = createManager(
+            secureSessionStore = secureSessionStore,
+            repository = FakeAuthRepository(
+                currentUserError = AuthSessionExpiredException(),
+            ),
+        )
+
+        kotlin.test.assertFailsWith<AuthSessionExpiredException> {
+            manager.establishSession(sampleSession())
+        }
+
+        assertEquals(null, secureSessionStore.readSession())
+        assertEquals(SessionState.SignedOut, manager.sessionState.value)
     }
 
     @Test
@@ -161,6 +214,7 @@ class AuthSessionManagerTest {
             avatarUrl = null,
         ),
         private val refreshError: Throwable? = null,
+        private val currentUserError: Throwable? = null,
         private val logoutError: Throwable? = null,
     ) : AuthRepository {
         var logoutCalls: Int = 0
@@ -177,7 +231,10 @@ class AuthSessionManagerTest {
             return refreshedSession
         }
 
-        override suspend fun getCurrentUser(): AuthenticatedUser = currentUser
+        override suspend fun getCurrentUser(): AuthenticatedUser {
+            currentUserError?.let { throw it }
+            return currentUser
+        }
 
         override suspend fun setUsername(username: String): AuthenticatedUser = currentUser.copy(
             username = username,

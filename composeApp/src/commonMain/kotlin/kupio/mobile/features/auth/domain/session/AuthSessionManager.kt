@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kupio.mobile.features.auth.domain.model.AuthSession
+import kupio.mobile.features.auth.domain.model.AuthSessionExpiredException
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.repository.AuthRepository
@@ -27,8 +28,10 @@ class AuthSessionManager(
         try {
             val refreshedSession = authRepository.refreshSession()
             establishSession(refreshedSession)
-        } catch (_: Throwable) {
+        } catch (_: AuthSessionExpiredException) {
             clearPersistedSession()
+        } catch (_: Throwable) {
+            _sessionState.value = SessionState.SignedOut
         }
     }
 
@@ -39,7 +42,9 @@ class AuthSessionManager(
         val user = runCatching {
             authRepository.getCurrentUser()
         }.getOrElse { throwable ->
-            clearPersistedSession()
+            if (throwable is AuthSessionExpiredException) {
+                clearPersistedSession()
+            }
             throw throwable
         }
 

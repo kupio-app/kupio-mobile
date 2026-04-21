@@ -97,6 +97,36 @@ class AuthViewModelTest {
     }
 
     @Test
+    fun `sign out transition clears retained form input`() = runTest(dispatcher) {
+        val repository = FakeAuthRepository()
+        val sessionManager = AuthSessionManager(
+            authRepository = repository,
+            secureSessionStore = FakeSecureSessionStore(),
+            sessionStateResolver = SessionStateResolver(),
+        )
+        val viewModel = createViewModel(
+            repository = repository,
+            sessionManager = sessionManager,
+        )
+
+        viewModel.onIntent(AuthIntent.EmailChanged("hello@kupio.dev"))
+        viewModel.onIntent(AuthIntent.PasswordChanged("password123"))
+        viewModel.onIntent(AuthIntent.ModeSelected(AuthMode.REGISTER))
+        viewModel.onIntent(AuthIntent.ConfirmPasswordChanged("password123"))
+        viewModel.onIntent(AuthIntent.UsernameChanged("kupio"))
+        sessionManager.establishSession(SampleSession)
+        advanceUntilIdle()
+        sessionManager.signOut()
+        advanceUntilIdle()
+
+        assertEquals(AuthMode.LOGIN, viewModel.state.value.mode)
+        assertEquals("", viewModel.state.value.email)
+        assertEquals("", viewModel.state.value.password)
+        assertEquals("", viewModel.state.value.confirmPassword)
+        assertEquals("", viewModel.state.value.username)
+    }
+
+    @Test
     fun `google click emits launch effect and toggles loading state`() = runTest(dispatcher) {
         val viewModel = createViewModel()
 

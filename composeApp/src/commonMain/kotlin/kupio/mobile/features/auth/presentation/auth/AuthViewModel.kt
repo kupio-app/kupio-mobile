@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kupio.mobile.core.network.ApiException
 import kupio.mobile.features.auth.domain.model.AuthSession
+import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.auth.domain.validation.AuthValidator
@@ -25,6 +26,18 @@ class AuthViewModel(
 
     private val effectChannel = Channel<AuthEffect>(Channel.BUFFERED)
     val effects: Flow<AuthEffect> = effectChannel.receiveAsFlow()
+
+    init {
+        viewModelScope.launch {
+            var previousState = sessionManager.sessionState.value
+            sessionManager.sessionState.collect { sessionState ->
+                if (previousState != SessionState.SignedOut && sessionState == SessionState.SignedOut) {
+                    resetForm()
+                }
+                previousState = sessionState
+            }
+        }
+    }
 
     fun onIntent(
         intent: AuthIntent,
@@ -41,6 +54,11 @@ class AuthViewModel(
             is AuthIntent.GoogleSuccess -> submitGoogleIdToken(intent.idToken)
             AuthIntent.SubmitClicked -> submit()
         }
+    }
+
+    private fun resetForm() {
+        if (_state.value == AuthState()) return
+        _state.value = AuthState()
     }
 
     private fun updateMode(

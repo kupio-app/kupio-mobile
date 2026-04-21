@@ -1,5 +1,46 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.isFile) {
+        file.inputStream().use(::load)
+    }
+}
+
+fun runtimeConfigValue(
+    name: String,
+    debugDefault: String = "",
+): String {
+    return providers.gradleProperty(name).orNull
+        ?: providers.environmentVariable(name).orNull
+        ?: localProperties.getProperty(name)
+        ?: debugDefault
+}
+
+fun String.asBuildConfigString(): String {
+    return "\"${replace("\\", "\\\\").replace("\"", "\\\"")}\""
+}
+
+val releaseRuntimeConfigNames = listOf(
+    "KUPIO_BACKEND_BASE_URL",
+    "KUPIO_GOOGLE_SERVER_CLIENT_ID",
+)
+
+gradle.taskGraph.whenReady {
+    val validatesReleaseRuntimeConfig = allTasks.any { task ->
+        task.path == ":composeApp:assembleRelease" ||
+            task.path == ":composeApp:bundleRelease" ||
+            task.path == ":composeApp:packageRelease"
+    }
+    if (validatesReleaseRuntimeConfig) {
+        val missing = releaseRuntimeConfigNames.filter { runtimeConfigValue(it).isBlank() }
+        check(missing.isEmpty()) {
+            "Missing release runtime config: ${missing.joinToString()}. " +
+                "Set them via Gradle properties, environment variables, or local.properties."
+        }
+    }
+}
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -83,8 +124,6 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("String", "KUPIO_BACKEND_BASE_URL", "\"http://10.0.2.2:9988\"")
-        buildConfigField("String", "KUPIO_GOOGLE_SERVER_CLIENT_ID", "\"905374249912-bn3cog47744hbor0dgbk1p8u6h0e1uer.apps.googleusercontent.com\"")
     }
     packaging {
         resources {
@@ -92,8 +131,36 @@ android {
         }
     }
     buildTypes {
+        getByName("debug") {
+            buildConfigField(
+                "String",
+                "KUPIO_BACKEND_BASE_URL",
+                runtimeConfigValue(
+                    name = "KUPIO_BACKEND_BASE_URL",
+                    debugDefault = "http://10.0.2.2:9988",
+                ).asBuildConfigString(),
+            )
+            buildConfigField(
+                "String",
+                "KUPIO_GOOGLE_SERVER_CLIENT_ID",
+                runtimeConfigValue(
+                    name = "KUPIO_GOOGLE_SERVER_CLIENT_ID",
+                    debugDefault = "",
+                ).asBuildConfigString(),
+            )
+        }
         getByName("release") {
             isMinifyEnabled = false
+            buildConfigField(
+                "String",
+                "KUPIO_BACKEND_BASE_URL",
+                runtimeConfigValue("KUPIO_BACKEND_BASE_URL").asBuildConfigString(),
+            )
+            buildConfigField(
+                "String",
+                "KUPIO_GOOGLE_SERVER_CLIENT_ID",
+                runtimeConfigValue("KUPIO_GOOGLE_SERVER_CLIENT_ID").asBuildConfigString(),
+            )
         }
     }
     compileOptions {

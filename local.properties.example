@@ -1,0 +1,3 @@
+# Android local runtime config. Copy to local.properties and keep local.properties untracked.
+KUPIO_BACKEND_BASE_URL=http://10.0.2.2:9988
+KUPIO_GOOGLE_SERVER_CLIENT_ID=

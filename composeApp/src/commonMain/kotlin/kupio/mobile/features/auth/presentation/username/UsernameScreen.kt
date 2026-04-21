@@ -7,11 +7,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.screen.Screen
+import kupio.mobile.core.designsystem.KupioOutlinedTextField
+import kupio.mobile.core.designsystem.KupioPrimaryButton
 import kupio.mobile.features.auth.presentation.auth.components.AuthCardHeader
 import kupio.mobile.features.auth.presentation.auth.components.AuthInlineError
-import kupio.mobile.features.auth.presentation.auth.components.AuthPrimaryButton
 import kupio.mobile.features.auth.presentation.auth.components.AuthShell
-import kupio.mobile.features.auth.presentation.auth.components.AuthTextField
 import kupio.mobile.features.auth.presentation.auth.components.AuthViewport
 import kupio.mobile.features.auth.presentation.auth.toErrorMessage
 import mobile.composeapp.generated.resources.Res
@@ -53,7 +53,7 @@ private fun UsernameContent(
                 },
             )
             AuthInlineError(message = state.formError)
-            AuthTextField(
+            KupioOutlinedTextField(
                 value = state.username,
                 onValueChange = { onIntent(UsernameIntent.UsernameChanged(it)) },
                 label = stringResource(Res.string.auth_username),
@@ -64,7 +64,7 @@ private fun UsernameContent(
                     imeAction = ImeAction.Done,
                 ),
             )
-            AuthPrimaryButton(
+            KupioPrimaryButton(
                 text = stringResource(Res.string.auth_continue),
                 loading = state.isSubmitting,
                 enabled = !state.isSubmitting,

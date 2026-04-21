@@ -14,15 +14,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
+import kupio.mobile.core.designsystem.KupioLabeledDivider
+import kupio.mobile.core.designsystem.KupioOutlinedLoadingButton
+import kupio.mobile.core.designsystem.KupioOutlinedTextField
+import kupio.mobile.core.designsystem.KupioPrimaryButton
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.auth.presentation.auth.components.AuthCardHeader
-import kupio.mobile.features.auth.presentation.auth.components.AuthDivider
-import kupio.mobile.features.auth.presentation.auth.components.AuthGoogleButton
 import kupio.mobile.features.auth.presentation.auth.components.AuthInlineError
 import kupio.mobile.features.auth.presentation.auth.components.AuthModeSelector
-import kupio.mobile.features.auth.presentation.auth.components.AuthPrimaryButton
 import kupio.mobile.features.auth.presentation.auth.components.AuthShell
-import kupio.mobile.features.auth.presentation.auth.components.AuthTextField
 import kupio.mobile.features.auth.presentation.auth.components.AuthViewport
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.auth_continue
@@ -104,7 +104,7 @@ private fun AuthContent(
                 supporting = stringResource(Res.string.auth_form_supporting),
             )
             AuthInlineError(message = state.formError)
-            AuthTextField(
+            KupioOutlinedTextField(
                 value = state.email,
                 onValueChange = { onIntent(AuthIntent.EmailChanged(it)) },
                 label = stringResource(Res.string.auth_email),
@@ -115,7 +115,7 @@ private fun AuthContent(
                     imeAction = ImeAction.Next,
                 ),
             )
-            AuthTextField(
+            KupioOutlinedTextField(
                 value = state.password,
                 onValueChange = { onIntent(AuthIntent.PasswordChanged(it)) },
                 label = stringResource(Res.string.auth_password),
@@ -132,7 +132,7 @@ private fun AuthContent(
                 enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
                 exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
             ) {
-                AuthTextField(
+                KupioOutlinedTextField(
                     value = state.username,
                     onValueChange = { onIntent(AuthIntent.UsernameChanged(it)) },
                     label = stringResource(Res.string.auth_username),
@@ -144,14 +144,14 @@ private fun AuthContent(
                     ),
                 )
             }
-            AuthPrimaryButton(
+            KupioPrimaryButton(
                 text = submitLabel,
                 loading = state.isSubmitting,
                 enabled = !state.isBusy,
                 onClick = { onIntent(AuthIntent.SubmitClicked) },
             )
-            AuthDivider(text = stringResource(Res.string.auth_or))
-            AuthGoogleButton(
+            KupioLabeledDivider(text = stringResource(Res.string.auth_or))
+            KupioOutlinedLoadingButton(
                 text = stringResource(Res.string.auth_google),
                 loading = state.isGoogleSubmitting,
                 enabled = !state.isBusy,

@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
@@ -54,17 +53,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import kupio.mobile.core.designsystem.KupioCardSurface
-import kupio.mobile.core.designsystem.KupioLabeledDivider
-import kupio.mobile.core.designsystem.KupioOutlinedLoadingButton
-import kupio.mobile.core.designsystem.KupioOutlinedTextField
-import kupio.mobile.core.designsystem.KupioPrimaryButton
 import kupio.mobile.features.auth.presentation.auth.AuthMode
 import kotlin.math.roundToInt
 
@@ -409,66 +403,6 @@ private fun AuthModeSegment(
             },
         )
     }
-}
-
-@Composable
-fun AuthTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    placeholder: String,
-    errorMessage: String?,
-    keyboardOptions: KeyboardOptions,
-    modifier: Modifier = Modifier,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-) {
-    KupioOutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = label,
-        placeholder = placeholder,
-        errorMessage = errorMessage,
-        keyboardOptions = keyboardOptions,
-        modifier = modifier,
-        visualTransformation = visualTransformation,
-    )
-}
-
-@Composable
-fun AuthPrimaryButton(
-    text: String,
-    loading: Boolean,
-    enabled: Boolean,
-    onClick: () -> Unit,
-) {
-    KupioPrimaryButton(
-        text = text,
-        onClick = onClick,
-        loading = loading,
-        enabled = enabled,
-    )
-}
-
-@Composable
-fun AuthDivider(
-    text: String,
-) {
-    KupioLabeledDivider(text = text)
-}
-
-@Composable
-fun AuthGoogleButton(
-    text: String,
-    loading: Boolean,
-    enabled: Boolean,
-    onClick: () -> Unit,
-) {
-    KupioOutlinedLoadingButton(
-        text = text,
-        onClick = onClick,
-        loading = loading,
-        enabled = enabled,
-    )
 }
 
 @Composable

@@ -10,6 +10,12 @@ import mobile.composeapp.generated.resources.auth_error_passwords_do_not_match
 import mobile.composeapp.generated.resources.auth_error_required
 import mobile.composeapp.generated.resources.auth_error_username_long
 import mobile.composeapp.generated.resources.auth_error_username_short
+import mobile.composeapp.generated.resources.auth_google_error_activity_unavailable
+import mobile.composeapp.generated.resources.auth_google_error_failed
+import mobile.composeapp.generated.resources.auth_google_error_invalid_response
+import mobile.composeapp.generated.resources.auth_google_error_missing_id_token
+import mobile.composeapp.generated.resources.auth_google_error_no_credential
+import mobile.composeapp.generated.resources.auth_google_error_not_configured
 import org.jetbrains.compose.resources.stringResource
 
 internal data class AuthFieldErrors(
@@ -82,6 +88,29 @@ internal fun FieldValidationError?.toErrorMessage(): String? {
         FieldValidationError.UsernameTooLong -> stringResource(Res.string.auth_error_username_long)
         FieldValidationError.UsernameTooShort -> stringResource(Res.string.auth_error_username_short)
         null -> null
+    }
+}
+
+@Composable
+internal fun AuthFormError?.toErrorMessage(): String? {
+    return when (this) {
+        is AuthFormError.Text -> message
+        is AuthFormError.GoogleSignIn -> googleSignInErrorMessage(errorCode)
+        null -> null
+    }
+}
+
+@Composable
+private fun googleSignInErrorMessage(
+    errorCode: String,
+): String {
+    return when (errorCode) {
+        GoogleSignInFailureCode.NotConfigured -> stringResource(Res.string.auth_google_error_not_configured)
+        GoogleSignInFailureCode.ActivityUnavailable -> stringResource(Res.string.auth_google_error_activity_unavailable)
+        GoogleSignInFailureCode.MissingIdToken -> stringResource(Res.string.auth_google_error_missing_id_token)
+        GoogleSignInFailureCode.NoCredential -> stringResource(Res.string.auth_google_error_no_credential)
+        GoogleSignInFailureCode.InvalidResponse -> stringResource(Res.string.auth_google_error_invalid_response)
+        else -> stringResource(Res.string.auth_google_error_failed)
     }
 }
 

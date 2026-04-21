@@ -41,12 +41,12 @@ private class AndroidGoogleSignInLauncher(
         val currentActivity = activity
         if (currentActivity == null) {
             Log.e(GoogleSignInTag, "Cannot launch Google sign-in without an activity")
-            callback.onFailure("Google sign-in requires an Android activity.")
+            callback.onFailure(GoogleSignInFailureCode.ActivityUnavailable)
             return
         }
         if (BuildConfig.KUPIO_GOOGLE_SERVER_CLIENT_ID.isBlank()) {
             Log.e(GoogleSignInTag, "Missing server client id in BuildConfig")
-            callback.onFailure("Set KUPIO_GOOGLE_SERVER_CLIENT_ID before using Google sign-in.")
+            callback.onFailure(GoogleSignInFailureCode.NotConfigured)
             return
         }
 
@@ -75,36 +75,39 @@ private class AndroidGoogleSignInLauncher(
                     val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
                     val idToken = googleCredential.idToken
                     if (idToken.isBlank()) {
-                        callback.onFailure("Google did not return an ID token.")
+                        callback.onFailure(GoogleSignInFailureCode.MissingIdToken)
                     } else {
                         callback.onSuccess(idToken)
                     }
                 } else {
-                    callback.onFailure("Unsupported Google credential type: ${credential.type}")
+                    Log.e(GoogleSignInTag, "Unsupported Google credential type: ${credential.type}")
+                    callback.onFailure(GoogleSignInFailureCode.InvalidResponse)
                 }
             } catch (exception: GetCredentialCancellationException) {
                 val message = exception.message.orEmpty()
                 if (message.contains("reauth failed", ignoreCase = true)) {
-                    callback.onFailure(
+                    Log.e(
+                        GoogleSignInTag,
                         "Google account re-authentication failed. " +
                             "Check the Android OAuth app setup for package kupio.mobile " +
                             "and its SHA fingerprints, then try again.",
+                        exception,
                     )
+                    callback.onFailure(GoogleSignInFailureCode.Failed)
                 } else {
                     callback.onCancelled()
                 }
             } catch (exception: NoCredentialException) {
-                callback.onFailure("No Google account is available on this device.")
+                callback.onFailure(GoogleSignInFailureCode.NoCredential)
             } catch (exception: GoogleIdTokenParsingException) {
-                callback.onFailure("Could not parse the Google sign-in response.")
+                Log.e(GoogleSignInTag, "Could not parse the Google sign-in response.", exception)
+                callback.onFailure(GoogleSignInFailureCode.InvalidResponse)
             } catch (exception: GetCredentialException) {
-                callback.onFailure(
-                    exception.message ?: "Google sign-in failed.",
-                )
+                Log.e(GoogleSignInTag, "Google sign-in failed.", exception)
+                callback.onFailure(GoogleSignInFailureCode.Failed)
             } catch (exception: Throwable) {
-                callback.onFailure(
-                    exception.message ?: "Google sign-in failed unexpectedly.",
-                )
+                Log.e(GoogleSignInTag, "Google sign-in failed unexpectedly.", exception)
+                callback.onFailure(GoogleSignInFailureCode.Failed)
             }
         }
     }

@@ -37,7 +37,7 @@ class AuthViewModel(
             is AuthIntent.UsernameChanged -> updateUsername(intent.value)
             AuthIntent.GoogleCancelled -> resetGoogleSubmission()
             AuthIntent.GoogleClicked -> requestGoogleSignIn()
-            is AuthIntent.GoogleFailure -> setGoogleFailure(intent.message)
+            is AuthIntent.GoogleFailure -> setGoogleFailure(intent.errorCode)
             is AuthIntent.GoogleSuccess -> submitGoogleIdToken(intent.idToken)
             AuthIntent.SubmitClicked -> submit()
         }
@@ -192,7 +192,7 @@ class AuthViewModel(
                         _state.update {
                             it.copy(
                                 isSubmitting = false,
-                                formError = message,
+                                formError = AuthFormError.Text(message),
                             )
                         }
                     },
@@ -228,11 +228,11 @@ class AuthViewModel(
     }
 
     private fun setGoogleFailure(
-        message: String,
+        errorCode: String,
     ) {
         _state.update {
             it.copy(
-                formError = message,
+                formError = AuthFormError.GoogleSignIn(errorCode),
                 isGoogleSubmitting = false,
             )
         }
@@ -250,7 +250,7 @@ class AuthViewModel(
                     onFailure = { message ->
                         _state.update {
                             it.copy(
-                                formError = message,
+                                formError = AuthFormError.Text(message),
                                 isGoogleSubmitting = false,
                             )
                         }
@@ -263,7 +263,7 @@ class AuthViewModel(
                 val apiException = throwable as? ApiException
                 _state.update {
                     it.copy(
-                        formError = apiException?.message ?: throwable.toUserMessage(),
+                        formError = AuthFormError.Text(apiException?.message ?: throwable.toUserMessage()),
                         isGoogleSubmitting = false,
                     )
                 }
@@ -299,7 +299,7 @@ class AuthViewModel(
                 formError = if (fieldErrors.hasAny) {
                     null
                 } else {
-                    apiException?.message ?: throwable.toUserMessage()
+                    AuthFormError.Text(apiException?.message ?: throwable.toUserMessage())
                 },
                 isSubmitting = false,
                 isGoogleSubmitting = false,

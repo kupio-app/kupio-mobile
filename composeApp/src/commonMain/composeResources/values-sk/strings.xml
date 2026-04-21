@@ -37,6 +37,12 @@
     <string name="auth_or">alebo</string>
     <string name="auth_google">Pokračovať s Google</string>
     <string name="auth_google_loading">Čaká sa na prihlásenie cez Google…</string>
+    <string name="auth_google_error_not_configured">Prihlásenie cez Google nie je nakonfigurované.</string>
+    <string name="auth_google_error_activity_unavailable">Prihlásenie cez Google teraz nie je možné otvoriť.</string>
+    <string name="auth_google_error_missing_id_token">Google nevrátil platný prihlasovací token.</string>
+    <string name="auth_google_error_no_credential">Na tomto zariadení nie je dostupný žiadny Google účet.</string>
+    <string name="auth_google_error_invalid_response">Google vrátil neplatnú prihlasovaciu odpoveď.</string>
+    <string name="auth_google_error_failed">Prihlásenie cez Google zlyhalo. Skús to znova.</string>
     <string name="auth_bootstrap_failed">Nepodarilo sa obnoviť reláciu. Skontroluj pripojenie a skús to znova.</string>
     <string name="auth_error_required">Toto pole je povinné.</string>
     <string name="auth_error_email_invalid">Zadaj platnú e-mailovú adresu.</string>

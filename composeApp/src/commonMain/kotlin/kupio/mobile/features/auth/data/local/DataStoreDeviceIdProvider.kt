@@ -17,12 +17,12 @@ class DataStoreDeviceIdProvider(
         if (existingValue != null) return existingValue
 
         val generatedValue = randomUuid()
-        dataStore.edit { preferences ->
+        val updatedPreferences = dataStore.edit { preferences ->
             if (preferences[DeviceIdKey] == null) {
                 preferences[DeviceIdKey] = generatedValue
             }
         }
 
-        return dataStore.data.first()[DeviceIdKey] ?: generatedValue
+        return updatedPreferences[DeviceIdKey] ?: generatedValue
     }
 }

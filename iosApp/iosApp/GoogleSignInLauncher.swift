@@ -6,13 +6,13 @@ final class IOSGoogleSignInLauncher: NSObject, GoogleSignInLauncher {
     func signIn(callback: any GoogleSignInCallback) {
         let clientId = configuredClientId()
         guard !clientId.isEmpty else {
-            callback.onFailure(message: "Set KUPIO_GOOGLE_IOS_CLIENT_ID before using Google sign-in.")
+            callback.onFailure(errorCode: "not_configured")
             return
         }
         let serverClientId = configuredServerClientId()
 
         guard let presentingViewController = UIApplication.shared.topViewController() else {
-            callback.onFailure(message: "Unable to open the Google sign-in flow.")
+            callback.onFailure(errorCode: "activity_unavailable")
             return
         }
 
@@ -30,23 +30,25 @@ final class IOSGoogleSignInLauncher: NSObject, GoogleSignInLauncher {
                     return
                 }
 
-                callback.onFailure(message: error.localizedDescription)
+                NSLog("Google sign-in failed: %@", error.localizedDescription)
+                callback.onFailure(errorCode: "failed")
                 return
             }
 
             guard let signInResult else {
-                callback.onFailure(message: "Google sign-in did not return a result.")
+                callback.onFailure(errorCode: "invalid_response")
                 return
             }
 
             signInResult.user.refreshTokensIfNeeded { user, refreshError in
                 if let refreshError {
-                    callback.onFailure(message: refreshError.localizedDescription)
+                    NSLog("Google token refresh failed: %@", refreshError.localizedDescription)
+                    callback.onFailure(errorCode: "failed")
                     return
                 }
 
                 guard let tokenString = user?.idToken?.tokenString, !tokenString.isEmpty else {
-                    callback.onFailure(message: "Google did not return an ID token.")
+                    callback.onFailure(errorCode: "missing_id_token")
                     return
                 }
 

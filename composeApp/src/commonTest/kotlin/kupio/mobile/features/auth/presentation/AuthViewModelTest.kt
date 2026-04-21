@@ -23,10 +23,12 @@ import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.auth.AuthEffect
+import kupio.mobile.features.auth.presentation.auth.AuthFormError
 import kupio.mobile.features.auth.presentation.auth.AuthIntent
 import kupio.mobile.features.auth.presentation.auth.AuthMode
 import kupio.mobile.features.auth.presentation.auth.AuthState
 import kupio.mobile.features.auth.presentation.auth.AuthViewModel
+import kupio.mobile.features.auth.presentation.auth.GoogleSignInFailureCode
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AuthViewModelTest {
@@ -118,10 +120,13 @@ class AuthViewModelTest {
         val viewModel = createViewModel()
 
         viewModel.onIntent(AuthIntent.GoogleClicked)
-        viewModel.onIntent(AuthIntent.GoogleFailure("Google failed"))
+        viewModel.onIntent(AuthIntent.GoogleFailure(GoogleSignInFailureCode.Failed))
 
         assertEquals(false, viewModel.state.value.isGoogleSubmitting)
-        assertEquals("Google failed", viewModel.state.value.formError)
+        assertEquals(
+            AuthFormError.GoogleSignIn(GoogleSignInFailureCode.Failed),
+            viewModel.state.value.formError,
+        )
     }
 
     @Test

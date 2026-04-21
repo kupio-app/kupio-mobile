@@ -53,6 +53,6 @@ class AuthValidator {
         private const val MinPasswordLength = 8
         private const val MinUsernameLength = 3
         private const val MaxUsernameLength = 50
-        private val EmailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
+        private val EmailRegex = Regex("""^[^\s@]+@[^\s@]+\.[^\s@]+$""")
     }
 }

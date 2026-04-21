@@ -137,7 +137,12 @@ class AuthViewModelTest {
                     statusCode = 422,
                     message = "Validation failed",
                     fieldErrors = listOf(
-                        ApiFieldError(field = "username", message = "Username must be at least 3 characters"),
+                        ApiFieldError(
+                            field = "username",
+                            message = "Any backend text",
+                            type = "string_too_short",
+                            context = mapOf("min_length" to "3"),
+                        ),
                     ),
                 ),
             ),

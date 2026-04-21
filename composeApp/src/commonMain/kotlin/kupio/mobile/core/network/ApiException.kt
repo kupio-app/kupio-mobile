@@ -13,6 +13,8 @@ import kotlinx.serialization.json.contentOrNull
 data class ApiFieldError(
     val field: String?,
     val message: String,
+    val type: String? = null,
+    val context: Map<String, String> = emptyMap(),
 )
 
 class ApiException(
@@ -56,7 +58,12 @@ private fun JsonElement?.extractFieldErrors(): List<ApiFieldError> {
         val errorObject = item as? JsonObject ?: return@mapNotNull null
         val field = errorObject.readFieldName()
         val message = errorObject["msg"]?.asString() ?: return@mapNotNull null
-        ApiFieldError(field = field, message = message)
+        ApiFieldError(
+            field = field,
+            message = message,
+            type = errorObject["type"]?.asString(),
+            context = errorObject["ctx"].readStringMap(),
+        )
     }
 }
 
@@ -80,4 +87,11 @@ private fun JsonObject.readFieldName(): String? {
 
 private fun JsonElement.asString(): String? {
     return (this as? JsonPrimitive)?.contentOrNull
+}
+
+private fun JsonElement?.readStringMap(): Map<String, String> {
+    val jsonObject = this as? JsonObject ?: return emptyMap()
+    return jsonObject.mapNotNull { (key, value) ->
+        value.asString()?.let { stringValue -> key to stringValue }
+    }.toMap()
 }

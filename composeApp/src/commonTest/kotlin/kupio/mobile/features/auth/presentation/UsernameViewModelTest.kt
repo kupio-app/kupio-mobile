@@ -71,7 +71,12 @@ class UsernameViewModelTest {
                 statusCode = 422,
                 message = "Validation failed",
                 fieldErrors = listOf(
-                    ApiFieldError("username", "Username is too short"),
+                    ApiFieldError(
+                        field = "username",
+                        message = "Any backend text",
+                        type = "string_too_short",
+                        context = mapOf("min_length" to "3"),
+                    ),
                 ),
             ),
         )

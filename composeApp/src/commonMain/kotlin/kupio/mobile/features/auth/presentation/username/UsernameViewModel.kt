@@ -85,8 +85,7 @@ class UsernameViewModel(
                 val apiException = throwable as? ApiException
                 val mappedError = apiException?.fieldErrors
                     ?.firstOrNull { it.field == "username" }
-                    ?.message
-                    ?.let { message -> mapFieldError(message, AuthField.USERNAME) }
+                    ?.let { error -> mapFieldError(error, AuthField.USERNAME) }
 
                 _state.update {
                     it.copy(

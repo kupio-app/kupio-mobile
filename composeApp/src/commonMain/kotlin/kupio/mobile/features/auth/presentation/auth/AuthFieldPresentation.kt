@@ -2,6 +2,7 @@ package kupio.mobile.features.auth.presentation.auth
 
 import androidx.compose.runtime.Composable
 import kupio.mobile.core.network.ApiException
+import kupio.mobile.core.network.ApiFieldError
 import kupio.mobile.features.auth.domain.model.AuthSessionExpiredException
 import kupio.mobile.features.auth.domain.model.FieldValidationError
 import mobile.composeapp.generated.resources.Res
@@ -38,9 +39,9 @@ internal fun ApiException.toAuthFieldErrors(): AuthFieldErrors {
 
     fieldErrors.forEach { error ->
         when (error.field) {
-            "email" -> emailError = mapFieldError(error.message, AuthField.EMAIL)
-            "password" -> passwordError = mapFieldError(error.message, AuthField.PASSWORD)
-            "username" -> usernameError = mapFieldError(error.message, AuthField.USERNAME)
+            "email" -> emailError = mapFieldError(error, AuthField.EMAIL)
+            "password" -> passwordError = mapFieldError(error, AuthField.PASSWORD)
+            "username" -> usernameError = mapFieldError(error, AuthField.USERNAME)
         }
     }
 
@@ -52,27 +53,36 @@ internal fun ApiException.toAuthFieldErrors(): AuthFieldErrors {
 }
 
 internal fun mapFieldError(
-    message: String,
+    error: ApiFieldError,
     field: AuthField,
 ): FieldValidationError? {
-    val normalized = message.lowercase()
+    val type = error.type.orEmpty()
+    val normalizedMessage = error.message.lowercase()
+    val context = error.context
     return when (field) {
         AuthField.EMAIL -> when {
-            "required" in normalized -> FieldValidationError.Required
-            "email" in normalized -> FieldValidationError.InvalidEmail
+            type == "missing" -> FieldValidationError.Required
+            type == "value_error" -> FieldValidationError.InvalidEmail
+            "required" in normalizedMessage -> FieldValidationError.Required
+            "email" in normalizedMessage -> FieldValidationError.InvalidEmail
             else -> null
         }
 
         AuthField.PASSWORD -> when {
-            "required" in normalized -> FieldValidationError.Required
-            "at least 8" in normalized || "min" in normalized -> FieldValidationError.PasswordTooShort
+            type == "missing" -> FieldValidationError.Required
+            type == "string_too_short" && context["min_length"] == "8" -> FieldValidationError.PasswordTooShort
+            "required" in normalizedMessage -> FieldValidationError.Required
+            "at least 8" in normalizedMessage || "min" in normalizedMessage -> FieldValidationError.PasswordTooShort
             else -> null
         }
 
         AuthField.USERNAME -> when {
-            "required" in normalized -> FieldValidationError.Required
-            "at least 3" in normalized || "too short" in normalized -> FieldValidationError.UsernameTooShort
-            "at most 50" in normalized || "too long" in normalized -> FieldValidationError.UsernameTooLong
+            type == "missing" -> FieldValidationError.Required
+            type == "string_too_short" && context["min_length"] == "3" -> FieldValidationError.UsernameTooShort
+            type == "string_too_long" && context["max_length"] == "50" -> FieldValidationError.UsernameTooLong
+            "required" in normalizedMessage -> FieldValidationError.Required
+            "at least 3" in normalizedMessage || "too short" in normalizedMessage -> FieldValidationError.UsernameTooShort
+            "at most 50" in normalizedMessage || "too long" in normalizedMessage -> FieldValidationError.UsernameTooLong
             else -> null
         }
     }

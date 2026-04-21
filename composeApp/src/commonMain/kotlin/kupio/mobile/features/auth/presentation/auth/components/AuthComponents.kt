@@ -1,12 +1,7 @@
 package kupio.mobile.features.auth.presentation.auth.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Arrangement
@@ -63,29 +58,29 @@ import kupio.mobile.features.auth.presentation.auth.AuthMode
 import kotlin.math.roundToInt
 
 data class AuthLayoutMetrics(
-    val horizontalPadding: androidx.compose.ui.unit.Dp,
-    val verticalPadding: androidx.compose.ui.unit.Dp,
-    val contentMinHeight: androidx.compose.ui.unit.Dp,
-    val topSpacer: androidx.compose.ui.unit.Dp,
-    val bottomSpacer: androidx.compose.ui.unit.Dp,
-    val backdropHeight: androidx.compose.ui.unit.Dp,
-    val backdropCornerRadius: androidx.compose.ui.unit.Dp,
-    val topOrbSize: androidx.compose.ui.unit.Dp,
-    val topOrbTopPadding: androidx.compose.ui.unit.Dp,
-    val topOrbEndPadding: androidx.compose.ui.unit.Dp,
-    val sideTileWidth: androidx.compose.ui.unit.Dp,
-    val sideTileHeight: androidx.compose.ui.unit.Dp,
-    val sideTileTopPadding: androidx.compose.ui.unit.Dp,
-    val sideTileStartPadding: androidx.compose.ui.unit.Dp,
-    val cardPadding: androidx.compose.ui.unit.Dp,
-    val sectionSpacing: androidx.compose.ui.unit.Dp,
-    val modeSelectorHeight: androidx.compose.ui.unit.Dp,
-    val modeSelectorCornerRadius: androidx.compose.ui.unit.Dp,
+    val horizontalPadding: Dp,
+    val verticalPadding: Dp,
+    val contentMinHeight: Dp,
+    val topSpacer: Dp,
+    val bottomSpacer: Dp,
+    val backdropHeight: Dp,
+    val backdropCornerRadius: Dp,
+    val topOrbSize: Dp,
+    val topOrbTopPadding: Dp,
+    val topOrbEndPadding: Dp,
+    val sideTileWidth: Dp,
+    val sideTileHeight: Dp,
+    val sideTileTopPadding: Dp,
+    val sideTileStartPadding: Dp,
+    val cardPadding: Dp,
+    val sectionSpacing: Dp,
+    val modeSelectorHeight: Dp,
+    val modeSelectorCornerRadius: Dp,
 )
 
 private fun authLayoutMetrics(
-    width: androidx.compose.ui.unit.Dp,
-    height: androidx.compose.ui.unit.Dp,
+    width: Dp,
+    height: Dp,
 ): AuthLayoutMetrics {
     val widthValue = width.value
     val heightValue = height.value
@@ -358,8 +353,8 @@ private fun AuthModeSegment(
     text: String,
     selected: Boolean,
     onClick: () -> Unit,
-    height: androidx.compose.ui.unit.Dp,
-    cornerRadius: androidx.compose.ui.unit.Dp,
+    height: Dp,
+    cornerRadius: Dp,
     modifier: Modifier = Modifier,
 ) {
     val textAlpha by animateFloatAsState(

@@ -8,6 +8,7 @@
     <string name="settings_body">Režim témy sa ukladá do DataStore ako ukážka zdieľaných aplikačných preferencií.</string>
     <string name="settings_logout">Odhlásiť sa</string>
     <string name="back">Späť</string>
+    <string name="retry">Skúsiť znova</string>
     <string name="theme_mode_label">Režim témy</string>
     <string name="theme_mode_system">Systém</string>
     <string name="theme_mode_light">Svetlá</string>
@@ -34,6 +35,7 @@
     <string name="auth_or">alebo</string>
     <string name="auth_google">Pokračovať s Google</string>
     <string name="auth_google_loading">Čaká sa na prihlásenie cez Google…</string>
+    <string name="auth_bootstrap_failed">Nepodarilo sa obnoviť reláciu. Skontroluj pripojenie a skús to znova.</string>
     <string name="auth_error_required">Toto pole je povinné.</string>
     <string name="auth_error_email_invalid">Zadaj platnú e-mailovú adresu.</string>
     <string name="auth_error_password_short">Heslo musí mať aspoň 8 znakov.</string>

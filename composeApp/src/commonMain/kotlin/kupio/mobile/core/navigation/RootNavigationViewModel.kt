@@ -13,6 +13,10 @@ class RootNavigationViewModel(
     val state: StateFlow<SessionState> = sessionManager.sessionState
 
     init {
+        retryBootstrap()
+    }
+
+    fun retryBootstrap() {
         viewModelScope.launch {
             sessionManager.bootstrap()
         }

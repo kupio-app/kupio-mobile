@@ -8,6 +8,7 @@
     <string name="settings_body">Theme mode is stored in DataStore to demonstrate shared app preferences.</string>
     <string name="settings_logout">Log out</string>
     <string name="back">Back</string>
+    <string name="retry">Retry</string>
     <string name="theme_mode_label">Theme mode</string>
     <string name="theme_mode_system">System</string>
     <string name="theme_mode_light">Light</string>
@@ -34,6 +35,7 @@
     <string name="auth_or">or</string>
     <string name="auth_google">Continue with Google</string>
     <string name="auth_google_loading">Waiting for Google sign-in…</string>
+    <string name="auth_bootstrap_failed">We could not restore your session. Check your connection and try again.</string>
     <string name="auth_error_required">This field is required.</string>
     <string name="auth_error_email_invalid">Enter a valid email address.</string>
     <string name="auth_error_password_short">Password must have at least 8 characters.</string>

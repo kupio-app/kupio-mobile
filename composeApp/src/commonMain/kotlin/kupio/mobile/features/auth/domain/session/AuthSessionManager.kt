@@ -3,6 +3,8 @@ package kupio.mobile.features.auth.domain.session
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kupio.mobile.features.auth.domain.model.AuthSession
 import kupio.mobile.features.auth.domain.model.AuthSessionExpiredException
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
@@ -16,22 +18,25 @@ class AuthSessionManager(
 ) {
     private val _sessionState = MutableStateFlow<SessionState>(SessionState.Loading)
     val sessionState: StateFlow<SessionState> = _sessionState.asStateFlow()
+    private val bootstrapMutex = Mutex()
 
     suspend fun bootstrap() {
-        _sessionState.value = SessionState.Loading
-        val storedSession = secureSessionStore.readSession()
-        if (storedSession == null) {
-            _sessionState.value = SessionState.SignedOut
-            return
-        }
+        bootstrapMutex.withLock {
+            _sessionState.value = SessionState.Loading
+            val storedSession = secureSessionStore.readSession()
+            if (storedSession == null) {
+                _sessionState.value = SessionState.SignedOut
+                return
+            }
 
-        try {
-            val refreshedSession = authRepository.refreshSession()
-            establishSession(refreshedSession)
-        } catch (_: AuthSessionExpiredException) {
-            clearPersistedSession()
-        } catch (_: Throwable) {
-            _sessionState.value = SessionState.SignedOut
+            try {
+                val refreshedSession = authRepository.refreshSession()
+                establishSession(refreshedSession)
+            } catch (_: AuthSessionExpiredException) {
+                clearPersistedSession()
+            } catch (_: Throwable) {
+                _sessionState.value = SessionState.BootstrapFailed
+            }
         }
     }
 

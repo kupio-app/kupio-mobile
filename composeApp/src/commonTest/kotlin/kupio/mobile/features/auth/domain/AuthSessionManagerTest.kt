@@ -53,7 +53,7 @@ class AuthSessionManagerTest {
 
         manager.bootstrap()
 
-        assertEquals(SessionState.SignedOut, manager.sessionState.value)
+        assertEquals(SessionState.BootstrapFailed, manager.sessionState.value)
         assertEquals(storedSession, secureSessionStore.readSession())
     }
 

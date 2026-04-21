@@ -9,7 +9,6 @@ private const val RefreshTokenKey = "auth.refresh_token"
 private const val AccessExpiresAtKey = "auth.access_expires_at"
 private const val RefreshExpiresAtKey = "auth.refresh_expires_at"
 private const val TokenTypeKey = "auth.token_type"
-private const val NeedsUsernameKey = "auth.needs_username"
 
 class KVaultSecureSessionStore(
     private val vault: KVault,
@@ -35,7 +34,6 @@ class KVaultSecureSessionStore(
             accessExpiresAt = accessExpiresAt,
             refreshExpiresAt = refreshExpiresAt,
             tokenType = vault.string(forKey = TokenTypeKey).orEmpty().ifBlank { "bearer" },
-            needsUsername = vault.bool(forKey = NeedsUsernameKey) ?: false,
         )
     }
 
@@ -47,10 +45,13 @@ class KVaultSecureSessionStore(
         vault.set(key = AccessExpiresAtKey, stringValue = session.accessExpiresAt.toString())
         vault.set(key = RefreshExpiresAtKey, stringValue = session.refreshExpiresAt.toString())
         vault.set(key = TokenTypeKey, stringValue = session.tokenType)
-        vault.set(key = NeedsUsernameKey, boolValue = session.needsUsername)
     }
 
     override suspend fun clear() {
-        vault.clear()
+        vault.deleteObject(forKey = AccessTokenKey)
+        vault.deleteObject(forKey = RefreshTokenKey)
+        vault.deleteObject(forKey = AccessExpiresAtKey)
+        vault.deleteObject(forKey = RefreshExpiresAtKey)
+        vault.deleteObject(forKey = TokenTypeKey)
     }
 }

@@ -49,7 +49,6 @@ data class TokensResponseDto(
     @SerialName("access_expires_at") val accessExpiresAt: Long,
     @SerialName("refresh_expires_at") val refreshExpiresAt: Long,
     @SerialName("token_type") val tokenType: String = "bearer",
-    @SerialName("needs_username") val needsUsername: Boolean = false,
 )
 
 @Serializable
@@ -71,7 +70,6 @@ fun TokensResponseDto.toDomain(): AuthSession {
         accessExpiresAt = accessExpiresAt,
         refreshExpiresAt = refreshExpiresAt,
         tokenType = tokenType,
-        needsUsername = needsUsername,
     )
 }
 

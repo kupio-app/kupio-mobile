@@ -6,5 +6,4 @@ data class AuthSession(
     val accessExpiresAt: Long,
     val refreshExpiresAt: Long,
     val tokenType: String = "bearer",
-    val needsUsername: Boolean = false,
 )

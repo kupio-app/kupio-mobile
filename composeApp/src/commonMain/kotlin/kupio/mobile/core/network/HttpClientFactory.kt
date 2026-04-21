@@ -14,6 +14,7 @@ import kotlinx.serialization.json.Json
 
 fun createKupioHttpClient(
     baseUrl: String,
+    isDebug: Boolean,
 ): HttpClient {
     return HttpClient {
         expectSuccess = false
@@ -27,11 +28,13 @@ fun createKupioHttpClient(
             )
         }
 
-        install(Logging) {
-            logger = object : Logger {
-                override fun log(message: String) = Unit
+        if (isDebug) {
+            install(Logging) {
+                logger = object : Logger {
+                    override fun log(message: String) = println("[HTTP] $message")
+                }
+                level = LogLevel.INFO
             }
-            level = LogLevel.INFO
         }
 
         defaultRequest {

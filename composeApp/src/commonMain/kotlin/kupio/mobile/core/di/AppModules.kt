@@ -17,7 +17,6 @@ import kupio.mobile.features.auth.data.repository.TokenRefreshingAuthenticatedAp
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.repository.DeviceIdProvider
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
-import kupio.mobile.features.auth.domain.session.SessionStateResolver
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.auth.AuthViewModel
@@ -35,20 +34,27 @@ val kupioAppModules: List<Module> = listOf(
     platformModule,
     module {
         single<HttpClient> {
+            val config = get<BackendConfig>()
             createKupioHttpClient(
-                baseUrl = get<BackendConfig>().baseUrl,
+                baseUrl = config.baseUrl,
+                isDebug = config.isDebug,
             )
         }
         single { AuthApi(get()) }
         single<AuthClock> { SystemAuthClock() }
         single { AuthTokenProvider(get(), get(), get(), get()) }
-        single<AuthenticatedApiClient> { TokenRefreshingAuthenticatedApiClient(get()) }
+        single<AuthenticatedApiClient> {
+            val koin = getKoin()
+            TokenRefreshingAuthenticatedApiClient(
+                authTokenProvider = get(),
+                onSessionExpired = { koin.get<AuthSessionManager>().expireSession() },
+            )
+        }
         single<AuthRepository> { AuthRepositoryImpl(get(), get(), get(), get()) }
         single<SecureSessionStore> { KVaultSecureSessionStore(get()) }
         single<DeviceIdProvider> { DataStoreDeviceIdProvider(get()) }
-        single { SessionStateResolver() }
         single { AuthValidator() }
-        single { AuthSessionManager(get(), get(), get()) }
+        single { AuthSessionManager(get(), get()) }
         single<PreferencesRepository> { DataStorePreferencesRepository(get()) }
         viewModelOf(::RootNavigationViewModel)
         viewModelOf(::AuthViewModel)

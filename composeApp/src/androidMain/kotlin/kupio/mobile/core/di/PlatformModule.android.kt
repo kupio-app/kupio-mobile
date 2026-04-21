@@ -14,6 +14,7 @@ actual val platformModule = module {
     single<BackendConfig> {
         object : BackendConfig {
             override val baseUrl: String = BuildConfig.KUPIO_BACKEND_BASE_URL
+            override val isDebug: Boolean = BuildConfig.DEBUG
         }
     }
     single { KVault(get<Context>(), "kupio.mobile.secure_store") }

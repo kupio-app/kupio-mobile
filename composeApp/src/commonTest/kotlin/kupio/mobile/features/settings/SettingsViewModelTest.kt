@@ -14,13 +14,13 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kupio.mobile.core.preferences.PreferencesRepository
 import kupio.mobile.core.preferences.ThemeMode
-import kupio.mobile.features.auth.domain.AuthRepository
-import kupio.mobile.features.auth.domain.AuthSession
-import kupio.mobile.features.auth.domain.AuthSessionManager
-import kupio.mobile.features.auth.domain.AuthenticatedUser
-import kupio.mobile.features.auth.domain.SecureSessionStore
-import kupio.mobile.features.auth.domain.SessionState
-import kupio.mobile.features.auth.domain.SessionStateResolver
+import kupio.mobile.features.auth.domain.model.AuthSession
+import kupio.mobile.features.auth.domain.model.AuthenticatedUser
+import kupio.mobile.features.auth.domain.model.SessionState
+import kupio.mobile.features.auth.domain.repository.AuthRepository
+import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.auth.domain.session.SecureSessionStore
+import kupio.mobile.features.auth.domain.session.SessionStateResolver
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
@@ -133,7 +133,5 @@ class SettingsViewModelTest {
         override suspend fun logout(refreshToken: String) {
             logoutCalls += 1
         }
-
-        override suspend fun clearSession() = Unit
     }
 }

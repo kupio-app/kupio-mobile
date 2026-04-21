@@ -2,6 +2,9 @@ package kupio.mobile.features.auth.domain
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kupio.mobile.features.auth.domain.model.AuthenticatedUser
+import kupio.mobile.features.auth.domain.model.SessionState
+import kupio.mobile.features.auth.domain.session.SessionStateResolver
 
 class SessionStateResolverTest {
     private val resolver = SessionStateResolver()

@@ -5,21 +5,21 @@ import kupio.mobile.core.config.BackendConfig
 import kupio.mobile.core.network.createKupioHttpClient
 import kupio.mobile.core.preferences.DataStorePreferencesRepository
 import kupio.mobile.core.preferences.PreferencesRepository
-import kupio.mobile.features.auth.data.AuthApi
-import kupio.mobile.features.auth.data.AuthRepositoryImpl
-import kupio.mobile.features.auth.data.DataStoreDeviceIdProvider
-import kupio.mobile.features.auth.data.KVaultSecureSessionStore
-import kupio.mobile.features.auth.domain.AuthRepository
-import kupio.mobile.features.auth.domain.AuthSessionManager
-import kupio.mobile.features.auth.domain.AuthValidator
-import kupio.mobile.features.auth.domain.DeviceIdProvider
-import kupio.mobile.features.auth.domain.SecureSessionStore
-import kupio.mobile.features.auth.domain.SessionStateResolver
-import kupio.mobile.features.auth.presentation.AuthGateViewModel
-import kupio.mobile.features.auth.presentation.AuthViewModel
-import kupio.mobile.features.auth.presentation.UsernameViewModel
+import kupio.mobile.features.auth.data.local.DataStoreDeviceIdProvider
+import kupio.mobile.features.auth.data.local.KVaultSecureSessionStore
+import kupio.mobile.features.auth.data.remote.AuthApi
+import kupio.mobile.features.auth.data.repository.AuthRepositoryImpl
+import kupio.mobile.features.auth.domain.repository.AuthRepository
+import kupio.mobile.features.auth.domain.repository.DeviceIdProvider
+import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.auth.domain.session.SessionStateResolver
+import kupio.mobile.features.auth.domain.session.SecureSessionStore
+import kupio.mobile.features.auth.domain.validation.AuthValidator
+import kupio.mobile.features.auth.presentation.auth.AuthViewModel
+import kupio.mobile.features.auth.presentation.username.UsernameViewModel
 import kupio.mobile.features.home.HomeViewModel
 import kupio.mobile.features.settings.SettingsViewModel
+import kupio.mobile.core.navigation.RootNavigationViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -42,12 +42,10 @@ val kupioAppModules: List<Module> = listOf(
         single { AuthValidator() }
         single { AuthSessionManager(get(), get(), get()) }
         single<PreferencesRepository> { DataStorePreferencesRepository(get()) }
-        viewModelOf(::AuthGateViewModel)
+        viewModelOf(::RootNavigationViewModel)
         viewModelOf(::AuthViewModel)
         viewModelOf(::HomeViewModel)
         viewModelOf(::SettingsViewModel)
         viewModelOf(::UsernameViewModel)
     },
 )
-
-// TODO: Split this starter module into feature-specific modules as real data sources and flows are introduced.

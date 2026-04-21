@@ -14,12 +14,14 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.serialization.json.Json
-import kupio.mobile.features.auth.domain.AuthSession
-import kupio.mobile.features.auth.domain.DeviceIdProvider
-import kupio.mobile.features.auth.domain.SecureSessionStore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kupio.mobile.features.auth.data.remote.AuthApi
+import kupio.mobile.features.auth.data.repository.AuthRepositoryImpl
+import kupio.mobile.features.auth.domain.model.AuthSession
+import kupio.mobile.features.auth.domain.repository.DeviceIdProvider
+import kupio.mobile.features.auth.domain.session.SecureSessionStore
 
 class AuthRepositoryImplTest {
     private val json = Json {
@@ -31,23 +33,23 @@ class AuthRepositoryImplTest {
     fun `login sends device id and maps tokens response`() = kotlinx.coroutines.test.runTest {
         val repository = createRepository(
             mockEngine = MockEngine { request ->
-            assertEquals("/api/auth/login", request.url.encodedPath)
-            val body = request.bodyText()
-            assertTrue(body.contains("\"device_id\":\"device-123\""))
-            assertTrue(body.contains("\"email\":\"hello@kupio.dev\""))
-            respondJson(
-                """
-                {
-                  "access_token":"access",
-                  "refresh_token":"refresh",
-                  "access_expires_at":100,
-                  "refresh_expires_at":200,
-                  "token_type":"bearer",
-                  "needs_username":false
-                }
-                """.trimIndent(),
-            )
-        },
+                assertEquals("/api/auth/login", request.url.encodedPath)
+                val body = request.bodyText()
+                assertTrue(body.contains("\"device_id\":\"device-123\""))
+                assertTrue(body.contains("\"email\":\"hello@kupio.dev\""))
+                respondJson(
+                    """
+                    {
+                      "access_token":"access",
+                      "refresh_token":"refresh",
+                      "access_expires_at":100,
+                      "refresh_expires_at":200,
+                      "token_type":"bearer",
+                      "needs_username":false
+                    }
+                    """.trimIndent(),
+                )
+            },
         )
 
         val session = repository.login(

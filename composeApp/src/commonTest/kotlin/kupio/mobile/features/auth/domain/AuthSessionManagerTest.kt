@@ -3,6 +3,13 @@ package kupio.mobile.features.auth.domain
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.test.runTest
+import kupio.mobile.features.auth.domain.model.AuthSession
+import kupio.mobile.features.auth.domain.model.AuthenticatedUser
+import kupio.mobile.features.auth.domain.model.SessionState
+import kupio.mobile.features.auth.domain.repository.AuthRepository
+import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.auth.domain.session.SecureSessionStore
+import kupio.mobile.features.auth.domain.session.SessionStateResolver
 
 class AuthSessionManagerTest {
     @Test
@@ -182,7 +189,5 @@ class AuthSessionManagerTest {
             loggedOutRefreshToken = refreshToken
             logoutError?.let { throw it }
         }
-
-        override suspend fun clearSession() = Unit
     }
 }

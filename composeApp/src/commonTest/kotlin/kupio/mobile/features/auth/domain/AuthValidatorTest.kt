@@ -2,6 +2,8 @@ package kupio.mobile.features.auth.domain
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kupio.mobile.features.auth.domain.model.FieldValidationError
+import kupio.mobile.features.auth.domain.validation.AuthValidator
 
 class AuthValidatorTest {
     private val validator = AuthValidator()

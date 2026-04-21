@@ -23,8 +23,13 @@ actual val platformModule = module {
             ) {
                 "KupioBackendBaseUrl must be configured in Info.plist."
             }
-            override val isDebug: Boolean =
-                NSBundle.mainBundle.objectForInfoDictionaryKey("KupioDebugEnabled") as? Boolean ?: false
+            override val isDebug: Boolean = when (
+                val value = NSBundle.mainBundle.objectForInfoDictionaryKey("KupioDebugEnabled")
+            ) {
+                is Boolean -> value
+                is String -> value.equals("true", ignoreCase = true)
+                else -> false
+            }
         }
     }
     single { KVault("kupio.mobile.secure_store") }

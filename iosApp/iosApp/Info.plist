@@ -19,6 +19,8 @@
         <string>$(KUPIO_GOOGLE_SERVER_CLIENT_ID)</string>
         <key>KupioBackendBaseUrl</key>
         <string>$(KUPIO_BACKEND_BASE_URL)</string>
+        <key>KupioDebugEnabled</key>
+        <string>$(KUPIO_DEBUG_ENABLED)</string>
         <key>NSAppTransportSecurity</key>
         <dict>
             <key>NSAllowsLocalNetworking</key>

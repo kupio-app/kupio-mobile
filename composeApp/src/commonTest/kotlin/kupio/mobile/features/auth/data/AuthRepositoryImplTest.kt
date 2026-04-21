@@ -16,10 +16,16 @@ import io.ktor.utils.io.ByteReadChannel
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kupio.mobile.features.auth.data.remote.AuthApi
+import kupio.mobile.features.auth.data.repository.AuthClock
 import kupio.mobile.features.auth.data.repository.AuthRepositoryImpl
+import kupio.mobile.features.auth.data.repository.AuthTokenProvider
+import kupio.mobile.features.auth.data.repository.TokenRefreshingAuthenticatedApiClient
 import kupio.mobile.features.auth.domain.model.AuthSession
+import kupio.mobile.features.auth.domain.model.AuthSessionExpiredException
 import kupio.mobile.features.auth.domain.repository.DeviceIdProvider
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
 
@@ -71,13 +77,13 @@ class AuthRepositoryImplTest {
     }
 
     @Test
-    fun `refresh and me use stored tokens and bearer auth`() = kotlinx.coroutines.test.runTest {
+    fun `refresh stores rotated tokens and me uses fresh bearer auth`() = kotlinx.coroutines.test.runTest {
         val secureSessionStore = FakeSecureSessionStore(
             session = AuthSession(
                 accessToken = "stored-access",
                 refreshToken = "stored-refresh",
-                accessExpiresAt = 100,
-                refreshExpiresAt = 200,
+                accessExpiresAt = 2_000,
+                refreshExpiresAt = 3_000,
             ),
         )
         val repository = createRepository(
@@ -91,8 +97,8 @@ class AuthRepositoryImplTest {
                             {
                               "access_token":"fresh-access",
                               "refresh_token":"fresh-refresh",
-                              "access_expires_at":300,
-                              "refresh_expires_at":400,
+                              "access_expires_at":2000,
+                              "refresh_expires_at":4000,
                               "needs_username":true
                             }
                             """.trimIndent(),
@@ -101,7 +107,7 @@ class AuthRepositoryImplTest {
 
                     "/api/users/me" -> {
                         assertEquals(
-                            "Bearer stored-access",
+                            "Bearer fresh-access",
                             request.headers[HttpHeaders.Authorization],
                         )
                         respondJson(
@@ -130,6 +136,7 @@ class AuthRepositoryImplTest {
         val user = repository.getCurrentUser()
 
         assertEquals("fresh-access", refreshed.accessToken)
+        assertEquals("fresh-access", secureSessionStore.readSession()?.accessToken)
         assertEquals(true, refreshed.needsUsername)
         assertEquals("hello@kupio.dev", user.email)
         assertEquals(true, user.needsUsername)
@@ -141,8 +148,8 @@ class AuthRepositoryImplTest {
             session = AuthSession(
                 accessToken = "stored-access",
                 refreshToken = "stored-refresh",
-                accessExpiresAt = 100,
-                refreshExpiresAt = 200,
+                accessExpiresAt = 2_000,
+                refreshExpiresAt = 3_000,
             ),
         )
         val repository = createRepository(
@@ -175,6 +182,170 @@ class AuthRepositoryImplTest {
     }
 
     @Test
+    fun `expired access token refreshes before current user request`() = kotlinx.coroutines.test.runTest {
+        val secureSessionStore = FakeSecureSessionStore(
+            session = AuthSession(
+                accessToken = "expired-access",
+                refreshToken = "stored-refresh",
+                accessExpiresAt = 900,
+                refreshExpiresAt = 3_000,
+            ),
+        )
+        val repository = createRepository(
+            mockEngine = MockEngine { request ->
+                when (request.url.encodedPath) {
+                    "/api/auth/refresh" -> {
+                        assertTrue(request.bodyText().contains("\"refresh_token\":\"stored-refresh\""))
+                        respondTokenPair(
+                            accessToken = "fresh-access",
+                            refreshToken = "fresh-refresh",
+                            accessExpiresAt = 2_000,
+                            refreshExpiresAt = 4_000,
+                        )
+                    }
+
+                    "/api/users/me" -> {
+                        assertEquals("Bearer fresh-access", request.headers[HttpHeaders.Authorization])
+                        respondUser()
+                    }
+
+                    else -> error("Unexpected path ${request.url.encodedPath}")
+                }
+            },
+            secureSessionStore = secureSessionStore,
+        )
+
+        val user = repository.getCurrentUser()
+
+        assertEquals("hello@kupio.dev", user.email)
+        assertEquals("fresh-access", secureSessionStore.readSession()?.accessToken)
+    }
+
+    @Test
+    fun `current user retries once after unauthorized access token`() = kotlinx.coroutines.test.runTest {
+        var meCalls = 0
+        var refreshCalls = 0
+        val repository = createRepository(
+            mockEngine = MockEngine { request ->
+                when (request.url.encodedPath) {
+                    "/api/users/me" -> {
+                        meCalls += 1
+                        if (meCalls == 1) {
+                            assertEquals("Bearer stored-access", request.headers[HttpHeaders.Authorization])
+                            respondJson("""{"detail":"Invalid token"}""", status = HttpStatusCode.Unauthorized)
+                        } else {
+                            assertEquals("Bearer fresh-access", request.headers[HttpHeaders.Authorization])
+                            respondUser()
+                        }
+                    }
+
+                    "/api/auth/refresh" -> {
+                        refreshCalls += 1
+                        respondTokenPair(
+                            accessToken = "fresh-access",
+                            refreshToken = "fresh-refresh",
+                            accessExpiresAt = 2_000,
+                            refreshExpiresAt = 4_000,
+                        )
+                    }
+
+                    else -> error("Unexpected path ${request.url.encodedPath}")
+                }
+            },
+            secureSessionStore = FakeSecureSessionStore(
+                session = AuthSession(
+                    accessToken = "stored-access",
+                    refreshToken = "stored-refresh",
+                    accessExpiresAt = 2_000,
+                    refreshExpiresAt = 3_000,
+                ),
+            ),
+        )
+
+        val user = repository.getCurrentUser()
+
+        assertEquals("hello@kupio.dev", user.email)
+        assertEquals(2, meCalls)
+        assertEquals(1, refreshCalls)
+    }
+
+    @Test
+    fun `current user retry unauthorized clears session and fails`() = kotlinx.coroutines.test.runTest {
+        val secureSessionStore = FakeSecureSessionStore(
+            session = AuthSession(
+                accessToken = "stored-access",
+                refreshToken = "stored-refresh",
+                accessExpiresAt = 2_000,
+                refreshExpiresAt = 3_000,
+            ),
+        )
+        val repository = createRepository(
+            mockEngine = MockEngine { request ->
+                when (request.url.encodedPath) {
+                    "/api/users/me" -> respondJson(
+                        """{"detail":"Invalid token"}""",
+                        status = HttpStatusCode.Unauthorized,
+                    )
+
+                    "/api/auth/refresh" -> respondTokenPair(
+                        accessToken = "fresh-access",
+                        refreshToken = "fresh-refresh",
+                        accessExpiresAt = 2_000,
+                        refreshExpiresAt = 4_000,
+                    )
+
+                    else -> error("Unexpected path ${request.url.encodedPath}")
+                }
+            },
+            secureSessionStore = secureSessionStore,
+        )
+
+        assertFailsWith<AuthSessionExpiredException> {
+            repository.getCurrentUser()
+        }
+        assertNull(secureSessionStore.readSession())
+    }
+
+    @Test
+    fun `set username refreshes expired token and retries request`() = kotlinx.coroutines.test.runTest {
+        var usernameCalls = 0
+        val repository = createRepository(
+            mockEngine = MockEngine { request ->
+                when (request.url.encodedPath) {
+                    "/api/auth/refresh" -> respondTokenPair(
+                        accessToken = "fresh-access",
+                        refreshToken = "fresh-refresh",
+                        accessExpiresAt = 2_000,
+                        refreshExpiresAt = 4_000,
+                    )
+
+                    "/api/users/me/username" -> {
+                        usernameCalls += 1
+                        assertEquals("Bearer fresh-access", request.headers[HttpHeaders.Authorization])
+                        assertTrue(request.bodyText().contains("\"username\":\"kupio\""))
+                        respondUser(username = "kupio", needsUsername = false)
+                    }
+
+                    else -> error("Unexpected path ${request.url.encodedPath}")
+                }
+            },
+            secureSessionStore = FakeSecureSessionStore(
+                session = AuthSession(
+                    accessToken = "expired-access",
+                    refreshToken = "stored-refresh",
+                    accessExpiresAt = 900,
+                    refreshExpiresAt = 3_000,
+                ),
+            ),
+        )
+
+        val user = repository.setUsername("kupio")
+
+        assertEquals("kupio", user.username)
+        assertEquals(1, usernameCalls)
+    }
+
+    @Test
     fun `logout sends provided refresh token`() = kotlinx.coroutines.test.runTest {
         val repository = createRepository(
             mockEngine = MockEngine { request ->
@@ -190,6 +361,7 @@ class AuthRepositoryImplTest {
     private fun createRepository(
         mockEngine: MockEngine,
         secureSessionStore: FakeSecureSessionStore = FakeSecureSessionStore(),
+        clock: AuthClock = FakeAuthClock(nowEpochSeconds = 1_000),
     ): AuthRepositoryImpl {
         val httpClient = HttpClient(mockEngine) {
             expectSuccess = false
@@ -203,12 +375,23 @@ class AuthRepositoryImplTest {
             }
         }
 
-        return AuthRepositoryImpl(
-            authApi = AuthApi(httpClient),
-            deviceIdProvider = object : DeviceIdProvider {
-                override suspend fun getOrCreate(): String = "device-123"
-            },
+        val authApi = AuthApi(httpClient)
+        val deviceIdProvider = object : DeviceIdProvider {
+            override suspend fun getOrCreate(): String = "device-123"
+        }
+
+        val authTokenProvider = AuthTokenProvider(
+            authApi = authApi,
+            deviceIdProvider = deviceIdProvider,
             secureSessionStore = secureSessionStore,
+            clock = clock,
+        )
+
+        return AuthRepositoryImpl(
+            authApi = authApi,
+            deviceIdProvider = deviceIdProvider,
+            authTokenProvider = authTokenProvider,
+            authenticatedApiClient = TokenRefreshingAuthenticatedApiClient(authTokenProvider),
         )
     }
 
@@ -232,6 +415,47 @@ class AuthRepositoryImplTest {
             ContentType.Application.Json.toString(),
         ),
     )
+
+    private fun MockRequestHandleScope.respondTokenPair(
+        accessToken: String,
+        refreshToken: String,
+        accessExpiresAt: Long,
+        refreshExpiresAt: Long,
+    ) = respondJson(
+        """
+        {
+          "access_token":"$accessToken",
+          "refresh_token":"$refreshToken",
+          "access_expires_at":$accessExpiresAt,
+          "refresh_expires_at":$refreshExpiresAt,
+          "needs_username":false
+        }
+        """.trimIndent(),
+    )
+
+    private fun MockRequestHandleScope.respondUser(
+        username: String? = null,
+        needsUsername: Boolean = true,
+    ) = respondJson(
+        """
+        {
+          "id":"user-1",
+          "username":${username?.let { "\"$it\"" } ?: "null"},
+          "display_name":"Kupio User",
+          "email":"hello@kupio.dev",
+          "role":"user",
+          "needs_username":$needsUsername,
+          "balance":0,
+          "avatar_url":null
+        }
+        """.trimIndent(),
+    )
+
+    private class FakeAuthClock(
+        private val nowEpochSeconds: Long,
+    ) : AuthClock {
+        override fun nowEpochSeconds(): Long = nowEpochSeconds
+    }
 
     private class FakeSecureSessionStore(
         private var session: AuthSession? = null,

@@ -62,6 +62,10 @@ class AuthSessionManager(
         }
     }
 
+    suspend fun expireSession() {
+        clearPersistedSession()
+    }
+
     private suspend fun clearPersistedSession() {
         secureSessionStore.clear()
         _sessionState.value = SessionState.SignedOut

@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Arrangement
@@ -37,12 +36,8 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -66,8 +61,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import kupio.mobile.core.designsystem.KupioCardSurface
+import kupio.mobile.core.designsystem.KupioLabeledDivider
+import kupio.mobile.core.designsystem.KupioOutlinedLoadingButton
+import kupio.mobile.core.designsystem.KupioOutlinedTextField
 import kupio.mobile.core.designsystem.KupioPrimaryButton
-import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.features.auth.presentation.auth.AuthMode
 import kotlin.math.roundToInt
 
@@ -425,22 +422,15 @@ fun AuthTextField(
     modifier: Modifier = Modifier,
     visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
-    OutlinedTextField(
+    KupioOutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = modifier.fillMaxWidth(),
-        label = { Text(label) },
-        placeholder = { Text(placeholder) },
-        singleLine = true,
-        isError = errorMessage != null,
+        label = label,
+        placeholder = placeholder,
+        errorMessage = errorMessage,
         keyboardOptions = keyboardOptions,
+        modifier = modifier,
         visualTransformation = visualTransformation,
-        supportingText = {
-            if (errorMessage != null) {
-                Text(errorMessage)
-            }
-        },
-        shape = RoundedCornerShape(20.dp),
     )
 }
 
@@ -463,19 +453,7 @@ fun AuthPrimaryButton(
 fun AuthDivider(
     text: String,
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        HorizontalDivider(modifier = Modifier.weight(1f))
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        HorizontalDivider(modifier = Modifier.weight(1f))
-    }
+    KupioLabeledDivider(text = text)
 }
 
 @Composable
@@ -485,34 +463,12 @@ fun AuthGoogleButton(
     enabled: Boolean,
     onClick: () -> Unit,
 ) {
-    OutlinedButton(
+    KupioOutlinedLoadingButton(
+        text = text,
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        enabled = enabled && !loading,
-        shape = RoundedCornerShape(20.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
-        colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-        ),
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            if (loading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(18.dp),
-                    strokeWidth = 2.dp,
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-            }
-            Text(
-                text = text,
-                fontWeight = FontWeight.Medium,
-            )
-        }
-    }
+        loading = loading,
+        enabled = enabled,
+    )
 }
 
 @Composable

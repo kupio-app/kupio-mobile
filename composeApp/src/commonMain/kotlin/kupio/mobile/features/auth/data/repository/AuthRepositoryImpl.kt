@@ -4,20 +4,20 @@ import kupio.mobile.features.auth.data.remote.AuthApi
 import kupio.mobile.features.auth.data.remote.GoogleLoginRequestDto
 import kupio.mobile.features.auth.data.remote.LoginRequestDto
 import kupio.mobile.features.auth.data.remote.LogoutRequestDto
-import kupio.mobile.features.auth.data.remote.RefreshRequestDto
 import kupio.mobile.features.auth.data.remote.RegisterRequestDto
 import kupio.mobile.features.auth.data.remote.SetUsernameRequestDto
 import kupio.mobile.features.auth.data.remote.toDomain
+import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.features.auth.domain.model.AuthSession
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.repository.DeviceIdProvider
-import kupio.mobile.features.auth.domain.session.SecureSessionStore
 
 class AuthRepositoryImpl(
     private val authApi: AuthApi,
     private val deviceIdProvider: DeviceIdProvider,
-    private val secureSessionStore: SecureSessionStore,
+    private val authTokenProvider: AuthTokenProvider,
+    private val authenticatedApiClient: AuthenticatedApiClient,
 ) : AuthRepository {
     override suspend fun login(
         email: String,
@@ -59,30 +59,24 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun refreshSession(): AuthSession {
-        val storedSession = requireStoredSession()
-        return authApi.refresh(
-            request = RefreshRequestDto(
-                refreshToken = storedSession.refreshToken,
-                deviceId = deviceIdProvider.getOrCreate(),
-            ),
-        ).toDomain()
+        return authTokenProvider.refreshSession()
     }
 
     override suspend fun getCurrentUser(): AuthenticatedUser {
-        val storedSession = requireStoredSession()
-        return authApi.getCurrentUser(
-            accessToken = storedSession.accessToken,
-        ).toDomain()
+        return authenticatedApiClient.request { accessToken ->
+            authApi.getCurrentUser(accessToken = accessToken).toDomain()
+        }
     }
 
     override suspend fun setUsername(
         username: String,
     ): AuthenticatedUser {
-        val storedSession = requireStoredSession()
-        return authApi.setUsername(
-            accessToken = storedSession.accessToken,
-            request = SetUsernameRequestDto(username = username),
-        ).toDomain()
+        return authenticatedApiClient.request { accessToken ->
+            authApi.setUsername(
+                accessToken = accessToken,
+                request = SetUsernameRequestDto(username = username),
+            ).toDomain()
+        }
     }
 
     override suspend fun logout(
@@ -93,11 +87,5 @@ class AuthRepositoryImpl(
                 refreshToken = refreshToken,
             ),
         )
-    }
-
-    private suspend fun requireStoredSession(): AuthSession {
-        return requireNotNull(secureSessionStore.readSession()) {
-            "No stored auth session is available."
-        }
     }
 }

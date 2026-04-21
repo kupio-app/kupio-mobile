@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kupio.mobile.core.network.ApiException
+import kupio.mobile.features.auth.domain.model.AuthSessionExpiredException
 import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
@@ -75,6 +76,12 @@ class UsernameViewModel(
                 sessionManager.updateAuthenticatedUser(user)
                 _state.update { it.copy(isSubmitting = false) }
             }.onFailure { throwable ->
+                if (throwable is AuthSessionExpiredException) {
+                    sessionManager.expireSession()
+                    _state.update { it.copy(isSubmitting = false) }
+                    return@onFailure
+                }
+
                 val apiException = throwable as? ApiException
                 val mappedError = apiException?.fieldErrors
                     ?.firstOrNull { it.field == "username" }

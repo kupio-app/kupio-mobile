@@ -14,6 +14,7 @@ import kotlinx.coroutines.test.setMain
 import kupio.mobile.core.network.ApiException
 import kupio.mobile.core.network.ApiFieldError
 import kupio.mobile.features.auth.domain.model.AuthSession
+import kupio.mobile.features.auth.domain.model.AuthSessionExpiredException
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.model.FieldValidationError
 import kupio.mobile.features.auth.domain.model.SessionState
@@ -83,6 +84,25 @@ class UsernameViewModelTest {
 
         assertEquals(FieldValidationError.UsernameTooShort, viewModel.state.value.usernameError)
         assertEquals(null, viewModel.state.value.formError)
+    }
+
+    @Test
+    fun `expired session during submit signs out`() = runTest(dispatcher) {
+        val repository = FakeAuthRepository(
+            usernameError = AuthSessionExpiredException(),
+        )
+        val sessionManager = createSessionManager(repository = repository)
+        val viewModel = createViewModel(
+            repository = repository,
+            sessionManager = sessionManager,
+        )
+
+        viewModel.onIntent(UsernameIntent.UsernameChanged("kupio"))
+        viewModel.onIntent(UsernameIntent.SubmitClicked)
+        advanceUntilIdle()
+
+        assertEquals(false, viewModel.state.value.isSubmitting)
+        assertEquals(SessionState.SignedOut, sessionManager.sessionState.value)
     }
 
     private suspend fun createViewModel(

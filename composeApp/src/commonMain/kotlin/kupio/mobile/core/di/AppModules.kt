@@ -2,6 +2,7 @@ package kupio.mobile.core.di
 
 import io.ktor.client.HttpClient
 import kupio.mobile.core.config.BackendConfig
+import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.core.network.createKupioHttpClient
 import kupio.mobile.core.preferences.DataStorePreferencesRepository
 import kupio.mobile.core.preferences.PreferencesRepository
@@ -9,6 +10,10 @@ import kupio.mobile.features.auth.data.local.DataStoreDeviceIdProvider
 import kupio.mobile.features.auth.data.local.KVaultSecureSessionStore
 import kupio.mobile.features.auth.data.remote.AuthApi
 import kupio.mobile.features.auth.data.repository.AuthRepositoryImpl
+import kupio.mobile.features.auth.data.repository.AuthTokenProvider
+import kupio.mobile.features.auth.data.repository.AuthClock
+import kupio.mobile.features.auth.data.repository.SystemAuthClock
+import kupio.mobile.features.auth.data.repository.TokenRefreshingAuthenticatedApiClient
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.repository.DeviceIdProvider
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
@@ -35,7 +40,10 @@ val kupioAppModules: List<Module> = listOf(
             )
         }
         single { AuthApi(get()) }
-        single<AuthRepository> { AuthRepositoryImpl(get(), get(), get()) }
+        single<AuthClock> { SystemAuthClock() }
+        single { AuthTokenProvider(get(), get(), get(), get()) }
+        single<AuthenticatedApiClient> { TokenRefreshingAuthenticatedApiClient(get()) }
+        single<AuthRepository> { AuthRepositoryImpl(get(), get(), get(), get()) }
         single<SecureSessionStore> { KVaultSecureSessionStore(get()) }
         single<DeviceIdProvider> { DataStoreDeviceIdProvider(get()) }
         single { SessionStateResolver() }

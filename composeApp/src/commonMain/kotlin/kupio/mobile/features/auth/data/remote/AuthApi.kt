@@ -1,13 +1,11 @@
 package kupio.mobile.features.auth.data.remote
 
 import io.ktor.client.HttpClient
-import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
-import io.ktor.client.request.header
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.http.HttpHeaders
+import kupio.mobile.core.network.bearerAuth
 import kupio.mobile.core.network.bodyOrThrow
 import kupio.mobile.core.network.toApiException
 
@@ -73,11 +71,5 @@ class AuthApi(
             bearerAuth(accessToken)
             setBody(request)
         }.bodyOrThrow()
-    }
-
-    private fun HttpRequestBuilder.bearerAuth(
-        accessToken: String,
-    ) {
-        header(HttpHeaders.Authorization, "Bearer $accessToken")
     }
 }

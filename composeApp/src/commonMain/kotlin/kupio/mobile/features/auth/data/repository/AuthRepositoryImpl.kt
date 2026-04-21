@@ -63,17 +63,17 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun getCurrentUser(): AuthenticatedUser {
-        return authenticatedApiClient.request { accessToken ->
-            authApi.getCurrentUser(accessToken = accessToken).toDomain()
+        return authenticatedApiClient.request { authorize ->
+            authApi.getCurrentUser(authorize).toDomain()
         }
     }
 
     override suspend fun setUsername(
         username: String,
     ): AuthenticatedUser {
-        return authenticatedApiClient.request { accessToken ->
+        return authenticatedApiClient.request { authorize ->
             authApi.setUsername(
-                accessToken = accessToken,
+                authorize = authorize,
                 request = SetUsernameRequestDto(username = username),
             ).toDomain()
         }

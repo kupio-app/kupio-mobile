@@ -1,11 +1,11 @@
 package kupio.mobile.features.auth.data.remote
 
 import io.ktor.client.HttpClient
+import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import kupio.mobile.core.network.bearerAuth
 import kupio.mobile.core.network.bodyOrThrow
 import kupio.mobile.core.network.toApiException
 
@@ -56,19 +56,19 @@ class AuthApi(
     }
 
     suspend fun getCurrentUser(
-        accessToken: String,
+        authorize: HttpRequestBuilder.() -> Unit,
     ): UserPrivateDto {
         return httpClient.get("/api/users/me") {
-            bearerAuth(accessToken)
+            authorize()
         }.bodyOrThrow()
     }
 
     suspend fun setUsername(
-        accessToken: String,
+        authorize: HttpRequestBuilder.() -> Unit,
         request: SetUsernameRequestDto,
     ): UserPrivateDto {
         return httpClient.patch("/api/users/me/username") {
-            bearerAuth(accessToken)
+            authorize()
             setBody(request)
         }.bodyOrThrow()
     }

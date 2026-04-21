@@ -69,10 +69,6 @@ class AuthTokenProvider(
         }
     }
 
-    suspend fun clearSession() {
-        secureSessionStore.clear()
-    }
-
     private suspend fun refreshSessionLocked(
         refreshToken: String,
     ): AuthSession {

@@ -7,6 +7,7 @@ import kupio.mobile.core.preferences.ThemeMode
 import kupio.mobile.core.presentation.UiAction
 import kupio.mobile.core.presentation.UiEffect
 import kupio.mobile.core.presentation.UiState
+import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,10 +17,12 @@ import kotlinx.coroutines.launch
 
 data class SettingsState(
     val selectedThemeMode: ThemeMode = ThemeMode.SYSTEM,
+    val isSigningOut: Boolean = false,
 ) : UiState
 
 sealed interface SettingsAction : UiAction {
     data object NavigateBackClicked : SettingsAction
+    data object LogoutClicked : SettingsAction
     data class ThemeModeSelected(val mode: ThemeMode) : SettingsAction
 }
 
@@ -29,6 +32,7 @@ sealed interface SettingsEffect : UiEffect {
 
 class SettingsViewModel(
     private val preferencesRepository: PreferencesRepository,
+    private val sessionManager: AuthSessionManager,
 ) : ViewModel() {
     private val _state = MutableStateFlow(SettingsState())
     val state = _state.asStateFlow()
@@ -47,6 +51,7 @@ class SettingsViewModel(
     fun onAction(action: SettingsAction) {
         when (action) {
             SettingsAction.NavigateBackClicked -> emitEffect(SettingsEffect.NavigateBack)
+            SettingsAction.LogoutClicked -> signOut()
             is SettingsAction.ThemeModeSelected -> updateThemeMode(action.mode)
         }
     }
@@ -58,9 +63,21 @@ class SettingsViewModel(
     }
 
     private fun updateThemeMode(mode: ThemeMode) {
-        if (_state.value.selectedThemeMode == mode) return
+        if (_state.value.selectedThemeMode == mode || _state.value.isSigningOut) return
         viewModelScope.launch {
             preferencesRepository.setThemeMode(mode)
+        }
+    }
+
+    private fun signOut() {
+        if (_state.value.isSigningOut) return
+
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isSigningOut = true)
+            runCatching {
+                sessionManager.signOut()
+            }
+            _state.value = _state.value.copy(isSigningOut = false)
         }
     }
 }

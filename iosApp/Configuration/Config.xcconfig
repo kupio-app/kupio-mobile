@@ -5,3 +5,12 @@ PRODUCT_BUNDLE_IDENTIFIER=kupio.mobile.mobile$(TEAM_ID)
 
 CURRENT_PROJECT_VERSION=1
 MARKETING_VERSION=1.0
+
+KUPIO_BACKEND_BASE_URL = http:/$()/localhost:9988
+KUPIO_GOOGLE_IOS_CLIENT_ID=
+KUPIO_GOOGLE_SERVER_CLIENT_ID=
+KUPIO_GOOGLE_REVERSED_CLIENT_ID=
+
+// Local and CI builds can override the values above without editing tracked files.
+// Create iosApp/Configuration/Config.local.xcconfig from Config.local.example.xcconfig.
+#include? "Config.local.xcconfig"

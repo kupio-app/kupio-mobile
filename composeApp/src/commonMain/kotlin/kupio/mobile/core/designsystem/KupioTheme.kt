@@ -15,35 +15,35 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 
 private val KupioLightColors = lightColorScheme(
-    primary = Color(0xFF1664D9),
-    onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFD9E7FF),
-    onPrimaryContainer = Color(0xFF001B47),
-    secondary = Color(0xFF315EA8),
-    onSecondary = Color(0xFFFFFFFF),
-    background = Color(0xFFF6F8FC),
-    onBackground = Color(0xFF151A23),
-    surface = Color(0xFFFFFFFF),
-    onSurface = Color(0xFF151A23),
-    surfaceVariant = Color(0xFFE8EDF7),
-    onSurfaceVariant = Color(0xFF434A57),
-    outline = Color(0xFF737B8A),
+    primary = Color(0xFFB4623A),              // Terracotta accent
+    onPrimary = Color(0xFFFDFAF6),            // cream (kp-inverse)
+    primaryContainer = Color(0xFFF2E8D8),     // kp-card-2 (warm tint)
+    onPrimaryContainer = Color(0xFF3B2A1A),   // kp-ink-1
+    secondary = Color(0xFF7A6650),            // kp-ink-2 (mid brown)
+    onSecondary = Color(0xFFFDFAF6),          // cream
+    background = Color(0xFFF6EFE5),           // kp-bg (warm beige)
+    onBackground = Color(0xFF3B2A1A),         // kp-ink-1
+    surface = Color(0xFFFDFAF6),              // kp-card (cream)
+    onSurface = Color(0xFF3B2A1A),            // kp-ink-1
+    surfaceVariant = Color(0xFFF2E8D8),       // kp-card-2
+    onSurfaceVariant = Color(0xFF7A6650),     // kp-ink-2
+    outline = Color(0xFFA8957B),              // kp-ink-3 (muted taupe)
 )
 
 private val KupioDarkColors = darkColorScheme(
-    primary = Color(0xFFA9C7FF),
-    onPrimary = Color(0xFF002F6C),
-    primaryContainer = Color(0xFF00459C),
-    onPrimaryContainer = Color(0xFFD9E7FF),
-    secondary = Color(0xFFB7CCF4),
-    onSecondary = Color(0xFF002C68),
-    background = Color(0xFF0F141C),
-    onBackground = Color(0xFFE2E8F3),
-    surface = Color(0xFF171D27),
-    onSurface = Color(0xFFE2E8F3),
-    surfaceVariant = Color(0xFF2A303B),
-    onSurfaceVariant = Color(0xFFC2C9D6),
-    outline = Color(0xFF8C95A5),
+    primary = Color(0xFFB4623A),              // Terracotta (holds up in dark)
+    onPrimary = Color(0xFFFDFAF6),            // cream
+    primaryContainer = Color(0xFF3A2B1D),     // kp-card-2 dark
+    onPrimaryContainer = Color(0xFFF3E6D3),   // kp-ink-1 dark
+    secondary = Color(0xFFC1A986),            // kp-ink-2 dark (warm sand)
+    onSecondary = Color(0xFF1E160E),          // kp-inverse dark
+    background = Color(0xFF1E160E),           // kp-bg dark
+    onBackground = Color(0xFFF3E6D3),         // kp-ink-1 dark
+    surface = Color(0xFF2B2016),              // kp-card dark
+    onSurface = Color(0xFFF3E6D3),            // kp-ink-1 dark
+    surfaceVariant = Color(0xFF3A2B1D),       // kp-card-2 dark
+    onSurfaceVariant = Color(0xFFC1A986),     // kp-ink-2 dark
+    outline = Color(0xFF8A7559),              // kp-ink-3 dark
 )
 
 @Immutable

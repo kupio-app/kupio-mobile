@@ -14,6 +14,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import kupio.mobile.core.preferences.ThemeMode
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.back
+import mobile.composeapp.generated.resources.settings_logout
 import mobile.composeapp.generated.resources.settings_body
 import mobile.composeapp.generated.resources.settings_title
 import mobile.composeapp.generated.resources.theme_mode_current
@@ -70,21 +71,30 @@ private fun SettingsRoute(
             ThemeModeButton(
                 text = stringResource(Res.string.theme_mode_system),
                 onClick = { onAction(SettingsAction.ThemeModeSelected(ThemeMode.SYSTEM)) },
+                enabled = !state.isSigningOut,
             )
             ThemeModeButton(
                 text = stringResource(Res.string.theme_mode_light),
                 onClick = { onAction(SettingsAction.ThemeModeSelected(ThemeMode.LIGHT)) },
+                enabled = !state.isSigningOut,
             )
             ThemeModeButton(
                 text = stringResource(Res.string.theme_mode_dark),
                 onClick = { onAction(SettingsAction.ThemeModeSelected(ThemeMode.DARK)) },
+                enabled = !state.isSigningOut,
             )
             KupioText(
                 text = stringResource(Res.string.theme_mode_current, currentModeLabel),
             )
             KupioButton(
+                text = stringResource(Res.string.settings_logout),
+                onClick = { onAction(SettingsAction.LogoutClicked) },
+                enabled = !state.isSigningOut,
+            )
+            KupioButton(
                 text = stringResource(Res.string.back),
                 onClick = { onAction(SettingsAction.NavigateBackClicked) },
+                enabled = !state.isSigningOut,
             )
         }
     }
@@ -94,10 +104,12 @@ private fun SettingsRoute(
 private fun ThemeModeButton(
     text: String,
     onClick: () -> Unit,
+    enabled: Boolean,
 ) {
     KupioButton(
         text = text,
         onClick = onClick,
+        enabled = enabled,
         modifier = Modifier.fillMaxWidth(),
     )
 }

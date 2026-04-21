@@ -10,7 +10,6 @@ import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
-import kupio.mobile.features.auth.domain.session.SessionStateResolver
 
 class AuthSessionManagerTest {
     @Test
@@ -62,7 +61,7 @@ class AuthSessionManagerTest {
         val manager = createManager(
             secureSessionStore = FakeSecureSessionStore(session = sampleSession()),
             repository = FakeAuthRepository(
-                refreshedSession = sampleSession(needsUsername = true),
+                refreshedSession = sampleSession(),
                 currentUser = sampleUser(needsUsername = true),
             ),
         )
@@ -155,18 +154,14 @@ class AuthSessionManagerTest {
         return AuthSessionManager(
             authRepository = repository,
             secureSessionStore = secureSessionStore,
-            sessionStateResolver = SessionStateResolver(),
         )
     }
 
-    private fun sampleSession(
-        needsUsername: Boolean = false,
-    ) = AuthSession(
+    private fun sampleSession() = AuthSession(
         accessToken = "access",
         refreshToken = "refresh",
         accessExpiresAt = 100,
         refreshExpiresAt = 200,
-        needsUsername = needsUsername,
     )
 
     private fun sampleUser(

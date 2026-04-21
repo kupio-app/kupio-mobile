@@ -21,11 +21,11 @@ import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
-import kupio.mobile.features.auth.domain.session.SessionStateResolver
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.auth.AuthEffect
 import kupio.mobile.features.auth.presentation.auth.AuthIntent
 import kupio.mobile.features.auth.presentation.auth.AuthMode
+import kupio.mobile.features.auth.presentation.auth.AuthState
 import kupio.mobile.features.auth.presentation.auth.AuthViewModel
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -97,33 +97,9 @@ class AuthViewModelTest {
     }
 
     @Test
-    fun `sign out transition clears retained form input`() = runTest(dispatcher) {
-        val repository = FakeAuthRepository()
-        val sessionManager = AuthSessionManager(
-            authRepository = repository,
-            secureSessionStore = FakeSecureSessionStore(),
-            sessionStateResolver = SessionStateResolver(),
-        )
-        val viewModel = createViewModel(
-            repository = repository,
-            sessionManager = sessionManager,
-        )
-
-        viewModel.onIntent(AuthIntent.EmailChanged("hello@kupio.dev"))
-        viewModel.onIntent(AuthIntent.PasswordChanged("password123"))
-        viewModel.onIntent(AuthIntent.ModeSelected(AuthMode.REGISTER))
-        viewModel.onIntent(AuthIntent.ConfirmPasswordChanged("password123"))
-        viewModel.onIntent(AuthIntent.UsernameChanged("kupio"))
-        sessionManager.establishSession(SampleSession)
-        advanceUntilIdle()
-        sessionManager.signOut()
-        advanceUntilIdle()
-
-        assertEquals(AuthMode.LOGIN, viewModel.state.value.mode)
-        assertEquals("", viewModel.state.value.email)
-        assertEquals("", viewModel.state.value.password)
-        assertEquals("", viewModel.state.value.confirmPassword)
-        assertEquals("", viewModel.state.value.username)
+    fun `fresh view model starts with empty auth state`() = runTest(dispatcher) {
+        val viewModel = createViewModel()
+        assertEquals(AuthState(), viewModel.state.value)
     }
 
     @Test
@@ -179,7 +155,6 @@ class AuthViewModelTest {
         val sessionManager = AuthSessionManager(
             authRepository = FakeAuthRepository(),
             secureSessionStore = FakeSecureSessionStore(),
-            sessionStateResolver = SessionStateResolver(),
         )
         val viewModel = createViewModel(
             repository = FakeAuthRepository(),
@@ -206,7 +181,6 @@ class AuthViewModelTest {
         sessionManager: AuthSessionManager = AuthSessionManager(
             authRepository = repository,
             secureSessionStore = FakeSecureSessionStore(),
-            sessionStateResolver = SessionStateResolver(),
         ),
     ): AuthViewModel {
         return AuthViewModel(

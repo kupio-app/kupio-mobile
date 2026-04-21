@@ -4,21 +4,19 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.model.SessionState
-import kupio.mobile.features.auth.domain.session.SessionStateResolver
+import kupio.mobile.features.auth.domain.session.toSessionState
 
 class SessionStateResolverTest {
-    private val resolver = SessionStateResolver()
-
     @Test
-    fun `resolve returns signed in when username is complete`() {
+    fun `toSessionState returns signed in when username is complete`() {
         val user = sampleUser(needsUsername = false)
-        assertEquals(SessionState.SignedIn(user), resolver.resolve(user))
+        assertEquals(SessionState.SignedIn(user), user.toSessionState())
     }
 
     @Test
-    fun `resolve returns needs username when backend requires it`() {
+    fun `toSessionState returns needs username when backend requires it`() {
         val user = sampleUser(needsUsername = true)
-        assertEquals(SessionState.NeedsUsername(user), resolver.resolve(user))
+        assertEquals(SessionState.NeedsUsername(user), user.toSessionState())
     }
 
     private fun sampleUser(

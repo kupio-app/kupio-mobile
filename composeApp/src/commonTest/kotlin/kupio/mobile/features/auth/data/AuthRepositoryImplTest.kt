@@ -70,7 +70,6 @@ class AuthRepositoryImplTest {
                 accessExpiresAt = 100,
                 refreshExpiresAt = 200,
                 tokenType = "bearer",
-                needsUsername = false,
             ),
             session,
         )
@@ -137,7 +136,6 @@ class AuthRepositoryImplTest {
 
         assertEquals("fresh-access", refreshed.accessToken)
         assertEquals("fresh-access", secureSessionStore.readSession()?.accessToken)
-        assertEquals(true, refreshed.needsUsername)
         assertEquals("hello@kupio.dev", user.email)
         assertEquals(true, user.needsUsername)
     }
@@ -391,7 +389,10 @@ class AuthRepositoryImplTest {
             authApi = authApi,
             deviceIdProvider = deviceIdProvider,
             authTokenProvider = authTokenProvider,
-            authenticatedApiClient = TokenRefreshingAuthenticatedApiClient(authTokenProvider),
+            authenticatedApiClient = TokenRefreshingAuthenticatedApiClient(
+                authTokenProvider = authTokenProvider,
+                onSessionExpired = { secureSessionStore.clear() },
+            ),
         )
     }
 

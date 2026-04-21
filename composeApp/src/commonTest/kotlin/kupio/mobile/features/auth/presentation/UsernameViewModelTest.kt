@@ -21,7 +21,6 @@ import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
-import kupio.mobile.features.auth.domain.session.SessionStateResolver
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.username.UsernameIntent
 import kupio.mobile.features.auth.presentation.username.UsernameViewModel
@@ -127,10 +126,8 @@ class UsernameViewModelTest {
                     refreshToken = "refresh",
                     accessExpiresAt = 100,
                     refreshExpiresAt = 200,
-                    needsUsername = true,
                 ),
             ),
-            sessionStateResolver = SessionStateResolver(),
         )
         manager.updateAuthenticatedUser(sampleUsernameUser(needsUsername = true))
         return manager

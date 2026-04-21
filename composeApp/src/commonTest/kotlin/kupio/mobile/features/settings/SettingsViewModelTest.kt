@@ -20,7 +20,6 @@ import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
-import kupio.mobile.features.auth.domain.session.SessionStateResolver
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
@@ -50,7 +49,6 @@ class SettingsViewModelTest {
         val sessionManager = AuthSessionManager(
             authRepository = authRepository,
             secureSessionStore = secureSessionStore,
-            sessionStateResolver = SessionStateResolver(),
         )
         val viewModel = SettingsViewModel(
             preferencesRepository = FakePreferencesRepository(),
@@ -81,7 +79,6 @@ class SettingsViewModelTest {
                     ),
                     clearError = IllegalStateException("clear failed"),
                 ),
-                sessionStateResolver = SessionStateResolver(),
             ),
         )
 

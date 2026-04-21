@@ -14,14 +14,13 @@ import kupio.mobile.features.auth.domain.repository.AuthRepository
 class AuthSessionManager(
     private val authRepository: AuthRepository,
     private val secureSessionStore: SecureSessionStore,
-    private val sessionStateResolver: SessionStateResolver,
 ) {
     private val _sessionState = MutableStateFlow<SessionState>(SessionState.Loading)
     val sessionState: StateFlow<SessionState> = _sessionState.asStateFlow()
-    private val bootstrapMutex = Mutex()
+    private val sessionMutex = Mutex()
 
     suspend fun bootstrap() {
-        bootstrapMutex.withLock {
+        sessionMutex.withLock {
             _sessionState.value = SessionState.Loading
             val storedSession = secureSessionStore.readSession()
             if (storedSession == null) {
@@ -31,7 +30,7 @@ class AuthSessionManager(
 
             try {
                 val refreshedSession = authRepository.refreshSession()
-                establishSession(refreshedSession)
+                establishSessionLocked(refreshedSession)
             } catch (_: AuthSessionExpiredException) {
                 clearPersistedSession()
             } catch (_: Throwable) {
@@ -40,9 +39,37 @@ class AuthSessionManager(
         }
     }
 
-    suspend fun establishSession(
-        session: AuthSession,
-    ) {
+    suspend fun establishSession(session: AuthSession) {
+        sessionMutex.withLock {
+            establishSessionLocked(session)
+        }
+    }
+
+    suspend fun updateAuthenticatedUser(user: AuthenticatedUser) {
+        sessionMutex.withLock {
+            _sessionState.value = user.toSessionState()
+        }
+    }
+
+    suspend fun signOut() {
+        sessionMutex.withLock {
+            val refreshToken = secureSessionStore.readSession()?.refreshToken
+            clearPersistedSession()
+            refreshToken?.let { token ->
+                runCatching {
+                    authRepository.logout(refreshToken = token)
+                }
+            }
+        }
+    }
+
+    suspend fun expireSession() {
+        sessionMutex.withLock {
+            clearPersistedSession()
+        }
+    }
+
+    private suspend fun establishSessionLocked(session: AuthSession) {
         secureSessionStore.writeSession(session)
         val user = runCatching {
             authRepository.getCurrentUser()
@@ -52,28 +79,7 @@ class AuthSessionManager(
             }
             throw throwable
         }
-
-        _sessionState.value = sessionStateResolver.resolve(user)
-    }
-
-    suspend fun updateAuthenticatedUser(
-        user: AuthenticatedUser,
-    ) {
-        _sessionState.value = sessionStateResolver.resolve(user)
-    }
-
-    suspend fun signOut() {
-        val refreshToken = secureSessionStore.readSession()?.refreshToken
-        clearPersistedSession()
-        refreshToken?.let { token ->
-            runCatching {
-                authRepository.logout(refreshToken = token)
-            }
-        }
-    }
-
-    suspend fun expireSession() {
-        clearPersistedSession()
+        _sessionState.value = user.toSessionState()
     }
 
     private suspend fun clearPersistedSession() {

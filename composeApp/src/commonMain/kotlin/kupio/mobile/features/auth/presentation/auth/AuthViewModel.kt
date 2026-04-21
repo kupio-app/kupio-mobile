@@ -43,11 +43,6 @@ class AuthViewModel(
         }
     }
 
-    private fun resetForm() {
-        if (_state.value == AuthState()) return
-        _state.value = AuthState()
-    }
-
     private fun updateMode(
         mode: AuthMode,
     ) {

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,7 +30,7 @@ fun KupioNavigator() {
     val viewModel = koinViewModel<RootNavigationViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    when (state) {
+    when (val current = state) {
         SessionState.Loading -> KupioCenteredContent {
             CircularProgressIndicator()
         }
@@ -48,8 +49,8 @@ fun KupioNavigator() {
             }
         }
 
-        SessionState.SignedOut -> Navigator(AuthScreen())
-        is SessionState.NeedsUsername -> Navigator(UsernameScreen())
-        is SessionState.SignedIn -> Navigator(HomeScreen())
+        SessionState.SignedOut -> key(SessionState.SignedOut::class) { Navigator(AuthScreen()) }
+        is SessionState.NeedsUsername -> key(current::class) { Navigator(UsernameScreen()) }
+        is SessionState.SignedIn -> key(current::class) { Navigator(HomeScreen()) }
     }
 }

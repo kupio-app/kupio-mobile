@@ -9,6 +9,7 @@ import kupio.mobile.features.auth.domain.model.AuthSession
 import kupio.mobile.features.auth.domain.model.AuthSessionExpiredException
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.model.SessionState
+import kupio.mobile.features.auth.domain.model.toSessionState
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 
 class AuthSessionManager(

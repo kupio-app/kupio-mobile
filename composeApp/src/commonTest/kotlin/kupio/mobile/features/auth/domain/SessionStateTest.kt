@@ -4,9 +4,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.model.SessionState
-import kupio.mobile.features.auth.domain.session.toSessionState
+import kupio.mobile.features.auth.domain.model.toSessionState
 
-class SessionStateResolverTest {
+class SessionStateTest {
     @Test
     fun `toSessionState returns signed in when username is complete`() {
         val user = sampleUser(needsUsername = false)

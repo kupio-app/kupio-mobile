@@ -7,3 +7,6 @@ sealed interface SessionState {
     data class NeedsUsername(val user: AuthenticatedUser) : SessionState
     data class SignedIn(val user: AuthenticatedUser) : SessionState
 }
+
+fun AuthenticatedUser.toSessionState(): SessionState =
+    if (needsUsername) SessionState.NeedsUsername(this) else SessionState.SignedIn(this)

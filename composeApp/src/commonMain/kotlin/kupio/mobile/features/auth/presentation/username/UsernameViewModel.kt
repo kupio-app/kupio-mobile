@@ -14,7 +14,7 @@ import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.auth.AuthField
 import kupio.mobile.features.auth.presentation.auth.mapFieldError
-import kupio.mobile.features.auth.presentation.auth.toUserMessage
+import kupio.mobile.features.auth.presentation.auth.toAuthFormError
 
 class UsernameViewModel(
     private val authRepository: AuthRepository,
@@ -92,7 +92,7 @@ class UsernameViewModel(
                     it.copy(
                         usernameError = mappedError,
                         formError = if (mappedError == null) {
-                            apiException?.message ?: throwable.toUserMessage()
+                            throwable.toAuthFormError(useInvalidCredentials = false)
                         } else {
                             null
                         },

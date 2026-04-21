@@ -2,12 +2,16 @@ package kupio.mobile.features.auth.presentation.auth
 
 import androidx.compose.runtime.Composable
 import kupio.mobile.core.network.ApiException
+import kupio.mobile.features.auth.domain.model.AuthSessionExpiredException
 import kupio.mobile.features.auth.domain.model.FieldValidationError
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.auth_error_email_invalid
+import mobile.composeapp.generated.resources.auth_error_generic
+import mobile.composeapp.generated.resources.auth_error_invalid_credentials
 import mobile.composeapp.generated.resources.auth_error_password_short
 import mobile.composeapp.generated.resources.auth_error_passwords_do_not_match
 import mobile.composeapp.generated.resources.auth_error_required
+import mobile.composeapp.generated.resources.auth_error_session_expired
 import mobile.composeapp.generated.resources.auth_error_username_long
 import mobile.composeapp.generated.resources.auth_error_username_short
 import mobile.composeapp.generated.resources.auth_google_error_activity_unavailable
@@ -74,8 +78,14 @@ internal fun mapFieldError(
     }
 }
 
-internal fun Throwable.toUserMessage(): String {
-    return message ?: "Something went wrong. Please try again."
+internal fun Throwable.toAuthFormError(
+    useInvalidCredentials: Boolean = true,
+): AuthFormError {
+    return when {
+        this is AuthSessionExpiredException -> AuthFormError.SessionExpired
+        this is ApiException && statusCode == 401 && useInvalidCredentials -> AuthFormError.InvalidCredentials
+        else -> AuthFormError.Generic
+    }
 }
 
 @Composable
@@ -94,7 +104,9 @@ internal fun FieldValidationError?.toErrorMessage(): String? {
 @Composable
 internal fun AuthFormError?.toErrorMessage(): String? {
     return when (this) {
-        is AuthFormError.Text -> message
+        AuthFormError.Generic -> stringResource(Res.string.auth_error_generic)
+        AuthFormError.InvalidCredentials -> stringResource(Res.string.auth_error_invalid_credentials)
+        AuthFormError.SessionExpired -> stringResource(Res.string.auth_error_session_expired)
         is AuthFormError.GoogleSignIn -> googleSignInErrorMessage(errorCode)
         null -> null
     }

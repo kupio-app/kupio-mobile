@@ -28,7 +28,9 @@ sealed interface AuthEffect : UiEffect {
 }
 
 sealed interface AuthFormError {
-    data class Text(val message: String) : AuthFormError
+    data object Generic : AuthFormError
+    data object InvalidCredentials : AuthFormError
+    data object SessionExpired : AuthFormError
     data class GoogleSignIn(val errorCode: String) : AuthFormError
 }
 

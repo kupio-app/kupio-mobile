@@ -52,7 +52,7 @@ private fun UsernameContent(
                     stringResource(Res.string.auth_username_hint)
                 },
             )
-            AuthInlineError(message = state.formError)
+            AuthInlineError(message = state.formError.toErrorMessage())
             KupioOutlinedTextField(
                 value = state.username,
                 onValueChange = { onIntent(UsernameIntent.UsernameChanged(it)) },

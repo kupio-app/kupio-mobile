@@ -45,6 +45,9 @@
     <string name="auth_google_error_failed">Prihlásenie cez Google zlyhalo. Skús to znova.</string>
     <string name="auth_bootstrap_failed">Nepodarilo sa obnoviť reláciu. Skontroluj pripojenie a skús to znova.</string>
     <string name="auth_error_required">Toto pole je povinné.</string>
+    <string name="auth_error_generic">Niečo sa pokazilo. Skús to znova.</string>
+    <string name="auth_error_invalid_credentials">E-mail alebo heslo je nesprávne.</string>
+    <string name="auth_error_session_expired">Tvoja relácia vypršala. Prihlás sa znova.</string>
     <string name="auth_error_email_invalid">Zadaj platnú e-mailovú adresu.</string>
     <string name="auth_error_password_short">Heslo musí mať aspoň 8 znakov.</string>
     <string name="auth_error_passwords_do_not_match">Heslá sa nezhodujú.</string>

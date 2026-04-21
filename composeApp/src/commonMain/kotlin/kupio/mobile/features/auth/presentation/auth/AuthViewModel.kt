@@ -183,11 +183,11 @@ class AuthViewModel(
             }.onSuccess { session ->
                 completeSession(
                     session = session,
-                    onFailure = { message ->
+                    onFailure = { formError ->
                         _state.update {
                             it.copy(
                                 isSubmitting = false,
-                                formError = AuthFormError.Text(message),
+                                formError = formError,
                             )
                         }
                     },
@@ -242,10 +242,10 @@ class AuthViewModel(
             }.onSuccess { session ->
                 completeSession(
                     session = session,
-                    onFailure = { message ->
+                    onFailure = { formError ->
                         _state.update {
                             it.copy(
-                                formError = AuthFormError.Text(message),
+                                formError = formError,
                                 isGoogleSubmitting = false,
                             )
                         }
@@ -255,10 +255,9 @@ class AuthViewModel(
                     },
                 )
             }.onFailure { throwable ->
-                val apiException = throwable as? ApiException
                 _state.update {
                     it.copy(
-                        formError = AuthFormError.Text(apiException?.message ?: throwable.toUserMessage()),
+                        formError = throwable.toAuthFormError(useInvalidCredentials = false),
                         isGoogleSubmitting = false,
                     )
                 }
@@ -268,7 +267,7 @@ class AuthViewModel(
 
     private suspend fun completeSession(
         session: AuthSession,
-        onFailure: (String) -> Unit,
+        onFailure: (AuthFormError) -> Unit,
         onComplete: () -> Unit,
     ) {
         runCatching {
@@ -276,7 +275,7 @@ class AuthViewModel(
         }.onSuccess {
             onComplete()
         }.onFailure { throwable ->
-            onFailure(throwable.toUserMessage())
+            onFailure(throwable.toAuthFormError(useInvalidCredentials = false))
         }
     }
 
@@ -294,7 +293,7 @@ class AuthViewModel(
                 formError = if (fieldErrors.hasAny) {
                     null
                 } else {
-                    AuthFormError.Text(apiException?.message ?: throwable.toUserMessage())
+                    throwable.toAuthFormError()
                 },
                 isSubmitting = false,
                 isGoogleSubmitting = false,

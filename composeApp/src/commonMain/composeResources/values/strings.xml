@@ -45,6 +45,9 @@
     <string name="auth_google_error_failed">Google sign-in failed. Please try again.</string>
     <string name="auth_bootstrap_failed">We could not restore your session. Check your connection and try again.</string>
     <string name="auth_error_required">This field is required.</string>
+    <string name="auth_error_generic">Something went wrong. Please try again.</string>
+    <string name="auth_error_invalid_credentials">Email or password is incorrect.</string>
+    <string name="auth_error_session_expired">Your session has expired. Please sign in again.</string>
     <string name="auth_error_email_invalid">Enter a valid email address.</string>
     <string name="auth_error_password_short">Password must have at least 8 characters.</string>
     <string name="auth_error_passwords_do_not_match">Passwords do not match.</string>

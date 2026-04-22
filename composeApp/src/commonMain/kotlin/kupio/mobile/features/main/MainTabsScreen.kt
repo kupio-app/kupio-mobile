@@ -1,0 +1,78 @@
+package kupio.mobile.features.main
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChatBubble
+import androidx.compose.material.icons.filled.ChatBubbleOutline
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonOutline
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import cafe.adriel.voyager.navigator.tab.CurrentTab
+import cafe.adriel.voyager.navigator.tab.TabNavigator
+import kupio.mobile.core.designsystem.KupioBottomNav
+import kupio.mobile.core.designsystem.KupioBottomNavItem
+import kupio.mobile.features.create.CreateScreen
+import kupio.mobile.features.main.tabs.ChatsTab
+import kupio.mobile.features.main.tabs.HomeTab
+import kupio.mobile.features.main.tabs.MeTab
+import kupio.mobile.features.main.tabs.SavedTab
+
+class MainTabsScreen : Screen {
+    @Composable
+    override fun Content() {
+        val rootNavigator = LocalNavigator.currentOrThrow
+
+        TabNavigator(HomeTab) { tabNavigator ->
+            val tabs = listOf(HomeTab, SavedTab, ChatsTab, MeTab)
+            val selectedIndex = tabs.indexOfFirst { it == tabNavigator.current }.coerceAtLeast(0)
+
+            val navItems = listOf(
+                KupioBottomNavItem(
+                    label = "Home",
+                    icon = Icons.Outlined.Home,
+                    selectedIcon = Icons.Filled.Home,
+                ),
+                KupioBottomNavItem(
+                    label = "Saved",
+                    icon = Icons.Default.FavoriteBorder,
+                    selectedIcon = Icons.Default.Favorite,
+                ),
+                KupioBottomNavItem(
+                    label = "Chats",
+                    icon = Icons.Default.ChatBubbleOutline,
+                    selectedIcon = Icons.Default.ChatBubble,
+                ),
+                KupioBottomNavItem(
+                    label = "Me",
+                    icon = Icons.Default.PersonOutline,
+                    selectedIcon = Icons.Default.Person,
+                ),
+            )
+
+            Scaffold(
+                bottomBar = {
+                    KupioBottomNav(
+                        items = navItems,
+                        selectedIndex = selectedIndex,
+                        onItemSelected = { index -> tabNavigator.current = tabs[index] },
+                        onCenterActionClick = { rootNavigator.push(CreateScreen()) },
+                    )
+                },
+            ) { paddingValues ->
+                Box(Modifier.padding(paddingValues)) {
+                    CurrentTab()
+                }
+            }
+        }
+    }
+}

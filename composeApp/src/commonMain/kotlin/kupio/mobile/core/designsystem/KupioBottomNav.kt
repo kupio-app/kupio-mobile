@@ -26,6 +26,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.nav_create
+import org.jetbrains.compose.resources.stringResource
 
 data class KupioBottomNavItem(
     val label: String,
@@ -153,7 +156,7 @@ private fun CenterFab(
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = Icons.Filled.Add,
-                contentDescription = "Create",
+                contentDescription = stringResource(Res.string.nav_create),
                 tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(32.dp),
             )

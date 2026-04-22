@@ -4,6 +4,15 @@
     <string name="home_body">Tento štartér definuje zdieľaný základ aplikácie a ukazuje počiatočnú MVI-lite štruktúru.</string>
     <string name="home_note">Voyager, Koin a DataStore sú už zapojené do štartovacieho toku aplikácie.</string>
     <string name="open_settings">Otvoriť nastavenia</string>
+    <string name="nav_home">Domov</string>
+    <string name="nav_saved">Uložené</string>
+    <string name="nav_chats">Chaty</string>
+    <string name="nav_me">Ja</string>
+    <string name="nav_create">Vytvoriť</string>
+    <string name="screen_home_body">Tvoj feed sa zobrazí tu.</string>
+    <string name="screen_saved_body">Tvoje uložené inzeráty sa zobrazia tu.</string>
+    <string name="screen_create_body">Tu vytvoríš inzerát.</string>
+    <string name="screen_me_body">Tvoj profil a nastavenia sa zobrazia tu.</string>
     <string name="settings_title">Nastavenia</string>
     <string name="settings_body">Režim témy sa ukladá do DataStore ako ukážka zdieľaných aplikačných preferencií.</string>
     <string name="settings_logout">Odhlásiť sa</string>

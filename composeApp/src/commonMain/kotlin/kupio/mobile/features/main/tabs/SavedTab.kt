@@ -5,6 +5,9 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import kupio.mobile.features.saved.SavedScreen
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.nav_saved
+import org.jetbrains.compose.resources.stringResource
 
 object SavedTab : Tab {
     @Composable
@@ -13,5 +16,5 @@ object SavedTab : Tab {
     }
 
     override val options: TabOptions
-        @Composable get() = TabOptions(index = 1u, title = "Saved")
+        @Composable get() = TabOptions(index = 1u, title = stringResource(Res.string.nav_saved))
 }

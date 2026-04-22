@@ -26,6 +26,12 @@ import kupio.mobile.features.main.tabs.ChatsTab
 import kupio.mobile.features.main.tabs.HomeTab
 import kupio.mobile.features.main.tabs.MeTab
 import kupio.mobile.features.main.tabs.SavedTab
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.nav_chats
+import mobile.composeapp.generated.resources.nav_home
+import mobile.composeapp.generated.resources.nav_me
+import mobile.composeapp.generated.resources.nav_saved
+import org.jetbrains.compose.resources.stringResource
 
 class MainTabsScreen : Screen {
     @Composable
@@ -38,22 +44,22 @@ class MainTabsScreen : Screen {
 
             val navItems = listOf(
                 KupioBottomNavItem(
-                    label = "Home",
+                    label = stringResource(Res.string.nav_home),
                     icon = Icons.Outlined.Home,
                     selectedIcon = Icons.Filled.Home,
                 ),
                 KupioBottomNavItem(
-                    label = "Saved",
+                    label = stringResource(Res.string.nav_saved),
                     icon = Icons.Default.FavoriteBorder,
                     selectedIcon = Icons.Default.Favorite,
                 ),
                 KupioBottomNavItem(
-                    label = "Chats",
+                    label = stringResource(Res.string.nav_chats),
                     icon = Icons.Default.ChatBubbleOutline,
                     selectedIcon = Icons.Default.ChatBubble,
                 ),
                 KupioBottomNavItem(
-                    label = "Me",
+                    label = stringResource(Res.string.nav_me),
                     icon = Icons.Default.PersonOutline,
                     selectedIcon = Icons.Default.Person,
                 ),

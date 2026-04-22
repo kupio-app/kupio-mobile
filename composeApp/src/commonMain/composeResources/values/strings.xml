@@ -4,6 +4,15 @@
     <string name="home_body">This starter defines the shared app shell and demonstrates the initial MVI-lite structure.</string>
     <string name="home_note">Voyager, Koin, and DataStore are now wired into the starter flow.</string>
     <string name="open_settings">Open settings</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_saved">Saved</string>
+    <string name="nav_chats">Chats</string>
+    <string name="nav_me">Me</string>
+    <string name="nav_create">Create</string>
+    <string name="screen_home_body">Your feed will appear here.</string>
+    <string name="screen_saved_body">Your saved listings will appear here.</string>
+    <string name="screen_create_body">Create a listing here.</string>
+    <string name="screen_me_body">Your profile and preferences will appear here.</string>
     <string name="settings_title">Settings</string>
     <string name="settings_body">Theme mode is stored in DataStore to demonstrate shared app preferences.</string>
     <string name="settings_logout">Log out</string>

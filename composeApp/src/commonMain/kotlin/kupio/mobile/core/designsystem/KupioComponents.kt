@@ -44,7 +44,7 @@ fun KupioScaffold(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(KupioThemeDefaults.spacing.lg),
+                    .padding(KupioThemeDefaults.spacing.md),
                 verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
             ) {
                 KupioText(

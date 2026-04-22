@@ -18,7 +18,7 @@ import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.presentation.auth.AuthScreen
 import kupio.mobile.features.auth.presentation.username.UsernameScreen
-import kupio.mobile.features.home.HomeScreen
+import kupio.mobile.features.main.MainTabsScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.auth_bootstrap_failed
 import mobile.composeapp.generated.resources.retry
@@ -51,6 +51,6 @@ fun KupioNavigator() {
 
         SessionState.SignedOut -> key(SessionState.SignedOut::class) { Navigator(AuthScreen()) }
         is SessionState.NeedsUsername -> key(current::class) { Navigator(UsernameScreen()) }
-        is SessionState.SignedIn -> key(current::class) { Navigator(HomeScreen()) }
+        is SessionState.SignedIn -> key(current::class) { Navigator(MainTabsScreen()) }
     }
 }

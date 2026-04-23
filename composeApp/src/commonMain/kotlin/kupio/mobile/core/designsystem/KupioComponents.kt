@@ -32,10 +32,15 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun KupioScaffold(
-    title: String,
+    title: String? = null,
+    topBar: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
-    Scaffold { paddingValues ->
+    Scaffold(
+        topBar = {
+            topBar?.invoke()
+        }
+    ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -44,13 +49,15 @@ fun KupioScaffold(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(KupioThemeDefaults.spacing.lg),
+                    .padding(KupioThemeDefaults.spacing.md),
                 verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
             ) {
-                KupioText(
-                    text = title,
-                    style = MaterialTheme.typography.headlineMedium,
-                )
+                if (title != null) {
+                    KupioText(
+                        text = title,
+                        style = MaterialTheme.typography.headlineMedium,
+                    )
+                }
                 content()
             }
         }

@@ -23,7 +23,7 @@ private val KupioLightColors = lightColorScheme(
     onSecondary = Color(0xFFFDFAF6),          // cream
     background = Color(0xFFF6EFE5),           // kp-bg (warm beige)
     onBackground = Color(0xFF3B2A1A),         // kp-ink-1
-    surface = Color(0xFFFDFAF6),              // kp-card (cream)
+    surface = Color(0xFFFFFFFF),              // kp-card (cream)
     onSurface = Color(0xFF3B2A1A),            // kp-ink-1
     surfaceVariant = Color(0xFFF2E8D8),       // kp-card-2
     onSurfaceVariant = Color(0xFF7A6650),     // kp-ink-2
@@ -90,3 +90,4 @@ fun KupioTheme(
         )
     }
 }
+

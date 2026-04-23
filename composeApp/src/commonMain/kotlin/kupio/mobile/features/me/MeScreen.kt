@@ -29,12 +29,13 @@ class MeScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val rootNavigator = generateSequence(navigator) { it.parent }.last()
         val viewModel = koinViewModel<MeViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
 
         CollectEffect(viewModel.effects) { effect ->
             when (effect) {
-                MeEffect.NavigateToSettings -> navigator.push(SettingsScreen())
+                MeEffect.NavigateToSettings -> rootNavigator.push(SettingsScreen())
             }
         }
 

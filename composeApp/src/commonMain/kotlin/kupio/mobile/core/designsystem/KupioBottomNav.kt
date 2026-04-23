@@ -35,7 +35,6 @@ data class KupioBottomNavItem(
     val label: String,
     val icon: ImageVector,
     val selectedIcon: ImageVector,
-    val hasBadge: Boolean = false,
 )
 
 @Composable
@@ -134,16 +133,6 @@ private fun BottomNavCell(
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary)
             )
-        }
-
-        if (item.hasBadge) {
-            Box(
-                modifier = Modifier
-                    .size(5.dp)
-                    .background(MaterialTheme.colorScheme.primary, CircleShape),
-            )
-        } else {
-            Spacer(modifier = Modifier.height(5.dp))
         }
     }
 }

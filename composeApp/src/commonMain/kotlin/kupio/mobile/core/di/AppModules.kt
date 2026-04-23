@@ -22,6 +22,7 @@ import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.auth.AuthViewModel
 import kupio.mobile.features.auth.presentation.username.UsernameViewModel
 import kupio.mobile.features.home.HomeViewModel
+import kupio.mobile.features.me.MeViewModel
 import kupio.mobile.features.settings.SettingsViewModel
 import kupio.mobile.core.navigation.RootNavigationViewModel
 import org.koin.core.module.Module
@@ -59,6 +60,7 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::RootNavigationViewModel)
         viewModelOf(::AuthViewModel)
         viewModelOf(::HomeViewModel)
+        viewModelOf(::MeViewModel)
         viewModelOf(::SettingsViewModel)
         viewModelOf(::UsernameViewModel)
     },

@@ -48,7 +48,7 @@ fun KupioBottomNav(
 ) {
     val spacing = KupioThemeDefaults.spacing
     val fabSize = 56.dp
-    // 20% of the FAB protrudes above the bar
+    // 10% of the FAB protrudes above the bar
     val fabOverhang = fabSize * 0.1f
 
     Box(modifier = modifier.fillMaxWidth()) {

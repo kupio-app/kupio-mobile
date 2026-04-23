@@ -14,7 +14,6 @@ class SavedScreen : Screen {
     @Composable
     override fun Content() {
         KupioScaffold(
-            title = stringResource(Res.string.nav_saved),
             topBar = {
                 KupioTopNavbar(
                     title = stringResource(Res.string.nav_saved),

@@ -5,17 +5,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.LightMode
-import androidx.compose.material3.Icon
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kupio.mobile.core.designsystem.KupioButton
 import kupio.mobile.core.designsystem.KupioScaffold
+import kupio.mobile.core.designsystem.KupioTopBarIconAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
 import kupio.mobile.core.designsystem.KupioText
-import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.core.preferences.ThemeMode
 import kupio.mobile.features.settings.SettingsScreen
@@ -64,12 +62,10 @@ private fun MeRoute(
             KupioTopNavbar(
                 title = stringResource(Res.string.topbar_profile_title),
                 trailingContent = {
-                    Icon(
-                        modifier = Modifier.bouncingClickable {
-                            onIntent(MeIntent.ThemeToggleClicked)
-                        },
+                    KupioTopBarIconAction(
                         imageVector = themeToggleIcon,
                         contentDescription = stringResource(Res.string.topbar_theme),
+                        onClick = { onIntent(MeIntent.ThemeToggleClicked) },
                     )
                 },
             )

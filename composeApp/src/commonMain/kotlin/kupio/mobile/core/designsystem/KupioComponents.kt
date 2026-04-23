@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -32,10 +33,15 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun KupioScaffold(
-    title: String,
+    title: String? = null,
+    topBar: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
-    Scaffold { paddingValues ->
+    Scaffold(
+        topBar = {
+            topBar?.invoke()
+        }
+    ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -47,10 +53,12 @@ fun KupioScaffold(
                     .padding(KupioThemeDefaults.spacing.md),
                 verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
             ) {
-                KupioText(
-                    text = title,
-                    style = MaterialTheme.typography.headlineMedium,
-                )
+                if (title != null) {
+                    KupioText(
+                        text = title,
+                        style = MaterialTheme.typography.headlineMedium,
+                    )
+                }
                 content()
             }
         }

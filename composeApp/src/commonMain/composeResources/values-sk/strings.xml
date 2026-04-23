@@ -13,6 +13,15 @@
     <string name="screen_saved_body">Tvoje uložené inzeráty sa zobrazia tu.</string>
     <string name="screen_create_body">Tu vytvoríš inzerát.</string>
     <string name="screen_me_body">Tvoj profil a nastavenia sa zobrazia tu.</string>
+    <string name="screen_chats_body">Tvoje konverzácie sa zobrazia tu.</string>
+    <string name="topbar_profile_title">Profil</string>
+    <string name="topbar_new_listing_title">Nový inzerát</string>
+    <string name="topbar_draft_autosaved">Koncept sa ukladá automaticky</string>
+    <string name="topbar_preview">Náhľad</string>
+    <string name="topbar_unread_messages">%1$d neprečítaných správ</string>
+    <string name="topbar_search">Hľadať</string>
+    <string name="topbar_back">Späť</string>
+    <string name="topbar_theme">Zmeniť tému</string>
     <string name="settings_title">Nastavenia</string>
     <string name="settings_body">Režim témy sa ukladá do DataStore ako ukážka zdieľaných aplikačných preferencií.</string>
     <string name="settings_logout">Odhlásiť sa</string>

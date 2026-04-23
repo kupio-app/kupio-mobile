@@ -46,22 +46,22 @@ class MainTabsScreen : Screen {
                 KupioBottomNavItem(
                     label = stringResource(Res.string.nav_home),
                     icon = Icons.Outlined.Home,
-                    selectedIcon = Icons.Filled.Home,
+                    selectedIcon = Icons.Outlined.Home,
                 ),
                 KupioBottomNavItem(
                     label = stringResource(Res.string.nav_saved),
                     icon = Icons.Default.FavoriteBorder,
-                    selectedIcon = Icons.Default.Favorite,
+                    selectedIcon = Icons.Default.FavoriteBorder,
                 ),
                 KupioBottomNavItem(
                     label = stringResource(Res.string.nav_chats),
                     icon = Icons.Default.ChatBubbleOutline,
-                    selectedIcon = Icons.Default.ChatBubble,
+                    selectedIcon = Icons.Default.ChatBubbleOutline,
                 ),
                 KupioBottomNavItem(
                     label = stringResource(Res.string.nav_me),
                     icon = Icons.Default.PersonOutline,
-                    selectedIcon = Icons.Default.Person,
+                    selectedIcon = Icons.Default.PersonOutline,
                 ),
             )
 

@@ -147,10 +147,10 @@ private fun CenterFab(
         onClick = onClick,
         color = MaterialTheme.colorScheme.primary,
         modifier = modifier.size(60.dp).shadow(
-            elevation = 6.dp,
+            elevation = 10.dp,
             shape = RoundedCornerShape(20.dp),
-            ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-            spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+            ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+            spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
         )
     ) {
         Box(contentAlignment = Alignment.Center) {

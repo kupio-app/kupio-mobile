@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -54,7 +55,7 @@ fun KupioBottomNav(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .borderTop(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
+                .borderTop(0.5.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 2.dp,
         ) {
@@ -126,6 +127,15 @@ private fun BottomNavCell(
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
             ),
         )
+        if (selected) {
+            Box(
+                modifier = Modifier
+                    .size(5.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
+            )
+        }
+
         if (item.hasBadge) {
             Box(
                 modifier = Modifier

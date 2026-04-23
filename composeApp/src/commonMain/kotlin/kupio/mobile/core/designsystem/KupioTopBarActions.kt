@@ -61,8 +61,8 @@ fun KupioTopBarOutlinedTextAction(
     Surface(
         modifier = modifier
             .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                width = 0.5.dp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
                 shape = shape,
             )
             .glowClickable(shape = shape, onClick = onClick),

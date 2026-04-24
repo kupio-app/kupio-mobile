@@ -52,9 +52,15 @@ import org.koin.compose.viewmodel.koinViewModel
 class HomeScreen : Screen {
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
         val viewModel = koinViewModel<HomeViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
-        CollectEffect(viewModel.effects) { _: HomeEffect -> }
+        CollectEffect(viewModel.effects) { effect ->
+            when (effect) {
+                is HomeEffect.OpenListing -> navigator.push(ListingDetailScreen(effect.id))
+                is HomeEffect.OpenSearch -> navigator.push(SearchScreen(effect.query))
+            }
+        }
         HomeContent(state = state, onIntent = viewModel::onIntent)
     }
 }

@@ -21,6 +21,7 @@ data class HomeState(
     val listings: List<Listing> = emptyList(),
     val isLoadingListings: Boolean = true,
     val listingsError: String? = null,
+    val isRefreshing: Boolean = false,
 ) : UiState
 
 data class HomeCategoryItem(
@@ -59,6 +60,10 @@ sealed interface HomeIntent : UiAction {
     data class OpenListing(val id: String) : HomeIntent
     data object RetryLoadListings : HomeIntent
     data object RetryLoadCategories : HomeIntent
+    data object RefreshFeed : HomeIntent
 }
 
-sealed interface HomeEffect : UiEffect
+sealed interface HomeEffect : UiEffect {
+    data class OpenListing(val id: String) : HomeEffect
+    data class OpenSearch(val query: String) : HomeEffect
+}

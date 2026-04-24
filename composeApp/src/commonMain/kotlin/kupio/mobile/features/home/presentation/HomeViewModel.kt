@@ -41,6 +41,14 @@ class HomeViewModel(
                 _state.update { it.copy(selectedCategoryId = intent.id) }
                 loadRecommended()
             }
+            is HomeIntent.OpenListing -> viewModelScope.launch {
+                effectChannel.send(HomeEffect.OpenListing(intent.id))
+            }
+            HomeIntent.SubmitSearch -> {
+                val query = _state.value.searchQuery
+                if (query.isBlank()) return
+                viewModelScope.launch { effectChannel.send(HomeEffect.OpenSearch(query)) }
+            }
             HomeIntent.RetryLoadListings -> loadRecommended()
             HomeIntent.RetryLoadCategories -> loadCategories()
             HomeIntent.RefreshFeed -> refreshFeed()

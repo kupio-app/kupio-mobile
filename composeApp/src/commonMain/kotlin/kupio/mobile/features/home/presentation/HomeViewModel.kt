@@ -16,6 +16,7 @@ import kupio.mobile.features.home.domain.model.Category
 import kupio.mobile.features.home.domain.model.ListingFeed
 import kupio.mobile.features.home.domain.repository.CategoriesRepository
 import kupio.mobile.features.home.domain.repository.ListingsRepository
+import kupio.mobile.features.home.presentation.HomeEffect.*
 
 class HomeViewModel(
     private val listingsRepository: ListingsRepository,
@@ -42,17 +43,19 @@ class HomeViewModel(
                 loadRecommended()
             }
             is HomeIntent.OpenListing -> viewModelScope.launch {
-                effectChannel.send(HomeEffect.OpenListing(intent.id))
+                effectChannel.send(OpenListing(intent.id))
             }
             HomeIntent.SubmitSearch -> {
                 val query = _state.value.searchQuery
                 if (query.isBlank()) return
-                viewModelScope.launch { effectChannel.send(HomeEffect.OpenSearch(query)) }
+                viewModelScope.launch { effectChannel.send(OpenSearch(query)) }
             }
             HomeIntent.RetryLoadListings -> loadRecommended()
             HomeIntent.RetryLoadCategories -> loadCategories()
             HomeIntent.RefreshFeed -> refreshFeed()
-            else -> Unit
+            HomeIntent.OpenFilters -> {}
+            HomeIntent.OpenNotifications -> {}
+            HomeIntent.SelectDelivery -> {}
         }
     }
 

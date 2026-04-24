@@ -74,7 +74,6 @@
     <string name="auth_one_last_step">One last step</string>
     <string name="auth_username_hint">Choose a username to finish setting up your account.</string>
     <string name="home_delivery_to">DELIVERY TO</string>
-    <string name="home_delivery_placeholder">Bratislava, SK</string>
     <string name="home_notifications">Notifications</string>
     <string name="home_headline_primary">Find something</string>
     <string name="home_headline_italic">good today</string>

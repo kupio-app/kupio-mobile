@@ -28,7 +28,9 @@ import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.features.home.presentation.HomeCategoryItem
 import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.auth_create_account
 import mobile.composeapp.generated.resources.home_categories_error
+import mobile.composeapp.generated.resources.retry
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -77,7 +79,7 @@ fun CategoriesRow(
                     )
                     TextButton(onClick = onRetry) {
                         Text(
-                            text = "Retry",
+                            text = stringResource(Res.string.retry),
                             style = MaterialTheme.typography.labelMedium,
                             color = colors.primary,
                         )

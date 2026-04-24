@@ -73,4 +73,17 @@
     <string name="auth_error_username_long">Username must have at most 50 characters.</string>
     <string name="auth_one_last_step">One last step</string>
     <string name="auth_username_hint">Choose a username to finish setting up your account.</string>
+    <string name="home_delivery_to">DELIVERY TO</string>
+    <string name="home_delivery_placeholder">Bratislava, SK</string>
+    <string name="home_notifications">Notifications</string>
+    <string name="home_headline_primary">Find something</string>
+    <string name="home_headline_italic">good today</string>
+    <string name="home_search_placeholder">Search "oak desk", "camera"…</string>
+    <string name="home_filters">Filters</string>
+    <string name="home_category_all">All</string>
+    <string name="home_categories_error">Couldn\'t load categories.</string>
+    <string name="home_recommended_title">Recommended for you</string>
+    <string name="home_recommended_count">%1$d new</string>
+    <string name="home_recommended_error">Couldn\'t load recommended listings.</string>
+    <string name="home_listing_favorite">Favorite</string>
 </resources>

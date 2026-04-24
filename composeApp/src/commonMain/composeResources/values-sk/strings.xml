@@ -73,4 +73,17 @@
     <string name="auth_error_username_long">Používateľské meno môže mať najviac 50 znakov.</string>
     <string name="auth_one_last_step">Ešte jeden krok</string>
     <string name="auth_username_hint">Vyber si používateľské meno a dokonči nastavenie účtu.</string>
+    <string name="home_delivery_to">DORUČENIE DO</string>
+    <string name="home_delivery_placeholder">Bratislava, SK</string>
+    <string name="home_notifications">Oznámenia</string>
+    <string name="home_headline_primary">Nájdi niečo</string>
+    <string name="home_headline_italic">dobré dnes</string>
+    <string name="home_search_placeholder">Hľadaj „písací stôl", „fotoaparát"…</string>
+    <string name="home_filters">Filtre</string>
+    <string name="home_category_all">Všetko</string>
+    <string name="home_categories_error">Kategórie sa nepodarilo načítať.</string>
+    <string name="home_recommended_title">Odporúčané pre teba</string>
+    <string name="home_recommended_count">%1$d nových</string>
+    <string name="home_recommended_error">Odporúčané inzeráty sa nepodarilo načítať.</string>
+    <string name="home_listing_favorite">Obľúbené</string>
 </resources>

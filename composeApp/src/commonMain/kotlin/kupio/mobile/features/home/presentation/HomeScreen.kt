@@ -17,6 +17,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -24,6 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.home.domain.model.Listing
@@ -33,6 +37,8 @@ import kupio.mobile.features.home.presentation.components.HomeTopBar
 import kupio.mobile.features.home.presentation.components.ListingCard
 import kupio.mobile.features.home.presentation.components.SearchWithFilters
 import kupio.mobile.features.home.presentation.components.SectionHeader
+import kupio.mobile.features.listingdetail.presentation.ListingDetailScreen
+import kupio.mobile.features.search.presentation.SearchScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.home_category_all
 import mobile.composeapp.generated.resources.home_recommended_count
@@ -53,6 +59,7 @@ class HomeScreen : Screen {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeContent(
     state: HomeState,
@@ -76,74 +83,80 @@ private fun HomeContent(
             onNotificationsClick = { onIntent(HomeIntent.OpenNotifications) },
         )
 
-        LazyColumn(
+        PullToRefreshBox(
+            isRefreshing = state.isRefreshing,
+            onRefresh = { onIntent(HomeIntent.RefreshFeed) },
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = spacing.lg, vertical = spacing.md),
-            verticalArrangement = Arrangement.spacedBy(spacing.lg),
         ) {
-            item(key = "headline") {
-                AdvertisementHeadline()
-            }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = spacing.lg, vertical = spacing.md),
+                verticalArrangement = Arrangement.spacedBy(spacing.lg),
+            ) {
+                item(key = "headline") {
+                    AdvertisementHeadline()
+                }
 
-            item(key = "search") {
-                SearchWithFilters(
-                    query = state.searchQuery,
-                    onQueryChange = { onIntent(HomeIntent.SearchQueryChanged(it)) },
-                    onSubmit = { onIntent(HomeIntent.SubmitSearch) },
-                    onFiltersClick = { onIntent(HomeIntent.OpenFilters) },
-                )
-            }
+                item(key = "search") {
+                    SearchWithFilters(
+                        query = state.searchQuery,
+                        onQueryChange = { onIntent(HomeIntent.SearchQueryChanged(it)) },
+                        onSubmit = { onIntent(HomeIntent.SubmitSearch) },
+                        onFiltersClick = { onIntent(HomeIntent.OpenFilters) },
+                    )
+                }
 
-            item(key = "categories") {
-                CategoriesRow(
-                    items = categoryItems,
-                    selectedId = state.selectedCategoryId,
-                    isLoading = state.isLoadingCategories,
-                    error = state.categoriesError,
-                    onSelect = { onIntent(HomeIntent.SelectCategory(it)) },
-                    onRetry = { onIntent(HomeIntent.RetryLoadCategories) },
-                )
-            }
+                item(key = "categories") {
+                    CategoriesRow(
+                        items = categoryItems,
+                        selectedId = state.selectedCategoryId,
+                        isLoading = state.isLoadingCategories,
+                        error = state.categoriesError,
+                        onSelect = { onIntent(HomeIntent.SelectCategory(it)) },
+                        onRetry = { onIntent(HomeIntent.RetryLoadCategories) },
+                    )
+                }
 
-            item(key = "recommended_header") {
-                SectionHeader(
-                    title = stringResource(Res.string.home_recommended_title),
-                    trailing = if (state.listings.isNotEmpty()) {
-                        stringResource(Res.string.home_recommended_count, state.listings.size)
-                    } else {
-                        null
-                    },
-                )
-            }
+                item(key = "recommended_header") {
+                    SectionHeader(
+                        title = stringResource(Res.string.home_recommended_title),
+                        trailing = if (state.listings.isNotEmpty()) {
+                            stringResource(Res.string.home_recommended_count, state.listings.size)
+                        } else {
+                            null
+                        },
+                    )
+                }
 
-            when {
-                state.isLoadingListings -> item(key = "listings_loading") {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = spacing.xl),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                when {
+                    state.isLoadingListings -> item(key = "listings_loading") {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = spacing.xl),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                        }
                     }
-                }
 
-                state.listingsError != null -> item(key = "listings_error") {
-                    ListingsErrorRow(
-                        error = stringResource(Res.string.home_recommended_error),
-                        onRetry = { onIntent(HomeIntent.RetryLoadListings) },
-                    )
-                }
+                    state.listingsError != null -> item(key = "listings_error") {
+                        ListingsErrorRow(
+                            error = stringResource(Res.string.home_recommended_error),
+                            onRetry = { onIntent(HomeIntent.RetryLoadListings) },
+                        )
+                    }
 
-                state.listings.isEmpty() -> item(key = "listings_empty") {
-                    Text(
-                        text = stringResource(Res.string.screen_home_body),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                    state.listings.isEmpty() -> item(key = "listings_empty") {
+                        Text(
+                            text = stringResource(Res.string.screen_home_body),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
 
-                else -> recommendedGrid(state.listings) { id -> onIntent(HomeIntent.OpenListing(id)) }
+                    else -> recommendedGrid(state.listings) { id -> onIntent(HomeIntent.OpenListing(id)) }
+                }
             }
         }
     }

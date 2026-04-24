@@ -21,7 +21,13 @@ import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.auth.AuthViewModel
 import kupio.mobile.features.auth.presentation.username.UsernameViewModel
-import kupio.mobile.features.home.HomeViewModel
+import kupio.mobile.features.home.presentation.HomeViewModel
+import kupio.mobile.features.home.data.remote.CategoriesApi
+import kupio.mobile.features.home.data.remote.ListingsApi
+import kupio.mobile.features.home.data.repository.CategoriesRepositoryImpl
+import kupio.mobile.features.home.data.repository.ListingsRepositoryImpl
+import kupio.mobile.features.home.domain.repository.CategoriesRepository
+import kupio.mobile.features.home.domain.repository.ListingsRepository
 import kupio.mobile.features.me.MeViewModel
 import kupio.mobile.features.settings.SettingsViewModel
 import kupio.mobile.core.navigation.RootNavigationViewModel
@@ -42,6 +48,10 @@ val kupioAppModules: List<Module> = listOf(
             )
         }
         single { AuthApi(get()) }
+        single { ListingsApi(get()) }
+        single<ListingsRepository> { ListingsRepositoryImpl(get()) }
+        single { CategoriesApi(get()) }
+        single<CategoriesRepository> { CategoriesRepositoryImpl(get()) }
         single<AuthClock> { SystemAuthClock() }
         single { AuthTokenProvider(get(), get(), get(), get()) }
         single<AuthenticatedApiClient> {

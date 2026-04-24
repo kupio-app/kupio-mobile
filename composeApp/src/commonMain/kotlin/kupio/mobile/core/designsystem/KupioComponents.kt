@@ -205,9 +205,11 @@ fun KupioCardSurface(
     Surface(
         modifier = modifier,
         color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(28.dp),
-        tonalElevation = 2.dp,
-        shadowElevation = 8.dp,
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(
+            0.5.dp,
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+        ),
         content = content,
     )
 }

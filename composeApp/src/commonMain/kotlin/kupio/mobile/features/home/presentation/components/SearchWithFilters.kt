@@ -96,11 +96,12 @@ fun SearchWithFilters(
             }
         }
 
+        val filtersBtnShape = RoundedCornerShape(20.dp)
         Box(
             modifier = Modifier
                 .size(56.dp)
-                .bouncingDimClickable { onFiltersClick() }
-                .clip(RoundedCornerShape(20.dp))
+                .bouncingDimClickable(filtersBtnShape) { onFiltersClick() }
+                .clip(filtersBtnShape)
                 .background(colors.onSurface),
             contentAlignment = Alignment.Center,
         ) {

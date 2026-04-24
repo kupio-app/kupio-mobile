@@ -2,6 +2,8 @@ package kupio.mobile.features.home.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -28,6 +30,8 @@ class HomeViewModel(
 
     private val effectChannel = Channel<HomeEffect>(Channel.BUFFERED)
     val effects: Flow<HomeEffect> = effectChannel.receiveAsFlow()
+
+    private var loadRecommendedJob: Job? = null
 
     init {
         loadCategories()
@@ -60,8 +64,9 @@ class HomeViewModel(
     }
 
     private fun loadRecommended() {
+        loadRecommendedJob?.cancel()
         _state.update { it.copy(isLoadingListings = true, listingsError = null) }
-        viewModelScope.launch {
+        loadRecommendedJob = viewModelScope.launch {
             fetchRecommended()
                 .onSuccess { feed ->
                     _state.update { it.copy(listings = feed.listings, isLoadingListings = false) }
@@ -111,9 +116,9 @@ class HomeViewModel(
             ?.removePrefix("cat_")
             ?.toIntOrNull()
         listingsRepository.getFeed(limit = 10, categoryId = categoryId)
-    }
+    }.onFailure { if (it is CancellationException) throw it }
 
     private suspend fun fetchCategories(): Result<List<Category>> = runCatching {
         categoriesRepository.getRootCategories()
-    }
+    }.onFailure { if (it is CancellationException) throw it }
 }

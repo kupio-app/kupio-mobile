@@ -25,7 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kupio.mobile.core.designsystem.KupioCardSurface
 import kupio.mobile.core.designsystem.KupioThemeDefaults
-import kupio.mobile.core.designsystem.bouncingClickable
+import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.home.domain.model.Listing
 import kupio.mobile.features.home.domain.model.formatPrice
 import mobile.composeapp.generated.resources.Res
@@ -50,7 +50,7 @@ fun ListingCard(
     val spacing = KupioThemeDefaults.spacing
 
     KupioCardSurface(
-        modifier = modifier.bouncingClickable { onClick() },
+        modifier = modifier.bouncingDimClickable { onClick() },
     ) {
         Column {
             Box(

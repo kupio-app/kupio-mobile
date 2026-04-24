@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import kupio.mobile.core.designsystem.KupioThemeDefaults
-import kupio.mobile.core.designsystem.bouncingClickable
+import kupio.mobile.core.designsystem.bouncingDimClickable
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.home_filters
 import mobile.composeapp.generated.resources.home_search_placeholder
@@ -99,7 +99,7 @@ fun SearchWithFilters(
         Box(
             modifier = Modifier
                 .size(56.dp)
-                .bouncingClickable { onFiltersClick() }
+                .bouncingDimClickable { onFiltersClick() }
                 .clip(RoundedCornerShape(20.dp))
                 .background(colors.onSurface),
             contentAlignment = Alignment.Center,

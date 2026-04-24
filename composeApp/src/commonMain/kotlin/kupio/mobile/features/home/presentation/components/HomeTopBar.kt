@@ -1,6 +1,5 @@
 package kupio.mobile.features.home.presentation.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,7 +51,7 @@ fun HomeTopBar(
         modifier = modifier
             .fillMaxWidth()
             .standaloneTopBarInsetsPadding()
-            .borderBottom(0.5.dp, colors.onSurface.copy(alpha = 0.1f)),
+            .borderBottom(KupioThemeDefaults.borderWidths.thin, KupioThemeDefaults.softDividerColor),
         color = colors.background,
     ) {
         Row(
@@ -111,7 +110,7 @@ fun HomeTopBar(
                         .bouncingClickable { onNotificationsClick() },
                     shape = RoundedCornerShape(16.dp),
                     color = colors.surface,
-                    border = BorderStroke(0.5.dp, colors.outline.copy(alpha = 0.3f))
+                    border = KupioThemeDefaults.defaultBorder
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),

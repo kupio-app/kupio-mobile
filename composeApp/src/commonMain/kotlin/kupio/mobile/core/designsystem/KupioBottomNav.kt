@@ -54,7 +54,7 @@ fun KupioBottomNav(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .borderTop(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
+                .borderTop(KupioThemeDefaults.borderWidths.regular, KupioThemeDefaults.navDividerColor),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 2.dp,
         ) {

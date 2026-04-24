@@ -1,6 +1,5 @@
 package kupio.mobile.features.home.presentation.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,7 +54,7 @@ fun SearchWithFilters(
             modifier = Modifier.weight(1f).height(56.dp),
             shape = RoundedCornerShape(20.dp),
             color = colors.surface,
-            border = BorderStroke(0.5.dp, colors.outline.copy(alpha = 0.4f)),
+            border = KupioThemeDefaults.defaultBorder,
         ) {
             Row(
                 modifier = Modifier

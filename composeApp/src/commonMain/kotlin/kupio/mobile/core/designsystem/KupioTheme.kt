@@ -1,5 +1,6 @@
 package kupio.mobile.core.designsystem
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
@@ -12,6 +13,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 private val KupioLightColors = lightColorScheme(
@@ -48,18 +50,43 @@ private val KupioDarkColors = darkColorScheme(
 
 @Immutable
 data class KupioSpacing(
-    val xs: androidx.compose.ui.unit.Dp = 4.dp,
-    val sm: androidx.compose.ui.unit.Dp = 8.dp,
-    val md: androidx.compose.ui.unit.Dp = 16.dp,
-    val lg: androidx.compose.ui.unit.Dp = 24.dp,
-    val xl: androidx.compose.ui.unit.Dp = 32.dp,
+    val xs: Dp = 4.dp,
+    val sm: Dp = 8.dp,
+    val md: Dp = 16.dp,
+    val lg: Dp = 24.dp,
+    val xl: Dp = 32.dp,
+)
+
+@Immutable
+data class KupioBorderWidths(
+    val thin: Dp = 0.5.dp,
+    val regular: Dp = 1.dp,
 )
 
 private val LocalKupioSpacing = staticCompositionLocalOf { KupioSpacing() }
+private val LocalKupioBorderWidths = staticCompositionLocalOf { KupioBorderWidths() }
 
 object KupioThemeDefaults {
     val spacing: KupioSpacing
         @Composable get() = LocalKupioSpacing.current
+
+    val borderWidths: KupioBorderWidths
+        @Composable get() = LocalKupioBorderWidths.current
+
+    val defaultBorder: BorderStroke
+        @Composable get() = BorderStroke(borderWidths.thin, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+
+    val strongBorder: BorderStroke
+        @Composable get() = BorderStroke(borderWidths.regular, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+
+    val ghostBorder: BorderStroke
+        @Composable get() = BorderStroke(borderWidths.thin, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
+
+    val navDividerColor: Color
+        @Composable get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+
+    val softDividerColor: Color
+        @Composable get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
 }
 
 @Composable
@@ -82,6 +109,7 @@ fun KupioTheme(
 
     CompositionLocalProvider(
         LocalKupioSpacing provides KupioSpacing(),
+        LocalKupioBorderWidths provides KupioBorderWidths(),
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

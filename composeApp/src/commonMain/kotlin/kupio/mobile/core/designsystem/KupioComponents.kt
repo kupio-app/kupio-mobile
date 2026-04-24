@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -122,7 +121,7 @@ fun KupioOutlinedLoadingButton(
         modifier = modifier.fillMaxWidth(),
         enabled = enabled && !loading,
         shape = RoundedCornerShape(20.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
+        border = KupioThemeDefaults.defaultBorder,
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSurface,
@@ -206,10 +205,7 @@ fun KupioCardSurface(
         modifier = modifier,
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(
-            0.5.dp,
-            MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
-        ),
+        border = KupioThemeDefaults.defaultBorder,
         content = content,
     )
 }

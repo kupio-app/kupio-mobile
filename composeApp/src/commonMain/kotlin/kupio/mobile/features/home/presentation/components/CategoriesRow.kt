@@ -1,6 +1,5 @@
 package kupio.mobile.features.home.presentation.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -108,7 +107,7 @@ private fun CategoryChip(
             modifier = Modifier.size(64.dp),
             shape = RoundedCornerShape(20.dp),
             color = if (isSelected) colors.onSurface else colors.surface,
-            border = if (!isSelected) BorderStroke(1.dp, colors.outline.copy(alpha = 0.3f)) else null,
+            border = if (!isSelected) KupioThemeDefaults.strongBorder else null,
         ) {
             Box(
                 modifier = Modifier.fillMaxSize(),

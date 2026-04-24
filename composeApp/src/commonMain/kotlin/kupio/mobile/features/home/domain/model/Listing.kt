@@ -17,11 +17,14 @@ data class ListingFeed(
     val nextCursor: String?,
 )
 
-enum class Currency(val symbol: String) {
-    USD("$"),
-    EUR("€"),
-    CZK("Kč"),
-    UAH("₴"),
+enum class Currency(
+    val symbol: String,
+    val symbolFirst: Boolean,
+) {
+    USD("$", true),
+    EUR("€", true),
+    CZK("Kč", false),
+    UAH("₴", true),
 }
-
-fun Listing.formatPrice(): String = "$price ${currency.symbol}"
+fun Listing.formatPrice(): String =
+    if (currency.symbolFirst) "${currency.symbol}$price" else "$price ${currency.symbol}"

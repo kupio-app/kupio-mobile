@@ -60,11 +60,7 @@ fun KupioTopBarOutlinedTextAction(
     val shape = RoundedCornerShape(8.dp)
     Surface(
         modifier = modifier
-            .border(
-                width = 0.5.dp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
-                shape = shape,
-            )
+            .border(KupioThemeDefaults.ghostBorder, shape)
             .glowClickable(shape = shape, onClick = onClick),
         color = Color.Transparent,
     ) {

@@ -31,7 +31,7 @@ fun KupioTopNavbar(
         modifier = modifier
             .standaloneTopBarInsetsPadding()
             .fillMaxWidth()
-            .borderBottom(0.5.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
+            .borderBottom(KupioThemeDefaults.borderWidths.thin, KupioThemeDefaults.navDividerColor),
         color = MaterialTheme.colorScheme.background,
         tonalElevation = 2.dp,
     ) {

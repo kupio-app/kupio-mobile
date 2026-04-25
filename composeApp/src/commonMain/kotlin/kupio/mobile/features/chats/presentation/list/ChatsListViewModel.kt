@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kupio.mobile.features.chats.domain.repository.ChatsRepository
+import kupio.mobile.features.chats.data.ConversationsStore
 
 class ChatsListViewModel(
-    private val repo: ChatsRepository,
+    private val store: ConversationsStore,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ChatsListState())
@@ -23,7 +23,10 @@ class ChatsListViewModel(
     val effects: Flow<ChatsListEffect> = effectChannel.receiveAsFlow()
 
     init {
-        observeChats()
+        viewModelScope.launch { store.chats.collect { chats -> _state.update { it.copy(chats = chats) } } }
+        viewModelScope.launch { store.isLoading.collect { loading -> _state.update { it.copy(isLoading = loading) } } }
+        viewModelScope.launch { store.error.collect { error -> _state.update { it.copy(errorMessage = error) } } }
+        viewModelScope.launch { store.unreadCount.collect { count -> _state.update { it.copy(totalUnread = count) } } }
     }
 
     fun onIntent(intent: ChatsListIntent) {
@@ -33,33 +36,10 @@ class ChatsListViewModel(
                 effectChannel.send(ChatsListEffect.OpenChat(intent.id))
             }
             ChatsListIntent.RefreshChats, ChatsListIntent.RetryLoad -> viewModelScope.launch {
-                repo.refresh()
+                store.refresh()
             }
             ChatsListIntent.OpenSearch -> {}
             ChatsListIntent.OpenFilters -> {}
-        }
-    }
-
-    private fun observeChats() {
-        viewModelScope.launch {
-            repo.observeChats().collect { chats ->
-                _state.update { it.copy(chats = chats) }
-            }
-        }
-        viewModelScope.launch {
-            repo.observeLoading().collect { loading ->
-                _state.update { it.copy(isLoading = loading) }
-            }
-        }
-        viewModelScope.launch {
-            repo.observeError().collect { error ->
-                _state.update { it.copy(errorMessage = error) }
-            }
-        }
-        viewModelScope.launch {
-            repo.observeUnreadCount().collect { count ->
-                _state.update { it.copy(totalUnread = count) }
-            }
         }
     }
 }

@@ -11,11 +11,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kupio.mobile.features.chats.domain.repository.ChatsRepository
+import kupio.mobile.features.chats.data.ConversationsStore
+import kupio.mobile.features.chats.domain.repository.MessagesRepository
 
 class ChatThreadViewModel(
     private val conversationId: String,
-    private val repo: ChatsRepository,
+    private val store: ConversationsStore,
+    private val messagesRepo: MessagesRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ChatThreadState())
@@ -50,7 +52,7 @@ class ChatThreadViewModel(
 
     private fun observeConversation() {
         viewModelScope.launch {
-            repo.observeConversation(conversationId).collect { chat ->
+            store.observeConversation(conversationId).collect { chat ->
                 _state.update { it.copy(chat = chat) }
             }
         }
@@ -59,10 +61,10 @@ class ChatThreadViewModel(
     private fun loadMessages() {
         _state.update { it.copy(isLoading = true, errorMessage = null) }
         viewModelScope.launch {
-            runCatching { repo.loadMessages(conversationId) }
+            runCatching { messagesRepo.loadMessages(conversationId) }
                 .onSuccess { messages ->
                     _state.update { it.copy(messages = messages, isLoading = false) }
-                    repo.markSeen(conversationId)
+                    store.markSeen(conversationId)
                 }
                 .onFailure { t ->
                     if (t is CancellationException) throw t
@@ -76,9 +78,10 @@ class ChatThreadViewModel(
         if (text.isBlank()) return
         _state.update { it.copy(draft = "", isSending = true) }
         viewModelScope.launch {
-            runCatching { repo.sendMessage(conversationId, text) }
+            runCatching { messagesRepo.sendMessage(conversationId, text) }
                 .onSuccess { newMsg ->
                     _state.update { it.copy(messages = it.messages + newMsg, isSending = false) }
+                    store.updatePreview(conversationId, newMsg.text, newMsg.timeLabel)
                 }
                 .onFailure { t ->
                     if (t is CancellationException) throw t

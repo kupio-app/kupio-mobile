@@ -72,7 +72,7 @@ class ChatsListScreen : Screen {
         val state by viewModel.state.collectAsStateWithLifecycle()
 
         LaunchedEffect(Unit) {
-            viewModel.onIntent(ChatsListIntent.RefreshChats)
+            viewModel.onIntent(ChatsListIntent.LoadConversations)
         }
 
         CollectEffect(viewModel.effects) { effect ->

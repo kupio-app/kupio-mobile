@@ -33,6 +33,7 @@ data class ChatsListState(
 sealed interface ChatsListIntent : UiAction {
     data class SelectFilter(val filter: ChatsFilter) : ChatsListIntent
     data class OpenChat(val id: String) : ChatsListIntent
+    data object LoadConversations : ChatsListIntent
     data object RefreshChats : ChatsListIntent
     data object OpenSearch : ChatsListIntent
     data object OpenFilters : ChatsListIntent

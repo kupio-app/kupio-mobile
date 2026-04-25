@@ -35,7 +35,10 @@ class ChatsListViewModel(
             is ChatsListIntent.OpenChat -> viewModelScope.launch {
                 effectChannel.send(ChatsListEffect.OpenChat(intent.id))
             }
-            ChatsListIntent.RefreshChats, ChatsListIntent.RetryLoad -> viewModelScope.launch {
+            ChatsListIntent.LoadConversations, ChatsListIntent.RetryLoad -> viewModelScope.launch {
+                store.refresh()
+            }
+            ChatsListIntent.RefreshChats -> viewModelScope.launch {
                 _state.update { it.copy(isRefreshing = true) }
                 store.refresh()
                 _state.update { it.copy(isRefreshing = false) }

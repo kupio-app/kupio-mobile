@@ -21,17 +21,19 @@ import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.auth.AuthViewModel
 import kupio.mobile.features.auth.presentation.username.UsernameViewModel
-import kupio.mobile.features.home.presentation.HomeViewModel
-import kupio.mobile.features.home.data.remote.CategoriesApi
-import kupio.mobile.features.home.data.remote.ListingsApi
-import kupio.mobile.features.home.data.repository.CategoriesRepositoryImpl
-import kupio.mobile.features.home.data.repository.ListingsRepositoryImpl
-import kupio.mobile.features.home.domain.repository.CategoriesRepository
-import kupio.mobile.features.home.domain.repository.ListingsRepository
+import kupio.mobile.features.listings.data.remote.CategoriesApi
+import kupio.mobile.features.listings.data.remote.ListingsApi
+import kupio.mobile.features.listings.data.repository.CategoriesRepositoryImpl
+import kupio.mobile.features.listings.data.repository.ListingsRepositoryImpl
+import kupio.mobile.features.listings.domain.repository.CategoriesRepository
+import kupio.mobile.features.listings.domain.repository.ListingsRepository
+import kupio.mobile.features.listings.presentation.detail.ListingDetailViewModel
+import kupio.mobile.features.listings.presentation.feed.FeedViewModel
 import kupio.mobile.features.me.MeViewModel
 import kupio.mobile.features.settings.SettingsViewModel
 import kupio.mobile.core.navigation.RootNavigationViewModel
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -49,7 +51,7 @@ val kupioAppModules: List<Module> = listOf(
         }
         single { AuthApi(get()) }
         single { ListingsApi(get()) }
-        single<ListingsRepository> { ListingsRepositoryImpl(get()) }
+        single<ListingsRepository> { ListingsRepositoryImpl(get(), get()) }
         single { CategoriesApi(get()) }
         single<CategoriesRepository> { CategoriesRepositoryImpl(get()) }
         single<AuthClock> { SystemAuthClock() }
@@ -69,9 +71,10 @@ val kupioAppModules: List<Module> = listOf(
         single<PreferencesRepository> { DataStorePreferencesRepository(get()) }
         viewModelOf(::RootNavigationViewModel)
         viewModelOf(::AuthViewModel)
-        viewModelOf(::HomeViewModel)
+        viewModelOf(::FeedViewModel)
         viewModelOf(::MeViewModel)
         viewModelOf(::SettingsViewModel)
         viewModelOf(::UsernameViewModel)
+        viewModel { params -> ListingDetailViewModel(params.get(), get()) }
     },
 )

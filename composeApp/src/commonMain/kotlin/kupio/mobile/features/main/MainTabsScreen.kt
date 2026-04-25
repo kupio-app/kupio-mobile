@@ -9,6 +9,9 @@ import androidx.compose.material.icons.filled.PersonOutline
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -17,6 +20,7 @@ import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import kupio.mobile.core.designsystem.KupioBottomNav
 import kupio.mobile.core.designsystem.KupioBottomNavItem
+import kupio.mobile.features.chats.domain.repository.ChatsRepository
 import kupio.mobile.features.create.CreateScreen
 import kupio.mobile.features.main.tabs.ChatsTab
 import kupio.mobile.features.main.tabs.HomeTab
@@ -28,11 +32,16 @@ import mobile.composeapp.generated.resources.nav_home
 import mobile.composeapp.generated.resources.nav_me
 import mobile.composeapp.generated.resources.nav_saved
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 
 class MainTabsScreen : Screen {
     @Composable
     override fun Content() {
         val rootNavigator = LocalNavigator.currentOrThrow
+        val chatsRepo = koinInject<ChatsRepository>()
+        val totalUnread by chatsRepo.observeUnreadCount().collectAsStateWithLifecycle()
+
+        LaunchedEffect(Unit) { chatsRepo.refreshUnreadCount() }
 
         TabNavigator(HomeTab) { tabNavigator ->
             val tabs = listOf(HomeTab, SavedTab, ChatsTab, MeTab)
@@ -53,6 +62,7 @@ class MainTabsScreen : Screen {
                     label = stringResource(Res.string.nav_chats),
                     icon = Icons.Default.ChatBubbleOutline,
                     selectedIcon = Icons.Default.ChatBubbleOutline,
+                    badgeCount = totalUnread.takeIf { it > 0 },
                 ),
                 KupioBottomNavItem(
                     label = stringResource(Res.string.nav_me),

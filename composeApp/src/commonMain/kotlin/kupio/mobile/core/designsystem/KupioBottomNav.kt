@@ -7,10 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -35,6 +35,7 @@ data class KupioBottomNavItem(
     val label: String,
     val icon: ImageVector,
     val selectedIcon: ImageVector,
+    val badgeCount: Int? = null,
 )
 
 @Composable
@@ -113,12 +114,32 @@ private fun BottomNavCell(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        Icon(
-            imageVector = if (selected) item.selectedIcon else item.icon,
-            contentDescription = item.label,
-            tint = contentColor,
-            modifier = Modifier.size(24.dp),
-        )
+        Box(modifier = Modifier.wrapContentSize()) {
+            Icon(
+                imageVector = if (selected) item.selectedIcon else item.icon,
+                contentDescription = item.label,
+                tint = contentColor,
+                modifier = Modifier.size(24.dp),
+            )
+            if (item.badgeCount != null && item.badgeCount > 0) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 7.dp, y = (-6).dp),
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            modifier = Modifier.padding(vertical = 1.dp, horizontal = 10.dp),
+                            text = if (item.badgeCount > 99) "99+" else item.badgeCount.toString(),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                        )
+                    }
+                }
+            }
+        }
         Text(
             text = item.label,
             color = contentColor,

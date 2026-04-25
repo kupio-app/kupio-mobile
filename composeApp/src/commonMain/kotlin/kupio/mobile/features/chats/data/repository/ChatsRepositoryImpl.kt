@@ -14,8 +14,8 @@ class ChatsRepositoryImpl(
 
     override suspend fun listConversations(role: ChatRole, limit: Int): List<ConversationData> {
         val dtoRole = when (role) {
-            ChatRole.BUYING -> ConversationRoleDto.SELLER
-            ChatRole.SELLING -> ConversationRoleDto.BUYER
+            ChatRole.BUYING -> ConversationRoleDto.BUYER
+            ChatRole.SELLING -> ConversationRoleDto.SELLER
         }
         return authenticatedApiClient.request { authorize ->
             chatApi.listConversations(authorize, dtoRole, limit)

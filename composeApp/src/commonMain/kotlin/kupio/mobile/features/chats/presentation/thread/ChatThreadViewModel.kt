@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kupio.mobile.features.chats.data.ConversationsStore
+import kupio.mobile.features.chats.domain.model.WsMessageEvent
 import kupio.mobile.features.chats.domain.repository.MessagesRepository
 
 class ChatThreadViewModel(
@@ -29,6 +30,7 @@ class ChatThreadViewModel(
     init {
         observeConversation()
         loadMessages()
+        observeMessages()
     }
 
     fun onIntent(intent: ChatThreadIntent) {
@@ -47,6 +49,28 @@ class ChatThreadViewModel(
             }
             ChatThreadIntent.Back -> viewModelScope.launch { effectChannel.send(ChatThreadEffect.Back) }
             ChatThreadIntent.RetryLoad -> loadMessages()
+        }
+    }
+
+    private fun observeMessages() {
+        viewModelScope.launch {
+            messagesRepo.observeMessages(conversationId).collect { event ->
+                when (event) {
+                    is WsMessageEvent.Received -> {
+                        if (_state.value.messages.none { it.id == event.message.id }) {
+                            _state.update { it.copy(messages = it.messages + event.message) }
+                        }
+                        store.updatePreview(conversationId, event.message.text, event.message.timeLabel)
+                    }
+                    is WsMessageEvent.Deleted -> {
+                        _state.update { state ->
+                            state.copy(messages = state.messages.map { msg ->
+                                if (msg.id == event.messageId) msg.copy(isDeleted = true, text = "") else msg
+                            })
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -80,7 +104,14 @@ class ChatThreadViewModel(
         viewModelScope.launch {
             runCatching { messagesRepo.sendMessage(conversationId, text) }
                 .onSuccess { newMsg ->
-                    _state.update { it.copy(messages = it.messages + newMsg, isSending = false) }
+                    _state.update { state ->
+                        val messages = if (state.messages.none { it.id == newMsg.id }) {
+                            state.messages + newMsg
+                        } else {
+                            state.messages
+                        }
+                        state.copy(messages = messages, isSending = false)
+                    }
                     store.updatePreview(conversationId, newMsg.text, newMsg.timeLabel)
                 }
                 .onFailure { t ->

@@ -1,4 +1,4 @@
-package kupio.mobile.features.home.domain.model
+package kupio.mobile.features.listings.domain.model
 
 data class Category(
     val id: Int,

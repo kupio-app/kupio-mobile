@@ -1,10 +1,10 @@
-package kupio.mobile.features.home.data.remote
+package kupio.mobile.features.listings.data.remote
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kupio.mobile.features.home.domain.model.Currency
-import kupio.mobile.features.home.domain.model.Listing
-import kupio.mobile.features.home.domain.model.ListingFeed
+import kupio.mobile.features.listings.domain.model.Currency
+import kupio.mobile.features.listings.domain.model.Listing
+import kupio.mobile.features.listings.domain.model.ListingFeed
 
 @Serializable
 data class ListListingsResponseDto(

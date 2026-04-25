@@ -1,7 +1,7 @@
-package kupio.mobile.features.home.data.remote
+package kupio.mobile.features.listings.data.remote
 
 import kotlinx.serialization.Serializable
-import kupio.mobile.features.home.domain.model.Category
+import kupio.mobile.features.listings.domain.model.Category
 
 @Serializable
 data class CategoryResponseDto(

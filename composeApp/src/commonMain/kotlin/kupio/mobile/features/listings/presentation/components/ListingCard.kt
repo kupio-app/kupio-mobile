@@ -1,4 +1,4 @@
-package kupio.mobile.features.home.presentation.components
+package kupio.mobile.features.listings.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.dp
 import kupio.mobile.core.designsystem.KupioCardSurface
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
-import kupio.mobile.features.home.domain.model.Listing
-import kupio.mobile.features.home.domain.model.formatPrice
+import kupio.mobile.features.listings.domain.model.Listing
+import kupio.mobile.features.listings.domain.model.formatPrice
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.home_listing_favorite
 import org.jetbrains.compose.resources.stringResource
@@ -64,7 +64,7 @@ fun ListingCard(
                         .padding(spacing.sm)
                         .size(32.dp)
                         .align(Alignment.TopEnd),
-                        shape = CircleShape,
+                    shape = CircleShape,
                     color = MaterialTheme.colorScheme.onSurface,
                 ) {
                     Box(

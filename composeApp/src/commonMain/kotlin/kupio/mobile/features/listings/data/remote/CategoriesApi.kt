@@ -1,4 +1,4 @@
-package kupio.mobile.features.home.data.remote
+package kupio.mobile.features.listings.data.remote
 
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get

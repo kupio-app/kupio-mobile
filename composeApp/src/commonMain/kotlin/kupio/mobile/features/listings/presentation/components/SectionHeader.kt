@@ -1,4 +1,4 @@
-package kupio.mobile.features.home.presentation.components
+package kupio.mobile.features.listings.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row

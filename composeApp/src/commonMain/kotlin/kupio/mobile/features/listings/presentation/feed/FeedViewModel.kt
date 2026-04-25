@@ -1,4 +1,4 @@
-package kupio.mobile.features.home.presentation
+package kupio.mobile.features.listings.presentation.feed
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,22 +14,22 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kupio.mobile.features.home.domain.model.Category
-import kupio.mobile.features.home.domain.model.ListingFeed
-import kupio.mobile.features.home.domain.repository.CategoriesRepository
-import kupio.mobile.features.home.domain.repository.ListingsRepository
-import kupio.mobile.features.home.presentation.HomeEffect.*
+import kupio.mobile.features.listings.domain.model.Category
+import kupio.mobile.features.listings.domain.model.ListingFeed
+import kupio.mobile.features.listings.domain.repository.CategoriesRepository
+import kupio.mobile.features.listings.domain.repository.ListingsRepository
+import kupio.mobile.features.listings.presentation.feed.FeedEffect.*
 
-class HomeViewModel(
+class FeedViewModel(
     private val listingsRepository: ListingsRepository,
     private val categoriesRepository: CategoriesRepository,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(HomeState())
-    val state: StateFlow<HomeState> = _state.asStateFlow()
+    private val _state = MutableStateFlow(FeedState())
+    val state: StateFlow<FeedState> = _state.asStateFlow()
 
-    private val effectChannel = Channel<HomeEffect>(Channel.BUFFERED)
-    val effects: Flow<HomeEffect> = effectChannel.receiveAsFlow()
+    private val effectChannel = Channel<FeedEffect>(Channel.BUFFERED)
+    val effects: Flow<FeedEffect> = effectChannel.receiveAsFlow()
 
     private var loadRecommendedJob: Job? = null
 
@@ -38,28 +38,28 @@ class HomeViewModel(
         loadRecommended()
     }
 
-    fun onIntent(intent: HomeIntent) {
+    fun onIntent(intent: FeedIntent) {
         when (intent) {
-            is HomeIntent.SearchQueryChanged -> _state.update { it.copy(searchQuery = intent.query) }
-            is HomeIntent.SelectCategory -> {
+            is FeedIntent.SearchQueryChanged -> _state.update { it.copy(searchQuery = intent.query) }
+            is FeedIntent.SelectCategory -> {
                 if (intent.id == _state.value.selectedCategoryId) return
                 _state.update { it.copy(selectedCategoryId = intent.id) }
                 loadRecommended()
             }
-            is HomeIntent.OpenListing -> viewModelScope.launch {
+            is FeedIntent.OpenListing -> viewModelScope.launch {
                 effectChannel.send(OpenListing(intent.id))
             }
-            HomeIntent.SubmitSearch -> {
+            FeedIntent.SubmitSearch -> {
                 val query = _state.value.searchQuery
                 if (query.isBlank()) return
                 viewModelScope.launch { effectChannel.send(OpenSearch(query)) }
             }
-            HomeIntent.RetryLoadListings -> loadRecommended()
-            HomeIntent.RetryLoadCategories -> loadCategories()
-            HomeIntent.RefreshFeed -> refreshFeed()
-            HomeIntent.OpenFilters -> {}
-            HomeIntent.OpenNotifications -> {}
-            HomeIntent.SelectDelivery -> {}
+            FeedIntent.RetryLoadListings -> loadRecommended()
+            FeedIntent.RetryLoadCategories -> loadCategories()
+            FeedIntent.RefreshFeed -> refreshFeed()
+            FeedIntent.OpenFilters -> {}
+            FeedIntent.OpenNotifications -> {}
+            FeedIntent.SelectDelivery -> {}
         }
     }
 
@@ -112,7 +112,7 @@ class HomeViewModel(
 
     private suspend fun fetchRecommended(): Result<ListingFeed> = runCatching {
         val categoryId = _state.value.selectedCategoryId
-            .takeUnless { it == HomeCategoryItem.ALL_ID }
+            .takeUnless { it == FeedCategoryItem.ALL_ID }
             ?.removePrefix("cat_")
             ?.toIntOrNull()
         listingsRepository.getFeed(limit = 10, categoryId = categoryId)

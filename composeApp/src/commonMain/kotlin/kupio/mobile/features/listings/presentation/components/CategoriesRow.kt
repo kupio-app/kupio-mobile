@@ -1,4 +1,4 @@
-package kupio.mobile.features.home.presentation.components
+package kupio.mobile.features.listings.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,16 +26,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingClickable
-import kupio.mobile.features.home.presentation.HomeCategoryItem
+import kupio.mobile.features.listings.presentation.feed.FeedCategoryItem
 import mobile.composeapp.generated.resources.Res
-import mobile.composeapp.generated.resources.auth_create_account
 import mobile.composeapp.generated.resources.home_categories_error
 import mobile.composeapp.generated.resources.retry
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun CategoriesRow(
-    items: List<HomeCategoryItem>,
+    items: List<FeedCategoryItem>,
     selectedId: String,
     isLoading: Boolean,
     error: String?,
@@ -92,7 +91,7 @@ fun CategoriesRow(
 
 @Composable
 private fun CategoryChip(
-    item: HomeCategoryItem,
+    item: FeedCategoryItem,
     isSelected: Boolean,
     onClick: () -> Unit,
 ) {

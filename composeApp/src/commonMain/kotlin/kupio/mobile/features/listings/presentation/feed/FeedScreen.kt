@@ -1,4 +1,4 @@
-package kupio.mobile.features.home.presentation
+package kupio.mobile.features.listings.presentation.feed
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,9 +15,9 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,14 +30,14 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.presentation.CollectEffect
-import kupio.mobile.features.home.domain.model.Listing
-import kupio.mobile.features.home.presentation.components.AdvertisementHeadline
-import kupio.mobile.features.home.presentation.components.CategoriesRow
-import kupio.mobile.features.home.presentation.components.HomeTopBar
-import kupio.mobile.features.home.presentation.components.ListingCard
-import kupio.mobile.features.home.presentation.components.SearchWithFilters
-import kupio.mobile.features.home.presentation.components.SectionHeader
-import kupio.mobile.features.listingdetail.presentation.ListingDetailScreen
+import kupio.mobile.features.listings.domain.model.Listing
+import kupio.mobile.features.listings.presentation.components.AdvertisementHeadline
+import kupio.mobile.features.listings.presentation.components.CategoriesRow
+import kupio.mobile.features.listings.presentation.components.HomeTopBar
+import kupio.mobile.features.listings.presentation.components.ListingCard
+import kupio.mobile.features.listings.presentation.components.SearchWithFilters
+import kupio.mobile.features.listings.presentation.components.SectionHeader
+import kupio.mobile.features.listings.presentation.detail.ListingDetailScreen
 import kupio.mobile.features.search.presentation.SearchScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.home_category_all
@@ -49,27 +49,27 @@ import mobile.composeapp.generated.resources.screen_home_body
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
-class HomeScreen : Screen {
+class FeedScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = koinViewModel<HomeViewModel>()
+        val viewModel = koinViewModel<FeedViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         CollectEffect(viewModel.effects) { effect ->
             when (effect) {
-                is HomeEffect.OpenListing -> navigator.push(ListingDetailScreen(effect.id))
-                is HomeEffect.OpenSearch -> navigator.push(SearchScreen(effect.query))
+                is FeedEffect.OpenListing -> navigator.push(ListingDetailScreen(effect.id))
+                is FeedEffect.OpenSearch -> navigator.push(SearchScreen(effect.query))
             }
         }
-        HomeContent(state = state, onIntent = viewModel::onIntent)
+        FeedContent(state = state, onIntent = viewModel::onIntent)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HomeContent(
-    state: HomeState,
-    onIntent: (HomeIntent) -> Unit,
+private fun FeedContent(
+    state: FeedState,
+    onIntent: (FeedIntent) -> Unit,
 ) {
     val spacing = KupioThemeDefaults.spacing
     val allLabel = stringResource(Res.string.home_category_all)
@@ -85,13 +85,13 @@ private fun HomeContent(
         HomeTopBar(
             deliveryLocation = state.deliveryLocation,
             hasUnreadNotifications = state.hasUnreadNotifications,
-            onDeliveryClick = { onIntent(HomeIntent.SelectDelivery) },
-            onNotificationsClick = { onIntent(HomeIntent.OpenNotifications) },
+            onDeliveryClick = { onIntent(FeedIntent.SelectDelivery) },
+            onNotificationsClick = { onIntent(FeedIntent.OpenNotifications) },
         )
 
         PullToRefreshBox(
             isRefreshing = state.isRefreshing,
-            onRefresh = { onIntent(HomeIntent.RefreshFeed) },
+            onRefresh = { onIntent(FeedIntent.RefreshFeed) },
             modifier = Modifier.fillMaxSize(),
         ) {
             LazyColumn(
@@ -106,9 +106,9 @@ private fun HomeContent(
                 item(key = "search") {
                     SearchWithFilters(
                         query = state.searchQuery,
-                        onQueryChange = { onIntent(HomeIntent.SearchQueryChanged(it)) },
-                        onSubmit = { onIntent(HomeIntent.SubmitSearch) },
-                        onFiltersClick = { onIntent(HomeIntent.OpenFilters) },
+                        onQueryChange = { onIntent(FeedIntent.SearchQueryChanged(it)) },
+                        onSubmit = { onIntent(FeedIntent.SubmitSearch) },
+                        onFiltersClick = { onIntent(FeedIntent.OpenFilters) },
                     )
                 }
 
@@ -118,8 +118,8 @@ private fun HomeContent(
                         selectedId = state.selectedCategoryId,
                         isLoading = state.isLoadingCategories,
                         error = state.categoriesError,
-                        onSelect = { onIntent(HomeIntent.SelectCategory(it)) },
-                        onRetry = { onIntent(HomeIntent.RetryLoadCategories) },
+                        onSelect = { onIntent(FeedIntent.SelectCategory(it)) },
+                        onRetry = { onIntent(FeedIntent.RetryLoadCategories) },
                     )
                 }
 
@@ -149,7 +149,7 @@ private fun HomeContent(
                     state.listingsError != null -> item(key = "listings_error") {
                         ListingsErrorRow(
                             error = stringResource(Res.string.home_recommended_error),
-                            onRetry = { onIntent(HomeIntent.RetryLoadListings) },
+                            onRetry = { onIntent(FeedIntent.RetryLoadListings) },
                         )
                     }
 
@@ -161,7 +161,7 @@ private fun HomeContent(
                         )
                     }
 
-                    else -> recommendedGrid(state.listings) { id -> onIntent(HomeIntent.OpenListing(id)) }
+                    else -> recommendedGrid(state.listings) { id -> onIntent(FeedIntent.OpenListing(id)) }
                 }
             }
         }

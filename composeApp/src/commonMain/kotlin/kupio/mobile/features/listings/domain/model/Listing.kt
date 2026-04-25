@@ -1,4 +1,4 @@
-package kupio.mobile.features.home.domain.model
+package kupio.mobile.features.listings.domain.model
 
 data class Listing(
     val id: String,
@@ -26,5 +26,6 @@ enum class Currency(
     CZK("Kč", false),
     UAH("₴", true),
 }
+
 fun Listing.formatPrice(): String =
     if (currency.symbolFirst) "${currency.symbol}$price" else "$price ${currency.symbol}"

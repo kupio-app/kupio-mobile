@@ -1,7 +1,5 @@
 package kupio.mobile.features.chats.data
 
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -12,6 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import kupio.mobile.core.datetime.nowEpochMillis
+import kupio.mobile.core.datetime.toTimeLabel
 import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.core.preferences.PreferencesRepository
 import kupio.mobile.features.auth.domain.model.SessionState
@@ -82,7 +82,7 @@ class ConversationsStore(
     }
 
     suspend fun markSeen(conversationId: String) {
-        preferences.markChatSeen(conversationId, currentEpochMillis())
+        preferences.markChatSeen(conversationId, nowEpochMillis())
         _chats.update { list ->
             val prev = list.find { it.id == conversationId }?.unreadCount ?: 0
             _unreadCount.update { (it - prev).coerceAtLeast(0) }
@@ -161,5 +161,3 @@ private fun Listing.toSummary() = ListingSummary(
     placeholderSeed = id.hashCode(),
 )
 
-@OptIn(ExperimentalTime::class)
-private fun currentEpochMillis(): Long = Clock.System.now().toEpochMilliseconds()

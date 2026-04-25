@@ -3,6 +3,8 @@ package kupio.mobile.features.settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -22,6 +24,7 @@ import mobile.composeapp.generated.resources.back
 import mobile.composeapp.generated.resources.settings_body
 import mobile.composeapp.generated.resources.settings_logout
 import mobile.composeapp.generated.resources.settings_title
+import mobile.composeapp.generated.resources.settings_user_id_label
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -68,6 +71,13 @@ private fun SettingsRoute(
             verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
         ) {
             KupioText(text = stringResource(Res.string.settings_body))
+            if (state.userId.isNotEmpty()) {
+                Text(
+                    text = stringResource(Res.string.settings_user_id_label, state.userId),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             SettingsThemeModeSection(
                 selectedThemeMode = state.selectedThemeMode,
                 enabled = !state.isSigningOut,

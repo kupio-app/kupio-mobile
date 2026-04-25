@@ -12,6 +12,7 @@ data class ChatsListState(
     val chats: List<ChatSummary> = emptyList(),
     val filter: ChatsFilter = ChatsFilter.ALL,
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
     val totalUnread: Int = 0,
 ) : UiState {

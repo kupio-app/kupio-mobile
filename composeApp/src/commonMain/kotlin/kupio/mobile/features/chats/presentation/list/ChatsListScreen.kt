@@ -20,10 +20,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -82,6 +84,7 @@ class ChatsListScreen : Screen {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ChatsListContent(
     state: ChatsListState,
@@ -107,78 +110,84 @@ private fun ChatsListContent(
             )
         },
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+        PullToRefreshBox (
+            isRefreshing = state.isRefreshing,
+            onRefresh = { onIntent(ChatsListIntent.RefreshChats) },
+            modifier = Modifier.fillMaxSize(),
         ) {
-            ChatsFilterChips(
-                selected = state.filter,
-                counts = state.counts,
-                onSelect = { onIntent(ChatsListIntent.SelectFilter(it)) },
-                modifier = Modifier.padding(vertical = spacing.md),
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
+            ) {
+                ChatsFilterChips(
+                    selected = state.filter,
+                    counts = state.counts,
+                    onSelect = { onIntent(ChatsListIntent.SelectFilter(it)) },
+                    modifier = Modifier.padding(vertical = spacing.md),
+                )
 
-            when {
-                state.isLoading && state.chats.isEmpty() -> Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                }
-
-                state.errorMessage != null && state.chats.isEmpty() -> Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(spacing.lg),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    Text(
-                        text = stringResource(Res.string.chats_load_error),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Spacer(Modifier.height(spacing.sm))
-                    Button(onClick = { onIntent(ChatsListIntent.RetryLoad) }) {
-                        Text(stringResource(Res.string.retry))
+                when {
+                    state.isLoading && state.chats.isEmpty() -> Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
-                }
 
-                state.visibleChats.isEmpty() -> Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(spacing.lg),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    Text(
-                        text = stringResource(Res.string.chats_empty_body),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-
-                else -> LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = spacing.xl),
-                ) {
-                    items(state.visibleChats, key = { it.id }) { chat ->
-                        ChatCard(chat = chat, onClick = { onIntent(ChatsListIntent.OpenChat(chat.id)) })
-                        HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
+                    state.errorMessage != null && state.chats.isEmpty() -> Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(spacing.lg),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.chats_load_error),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(Modifier.height(spacing.sm))
+                        Button(onClick = { onIntent(ChatsListIntent.RetryLoad) }) {
+                            Text(stringResource(Res.string.retry))
+                        }
                     }
-                    item(key = "footer") {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(spacing.xl),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = stringResource(Res.string.chats_empty_footer),
-                                style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+
+                    state.visibleChats.isEmpty() -> Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(spacing.lg),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.chats_empty_body),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+
+                    else -> LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = spacing.xl),
+                    ) {
+                        items(state.visibleChats, key = { it.id }) { chat ->
+                            ChatCard(chat = chat, onClick = { onIntent(ChatsListIntent.OpenChat(chat.id)) })
+                            HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
+                        }
+                        item(key = "footer") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(spacing.xl),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.chats_empty_footer),
+                                    style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
                         }
                     }
                 }

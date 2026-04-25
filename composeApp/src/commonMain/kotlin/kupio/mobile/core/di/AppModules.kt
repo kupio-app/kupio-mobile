@@ -21,6 +21,7 @@ import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.auth.AuthViewModel
 import kupio.mobile.features.auth.presentation.username.UsernameViewModel
+import kupio.mobile.features.chats.data.ChatWebSocket
 import kupio.mobile.features.chats.data.ConversationsStore
 import kupio.mobile.features.chats.data.remote.ChatApi
 import kupio.mobile.features.chats.data.remote.UserApi
@@ -66,7 +67,8 @@ val kupioAppModules: List<Module> = listOf(
         single { ChatApi(get()) }
         single { UserApi(get()) }
         single<ChatsRepository> { ChatsRepositoryImpl(get(), get()) }
-        single<MessagesRepository> { MessagesRepositoryImpl(get(), get(), get()) }
+        single { ChatWebSocket(get(), get(), get(), get()) }
+        single<MessagesRepository> { MessagesRepositoryImpl(get(), get(), get(), get()) }
         single { ConversationsStore(get(), get(), get(), get(), get(), get()) }
         viewModelOf(::ChatsListViewModel)
         viewModel { params -> ChatThreadViewModel(params.get(), get(), get()) }

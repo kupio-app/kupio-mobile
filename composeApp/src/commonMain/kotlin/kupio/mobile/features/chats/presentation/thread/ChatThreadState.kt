@@ -13,7 +13,9 @@ data class ChatThreadState(
     val isLoading: Boolean = true,
     val isSending: Boolean = false,
     val errorMessage: String? = null,
-) : UiState
+) : UiState {
+    val groupedMessages: List<MessageListItem> get() = groupMessagesByDay(messages)
+}
 
 sealed interface ChatThreadIntent : UiAction {
     data class DraftChanged(val text: String) : ChatThreadIntent

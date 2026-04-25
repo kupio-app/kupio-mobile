@@ -7,5 +7,6 @@ data class MessageItem(
     val sender: MessageSender,
     val text: String,
     val timeLabel: String,
+    val createdAtIso: String,
     val isDeleted: Boolean = false,
 )

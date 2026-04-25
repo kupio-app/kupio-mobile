@@ -53,9 +53,24 @@ import kupio.mobile.features.listings.presentation.detail.ListingDetailScreen
 import kupio.mobile.features.userprofile.presentation.UserPublicProfileScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.chat_active_unknown
-import mobile.composeapp.generated.resources.chat_day_today_private
+import mobile.composeapp.generated.resources.chat_day_date_format
+import mobile.composeapp.generated.resources.chat_day_n_days_ago
+import mobile.composeapp.generated.resources.chat_day_today
+import mobile.composeapp.generated.resources.chat_day_yesterday
 import mobile.composeapp.generated.resources.chat_thread_discussing
 import mobile.composeapp.generated.resources.chat_thread_view
+import mobile.composeapp.generated.resources.month_1
+import mobile.composeapp.generated.resources.month_10
+import mobile.composeapp.generated.resources.month_11
+import mobile.composeapp.generated.resources.month_12
+import mobile.composeapp.generated.resources.month_2
+import mobile.composeapp.generated.resources.month_3
+import mobile.composeapp.generated.resources.month_4
+import mobile.composeapp.generated.resources.month_5
+import mobile.composeapp.generated.resources.month_6
+import mobile.composeapp.generated.resources.month_7
+import mobile.composeapp.generated.resources.month_8
+import mobile.composeapp.generated.resources.month_9
 import mobile.composeapp.generated.resources.retry
 import mobile.composeapp.generated.resources.topbar_back
 import org.jetbrains.compose.resources.stringResource
@@ -91,7 +106,8 @@ private fun ChatThreadContent(
     val listState = rememberLazyListState()
 
     LaunchedEffect(state.messages.size) {
-        if (state.messages.isNotEmpty()) listState.animateScrollToItem(state.messages.size - 1)
+        val grouped = state.groupedMessages
+        if (grouped.isNotEmpty()) listState.animateScrollToItem(grouped.size - 1)
     }
 
     Scaffold(
@@ -181,7 +197,7 @@ private fun ChatThreadContent(
                 }
 
                 else -> MessagesColumn(
-                    messages = state.messages,
+                    items = state.groupedMessages,
                     listState = listState,
                 )
             }
@@ -224,7 +240,7 @@ private fun ChatThreadTopBar(
 
 @Composable
 private fun MessagesColumn(
-    messages: List<MessageItem>,
+    items: List<MessageListItem>,
     listState: androidx.compose.foundation.lazy.LazyListState,
 ) {
     val spacing = KupioThemeDefaults.spacing
@@ -235,28 +251,60 @@ private fun MessagesColumn(
         contentPadding = PaddingValues(horizontal = spacing.lg, vertical = spacing.md),
         verticalArrangement = Arrangement.spacedBy(spacing.sm),
     ) {
-        item(key = "day_label") {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(999.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                ) {
-                    Text(
-                        text = stringResource(Res.string.chat_day_today_private),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                    )
-                }
+        items(items, key = { item ->
+            when (item) {
+                is MessageListItem.DaySeparator -> "sep_${item.label}"
+                is MessageListItem.Message -> item.item.id
             }
-        }
-        items(messages, key = { it.id }) { message ->
-            if (!message.isDeleted) {
-                MessageBubble(message = message)
+        }) { item ->
+            when (item) {
+                is MessageListItem.DaySeparator -> DaySeparatorRow(item.label)
+                is MessageListItem.Message -> if (!item.item.isDeleted) MessageBubble(item.item)
             }
         }
     }
+}
+
+@Composable
+private fun DaySeparatorRow(label: DayLabel) {
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Surface(
+            shape = RoundedCornerShape(999.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+        ) {
+            Text(
+                text = dayLabelText(label),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun dayLabelText(label: DayLabel): String = when (label) {
+    DayLabel.Today -> stringResource(Res.string.chat_day_today)
+    DayLabel.Yesterday -> stringResource(Res.string.chat_day_yesterday)
+    is DayLabel.DaysAgo -> stringResource(Res.string.chat_day_n_days_ago, label.count)
+    is DayLabel.AbsoluteDate -> stringResource(Res.string.chat_day_date_format, label.day, monthName(label.month))
+}
+
+@Composable
+private fun monthName(month: Int): String = when (month) {
+    1 -> stringResource(Res.string.month_1)
+    2 -> stringResource(Res.string.month_2)
+    3 -> stringResource(Res.string.month_3)
+    4 -> stringResource(Res.string.month_4)
+    5 -> stringResource(Res.string.month_5)
+    6 -> stringResource(Res.string.month_6)
+    7 -> stringResource(Res.string.month_7)
+    8 -> stringResource(Res.string.month_8)
+    9 -> stringResource(Res.string.month_9)
+    10 -> stringResource(Res.string.month_10)
+    11 -> stringResource(Res.string.month_11)
+    else -> stringResource(Res.string.month_12)
 }

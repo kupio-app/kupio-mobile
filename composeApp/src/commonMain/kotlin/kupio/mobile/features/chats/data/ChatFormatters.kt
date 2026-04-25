@@ -24,5 +24,6 @@ internal fun MessageResponseDto.toItem(currentUserId: String) = MessageItem(
     sender = if (senderId == currentUserId) MessageSender.ME else MessageSender.THEM,
     text = content ?: "",
     timeLabel = createdAt.toTimeLabel(),
+    createdAtIso = createdAt,
     isDeleted = isDeleted,
 )

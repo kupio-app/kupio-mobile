@@ -21,10 +21,13 @@ import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.auth.AuthViewModel
 import kupio.mobile.features.auth.presentation.username.UsernameViewModel
+import kupio.mobile.features.chats.data.ConversationsStore
 import kupio.mobile.features.chats.data.remote.ChatApi
 import kupio.mobile.features.chats.data.remote.UserApi
 import kupio.mobile.features.chats.data.repository.ChatsRepositoryImpl
+import kupio.mobile.features.chats.data.repository.MessagesRepositoryImpl
 import kupio.mobile.features.chats.domain.repository.ChatsRepository
+import kupio.mobile.features.chats.domain.repository.MessagesRepository
 import kupio.mobile.features.chats.presentation.list.ChatsListViewModel
 import kupio.mobile.features.chats.presentation.thread.ChatThreadViewModel
 import kupio.mobile.features.listings.data.remote.CategoriesApi
@@ -62,9 +65,11 @@ val kupioAppModules: List<Module> = listOf(
         single<CategoriesRepository> { CategoriesRepositoryImpl(get()) }
         single { ChatApi(get()) }
         single { UserApi(get()) }
-        single<ChatsRepository> { ChatsRepositoryImpl(get(), get(), get(), get(), get(), get()) }
+        single<ChatsRepository> { ChatsRepositoryImpl(get(), get()) }
+        single<MessagesRepository> { MessagesRepositoryImpl(get(), get(), get()) }
+        single { ConversationsStore(get(), get(), get(), get(), get(), get()) }
         viewModelOf(::ChatsListViewModel)
-        viewModel { params -> ChatThreadViewModel(params.get(), get()) }
+        viewModel { params -> ChatThreadViewModel(params.get(), get(), get()) }
         single<AuthClock> { SystemAuthClock() }
         single { AuthTokenProvider(get(), get(), get(), get()) }
         single<AuthenticatedApiClient> {

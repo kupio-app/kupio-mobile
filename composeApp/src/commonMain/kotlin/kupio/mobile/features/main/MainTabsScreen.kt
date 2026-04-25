@@ -20,7 +20,7 @@ import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import kupio.mobile.core.designsystem.KupioBottomNav
 import kupio.mobile.core.designsystem.KupioBottomNavItem
-import kupio.mobile.features.chats.domain.repository.ChatsRepository
+import kupio.mobile.features.chats.data.ConversationsStore
 import kupio.mobile.features.create.CreateScreen
 import kupio.mobile.features.main.tabs.ChatsTab
 import kupio.mobile.features.main.tabs.HomeTab
@@ -38,10 +38,10 @@ class MainTabsScreen : Screen {
     @Composable
     override fun Content() {
         val rootNavigator = LocalNavigator.currentOrThrow
-        val chatsRepo = koinInject<ChatsRepository>()
-        val totalUnread by chatsRepo.observeUnreadCount().collectAsStateWithLifecycle()
+        val store = koinInject<ConversationsStore>()
+        val totalUnread by store.unreadCount.collectAsStateWithLifecycle()
 
-        LaunchedEffect(Unit) { chatsRepo.refreshUnreadCount() }
+        LaunchedEffect(Unit) { store.refreshUnreadCount() }
 
         TabNavigator(HomeTab) { tabNavigator ->
             val tabs = listOf(HomeTab, SavedTab, ChatsTab, MeTab)

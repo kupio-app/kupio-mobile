@@ -25,6 +25,7 @@
     <string name="settings_title">Settings</string>
     <string name="settings_body">Theme mode is stored in DataStore to demonstrate shared app preferences.</string>
     <string name="settings_logout">Log out</string>
+    <string name="settings_user_id_label">User ID: %1$s</string>
     <string name="back">Back</string>
     <string name="retry">Retry</string>
     <string name="theme_mode_label">Theme mode</string>
@@ -86,4 +87,24 @@
     <string name="home_recommended_error">Couldn\'t load recommended listings.</string>
     <string name="home_listing_favorite">Favorite</string>
     <string name="listing_detail_title">Listing</string>
+    <string name="chats_title">Messages</string>
+    <string name="chats_unread_subtitle">%1$d unread</string>
+    <string name="chats_filter">Filter</string>
+    <string name="chats_filter_all">All</string>
+    <string name="chats_filter_buying">Buying</string>
+    <string name="chats_filter_selling">Selling</string>
+    <string name="chats_empty_footer">That\'s the bottom of your inbox.</string>
+    <string name="chats_empty_body">No conversations yet.</string>
+    <string name="chats_load_error">Couldn\'t load your conversations.</string>
+    <string name="chat_role_buying">BUYING</string>
+    <string name="chat_role_selling">SELLING</string>
+    <string name="chat_thread_discussing">DISCUSSING</string>
+    <string name="chat_thread_view">VIEW</string>
+    <string name="chat_day_today_private">Today · Messages are private</string>
+    <string name="chat_composer_placeholder">Write your message…</string>
+    <string name="chat_send">Send</string>
+    <string name="chat_profile_title">Profile</string>
+    <string name="chat_profile_placeholder">Public profile coming soon.</string>
+    <string name="chat_participant_fallback">User %1$s</string>
+    <string name="chat_active_unknown">Member</string>
 </resources>

@@ -1,17 +1,21 @@
 package kupio.mobile.features.chats.data.repository
 
+import kotlinx.coroutines.flow.Flow
 import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.chats.data.ChatWebSocket
 import kupio.mobile.features.chats.data.toItem
 import kupio.mobile.features.chats.data.remote.ChatApi
 import kupio.mobile.features.chats.domain.model.MessageItem
+import kupio.mobile.features.chats.domain.model.WsMessageEvent
 import kupio.mobile.features.chats.domain.repository.MessagesRepository
 
 class MessagesRepositoryImpl(
     private val chatApi: ChatApi,
     private val authenticatedApiClient: AuthenticatedApiClient,
     private val sessionManager: AuthSessionManager,
+    private val chatWebSocket: ChatWebSocket,
 ) : MessagesRepository {
 
     override suspend fun loadMessages(conversationId: String): List<MessageItem> {
@@ -28,6 +32,9 @@ class MessagesRepositoryImpl(
         }
         return dto.toItem(currentUserId)
     }
+
+    override fun observeMessages(conversationId: String): Flow<WsMessageEvent> =
+        chatWebSocket.observe(conversationId)
 
     private fun currentUserId() =
         (sessionManager.sessionState.value as? SessionState.SignedIn)?.user?.id.orEmpty()

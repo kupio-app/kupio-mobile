@@ -6,5 +6,8 @@ import kupio.mobile.features.listings.domain.model.FilterDefinition
 interface CategoriesRepository {
     suspend fun getRootCategories(limit: Int = 20): List<Category>
 
-    suspend fun getCategoryFilters(categoryId: Int): List<FilterDefinition>
+    suspend fun getCategoryFilters(
+        categoryId: Int,
+        forceRefresh: Boolean = false,
+    ): List<FilterDefinition>
 }

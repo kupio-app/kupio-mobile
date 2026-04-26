@@ -67,7 +67,7 @@ class CreateViewModel(
             }
             CreateIntent.ToggleTradable -> _state.update { it.copy(isTradable = !it.isTradable) }
             CreateIntent.RetryCategories -> loadCategories()
-            CreateIntent.RetryFilters -> _state.value.selectedCategoryId?.let(::loadFilters)
+            CreateIntent.RetryFilters -> _state.value.selectedCategoryId?.let { loadFilters(it, forceRefresh = true) }
             CreateIntent.Publish -> publish()
             CreateIntent.Back -> viewModelScope.launch { effectChannel.send(CreateEffect.NavigateBack) }
         }
@@ -162,11 +162,14 @@ class CreateViewModel(
         }
     }
 
-    private fun loadFilters(categoryId: Int) {
+    private fun loadFilters(
+        categoryId: Int,
+        forceRefresh: Boolean = false,
+    ) {
         filtersJob?.cancel()
         _state.update { it.copy(isLoadingFilters = true, filtersError = null) }
         filtersJob = viewModelScope.launch {
-            runCatching { categoriesRepository.getCategoryFilters(categoryId) }
+            runCatching { categoriesRepository.getCategoryFilters(categoryId, forceRefresh = forceRefresh) }
                 .onSuccess { filters ->
                     _state.update {
                         it.copy(

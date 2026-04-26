@@ -87,16 +87,6 @@ import org.koin.compose.viewmodel.koinViewModel
 
 private const val MaxListingImages = 8
 
-private val CreateBackground = Color(0xFFF6EFE5)
-private val CreateCard = Color(0xFFFDFAF6)
-private val CreateCardAlt = Color(0xFFF2E8D8)
-private val CreateAccent = Color(0xFFB4623A)
-private val CreateInk = Color(0xFF3B2A1A)
-private val CreateInk2 = Color(0xFF7A6650)
-private val CreateInk3 = Color(0xFFA8957B)
-private val CreateLine = Color(0x1A523D27)
-private val CreateLineStrong = Color(0x38523D27)
-
 class CreateScreen : Screen {
     @Composable
     override fun Content() {
@@ -143,7 +133,7 @@ private fun CreateContent(
 
     Scaffold(
         topBar = {
-            Surface(color = CreateBackground) {
+            Surface(color = MaterialTheme.colorScheme.background) {
                 KupioTopNavbar(
                     title = stringResource(Res.string.topbar_new_listing_title),
                     subtitle = "Create and publish your item",
@@ -163,7 +153,7 @@ private fun CreateContent(
                 onPublish = { onIntent(CreateIntent.Publish) },
             )
         },
-        containerColor = CreateBackground,
+        containerColor = MaterialTheme.colorScheme.background,
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -232,7 +222,7 @@ private fun rememberActiveCreateSection(listState: LazyListState) = remember(lis
 private fun CreateProgress(activeSection: CreateSection) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = CreateBackground,
+        color = MaterialTheme.colorScheme.background,
         shadowElevation = 2.dp,
     ) {
         Row(
@@ -252,13 +242,13 @@ private fun CreateProgress(activeSection: CreateSection) {
                             .height(3.dp)
                             .clip(RoundedCornerShape(99.dp))
                             .background(
-                                if (selected) CreateAccent else CreateLineStrong,
+                                if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
                             ),
                     )
                     Text(
                         text = section.label.uppercase(),
                         style = MaterialTheme.typography.labelSmall,
-                        color = if (selected) CreateInk else CreateInk3,
+                        color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
                         fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
                     )
                 }
@@ -299,15 +289,15 @@ private fun PhotosSection(
                 .fillMaxWidth()
                 .aspectRatio(4f / 3f)
                 .clip(RoundedCornerShape(16.dp))
-                .background(CreateCard)
-                .border(BorderStroke(1.dp, CreateLineStrong), RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)), RoundedCornerShape(16.dp))
                 .clickable(onClick = onAdd),
             contentAlignment = Alignment.Center,
         ) {
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .background(if (cover == null) CreateCard else CreateCardAlt),
+                    .background(if (cover == null) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant),
             )
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -316,7 +306,7 @@ private fun PhotosSection(
                 Surface(
                     modifier = Modifier.size(56.dp),
                     shape = RoundedCornerShape(18.dp),
-                    color = CreateCard.copy(alpha = 0.92f),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
                     shadowElevation = 2.dp,
                 ) {
                     Box(contentAlignment = Alignment.Center) {
@@ -324,20 +314,20 @@ private fun PhotosSection(
                             imageVector = if (cover == null) Icons.Outlined.PhotoCamera else Icons.Outlined.Image,
                             contentDescription = null,
                             modifier = Modifier.size(28.dp),
-                            tint = CreateInk,
+                            tint = MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }
                 Text(
                     text = cover?.fileName ?: "Tap to add a photo",
                     style = MaterialTheme.typography.titleMedium.copy(letterSpacing = (-0.2).sp),
-                    color = CreateInk,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium,
                 )
                 Text(
                     text = if (cover == null) "JPG, PNG or WEBP" else "${images.size} selected",
                     style = MaterialTheme.typography.bodySmall,
-                    color = CreateInk2,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             CoverBadge(Modifier.align(Alignment.TopStart).padding(10.dp))
@@ -366,14 +356,14 @@ private fun PhotosSection(
 private fun CoverBadge(modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier,
-        color = CreateAccent,
+        color = MaterialTheme.colorScheme.primary,
         shape = RoundedCornerShape(4.dp),
     ) {
         Text(
             text = "COVER",
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
             style = MaterialTheme.typography.labelSmall,
-            color = CreateCard,
+            color = MaterialTheme.colorScheme.surface,
             fontWeight = FontWeight.Bold,
         )
     }
@@ -388,13 +378,13 @@ private fun ImageTile(
         modifier = Modifier
             .size(72.dp)
             .clip(RoundedCornerShape(10.dp))
-            .background(CreateCardAlt)
-            .border(BorderStroke(1.dp, CreateLine), RoundedCornerShape(10.dp)),
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)), RoundedCornerShape(10.dp)),
     ) {
         Icon(
             imageVector = Icons.Outlined.Image,
             contentDescription = null,
-            tint = CreateInk2,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.align(Alignment.Center),
         )
         IconButton(
@@ -407,7 +397,7 @@ private fun ImageTile(
                 imageVector = Icons.Outlined.Close,
                 contentDescription = "Remove ${image.fileName}",
                 modifier = Modifier.size(16.dp),
-                tint = CreateInk,
+                tint = MaterialTheme.colorScheme.onSurface,
             )
         }
     }
@@ -421,13 +411,13 @@ private fun AddImageTile(onClick: () -> Unit) {
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(10.dp),
         color = Color.Transparent,
-        border = BorderStroke(1.dp, CreateLineStrong),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = Icons.Outlined.Add,
                 contentDescription = "Add photo",
-                tint = CreateInk2,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -505,7 +495,7 @@ private fun FiltersSection(
             state.selectedCategoryId == null -> Text(
                 text = "Select a category to see available filters.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = CreateInk2,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             state.isLoadingFilters -> LoadingRow()
             state.filtersError != null -> RetryRow(
@@ -515,7 +505,7 @@ private fun FiltersSection(
             state.filters.isEmpty() -> Text(
                 text = "No extra details needed for this category.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = CreateInk2,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             else -> state.filters.forEach { filter ->
                 FilterInput(
@@ -644,8 +634,8 @@ private fun ChoiceChip(
             .height(34.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(99.dp),
-        color = if (selected) CreateInk else Color.Transparent,
-        border = if (selected) null else BorderStroke(1.dp, CreateLineStrong),
+        color = if (selected) MaterialTheme.colorScheme.onSurface else Color.Transparent,
+        border = if (selected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
     ) {
         Box(
             modifier = Modifier.padding(horizontal = 13.dp),
@@ -654,7 +644,7 @@ private fun ChoiceChip(
             Text(
                 text = text,
                 style = MaterialTheme.typography.labelMedium,
-                color = if (selected) CreateCard else CreateInk2,
+                color = if (selected) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium,
             )
         }
@@ -703,8 +693,8 @@ private fun CreatePriceField(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
-        color = CreateCard,
-        border = BorderStroke(1.dp, if (error == null) CreateLine else MaterialTheme.colorScheme.error),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, if (error == null) MaterialTheme.colorScheme.outline.copy(alpha = 0.16f) else MaterialTheme.colorScheme.error),
     ) {
         Row(
             modifier = Modifier.padding(start = 16.dp, top = 10.dp, end = 10.dp, bottom = 10.dp),
@@ -714,7 +704,7 @@ private fun CreatePriceField(
             Icon(
                 imageVector = Icons.Outlined.Euro,
                 contentDescription = null,
-                tint = CreateInk2,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(22.dp),
             )
             OutlinedTextField(
@@ -727,7 +717,7 @@ private fun CreatePriceField(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 textStyle = MaterialTheme.typography.headlineMedium.copy(
-                    color = CreateInk,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Normal,
                     letterSpacing = (-0.6).sp,
                 ),
@@ -745,21 +735,21 @@ private fun CreatePriceField(
 
 @Composable
 private fun priceTextFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedTextColor = CreateInk,
-    unfocusedTextColor = CreateInk,
-    disabledTextColor = CreateInk3,
+    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+    disabledTextColor = MaterialTheme.colorScheme.outline,
     focusedContainerColor = Color.Transparent,
     unfocusedContainerColor = Color.Transparent,
     disabledContainerColor = Color.Transparent,
     errorContainerColor = Color.Transparent,
-    cursorColor = CreateAccent,
+    cursorColor = MaterialTheme.colorScheme.primary,
     focusedBorderColor = Color.Transparent,
     unfocusedBorderColor = Color.Transparent,
     disabledBorderColor = Color.Transparent,
     errorBorderColor = Color.Transparent,
-    focusedPlaceholderColor = CreateInk3,
-    unfocusedPlaceholderColor = CreateInk3,
-    disabledPlaceholderColor = CreateInk3,
+    focusedPlaceholderColor = MaterialTheme.colorScheme.outline,
+    unfocusedPlaceholderColor = MaterialTheme.colorScheme.outline,
+    disabledPlaceholderColor = MaterialTheme.colorScheme.outline,
 )
 
 @Composable
@@ -773,10 +763,10 @@ private fun CurrencyMenu(
             onClick = { expanded = true },
             modifier = Modifier.height(48.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = CreateCardAlt,
-                contentColor = CreateInk,
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.onSurface,
             ),
-            border = BorderStroke(1.dp, CreateLine),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
             shape = RoundedCornerShape(12.dp),
         ) {
             Text(selected.name)
@@ -810,7 +800,7 @@ private fun ToggleRow(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         color = Color.Transparent,
-        border = BorderStroke(1.dp, CreateLine),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
         shape = RoundedCornerShape(12.dp),
     ) {
         Row(
@@ -823,12 +813,12 @@ private fun ToggleRow(
                     .size(20.dp)
                     .clip(RoundedCornerShape(6.dp))
                     .border(
-                        BorderStroke(1.dp, if (checked) CreateAccent else CreateLineStrong),
+                        BorderStroke(1.dp, if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
                         RoundedCornerShape(6.dp),
                     )
                     .background(
                         if (checked) {
-                            CreateAccent
+                            MaterialTheme.colorScheme.primary
                         } else {
                             Color.Transparent
                         },
@@ -839,14 +829,14 @@ private fun ToggleRow(
                     Icon(
                         Icons.Outlined.Check,
                         contentDescription = null,
-                        tint = CreateCard,
+                        tint = MaterialTheme.colorScheme.surface,
                         modifier = Modifier.size(14.dp),
                     )
                 }
             }
             Column(modifier = Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.bodyMedium, color = CreateInk, fontWeight = FontWeight.Medium)
-                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = CreateInk3)
+                Text(title, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
             }
         }
     }
@@ -859,8 +849,8 @@ private fun PublishBar(
     onPublish: () -> Unit,
 ) {
     Surface(
-        color = CreateBackground,
-        border = BorderStroke(1.dp, CreateLine),
+        color = MaterialTheme.colorScheme.background,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
         shadowElevation = 0.dp,
     ) {
         Row(
@@ -877,11 +867,11 @@ private fun PublishBar(
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
-                    contentColor = CreateInk2,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     disabledContainerColor = Color.Transparent,
-                    disabledContentColor = CreateInk3,
+                    disabledContentColor = MaterialTheme.colorScheme.outline,
                 ),
-                border = BorderStroke(1.dp, CreateLineStrong),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
             ) {
                 Text("Cancel")
             }
@@ -911,14 +901,14 @@ private fun FormSection(
                 text = title,
                 style = MaterialTheme.typography.titleLarge.copy(letterSpacing = (-0.3).sp),
                 fontWeight = FontWeight.Medium,
-                color = CreateInk,
+                color = MaterialTheme.colorScheme.onSurface,
             )
             Spacer(Modifier.weight(1f))
             trailing?.let {
                 Text(
                     text = it,
                     style = MaterialTheme.typography.labelSmall,
-                    color = CreateInk3,
+                    color = MaterialTheme.colorScheme.outline,
                 )
             }
         }
@@ -962,21 +952,21 @@ private fun CreateTextField(
 
 @Composable
 private fun createTextFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedTextColor = CreateInk,
-    unfocusedTextColor = CreateInk,
-    disabledTextColor = CreateInk3,
-    focusedContainerColor = CreateCard,
-    unfocusedContainerColor = CreateCard,
-    disabledContainerColor = CreateCardAlt,
-    errorContainerColor = CreateCard,
-    cursorColor = CreateAccent,
-    focusedBorderColor = CreateAccent,
-    unfocusedBorderColor = CreateLine,
-    disabledBorderColor = CreateLine,
+    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+    disabledTextColor = MaterialTheme.colorScheme.outline,
+    focusedContainerColor = MaterialTheme.colorScheme.surface,
+    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+    errorContainerColor = MaterialTheme.colorScheme.surface,
+    cursorColor = MaterialTheme.colorScheme.primary,
+    focusedBorderColor = MaterialTheme.colorScheme.primary,
+    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
+    disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
     errorBorderColor = MaterialTheme.colorScheme.error,
-    focusedPlaceholderColor = CreateInk3,
-    unfocusedPlaceholderColor = CreateInk3,
-    disabledPlaceholderColor = CreateInk3,
+    focusedPlaceholderColor = MaterialTheme.colorScheme.outline,
+    unfocusedPlaceholderColor = MaterialTheme.colorScheme.outline,
+    disabledPlaceholderColor = MaterialTheme.colorScheme.outline,
 )
 
 @Composable
@@ -994,7 +984,7 @@ private fun FieldLabel(
         Text(
             text = label.uppercase() + if (required) " *" else "",
             style = MaterialTheme.typography.labelSmall,
-            color = CreateInk3,
+            color = MaterialTheme.colorScheme.outline,
             fontWeight = FontWeight.SemiBold,
         )
         Spacer(Modifier.weight(1f))
@@ -1002,7 +992,7 @@ private fun FieldLabel(
             Text(
                 text = it,
                 style = MaterialTheme.typography.labelSmall,
-                color = CreateInk3,
+                color = MaterialTheme.colorScheme.outline,
             )
         }
     }

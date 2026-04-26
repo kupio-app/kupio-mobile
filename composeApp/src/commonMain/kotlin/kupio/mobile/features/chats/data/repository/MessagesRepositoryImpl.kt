@@ -33,6 +33,9 @@ class MessagesRepositoryImpl(
         return dto.toItem(currentUserId)
     }
 
+    override suspend fun sendTyping(conversationId: String) =
+        chatWebSocket.sendTyping(conversationId)
+
     override fun observeMessages(conversationId: String): Flow<WsMessageEvent> =
         chatWebSocket.observe(conversationId)
 

@@ -58,6 +58,7 @@ import mobile.composeapp.generated.resources.chat_day_date_format
 import mobile.composeapp.generated.resources.chat_day_n_days_ago
 import mobile.composeapp.generated.resources.chat_day_today
 import mobile.composeapp.generated.resources.chat_day_yesterday
+import mobile.composeapp.generated.resources.chat_profile_view
 import mobile.composeapp.generated.resources.chat_thread_discussing
 import mobile.composeapp.generated.resources.chat_thread_view
 import mobile.composeapp.generated.resources.month_1
@@ -239,7 +240,7 @@ private fun ChatThreadTopBar(
         trailingContent = {
             KupioTopBarIconAction(
                 imageVector = Icons.Default.PersonOutline,
-                contentDescription = stringResource(Res.string.chat_active_unknown),
+                contentDescription = stringResource(Res.string.chat_profile_view),
                 onClick = onProfile,
             )
         },

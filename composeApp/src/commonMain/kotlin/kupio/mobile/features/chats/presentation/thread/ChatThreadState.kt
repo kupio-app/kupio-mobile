@@ -12,6 +12,7 @@ data class ChatThreadState(
     val draft: String = "",
     val isLoading: Boolean = true,
     val isSending: Boolean = false,
+    val isParticipantTyping: Boolean = false,
     val errorMessage: String? = null,
 ) : UiState {
     val groupedMessages: List<MessageListItem> get() = groupMessagesByDay(messages)

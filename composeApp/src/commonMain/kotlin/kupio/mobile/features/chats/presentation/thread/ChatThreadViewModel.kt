@@ -3,7 +3,9 @@ package kupio.mobile.features.chats.presentation.thread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,9 +13,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kupio.mobile.core.datetime.nowEpochMillis
 import kupio.mobile.features.chats.data.ConversationsStore
 import kupio.mobile.features.chats.domain.model.WsMessageEvent
 import kupio.mobile.features.chats.domain.repository.MessagesRepository
+import kotlin.time.Duration.Companion.milliseconds
+
+private const val TYPING_THROTTLE_MS = 2_000L
+private const val TYPING_HIDE_MS = 3_000L
 
 class ChatThreadViewModel(
     private val conversationId: String,
@@ -27,6 +34,9 @@ class ChatThreadViewModel(
     private val effectChannel = Channel<ChatThreadEffect>(Channel.BUFFERED)
     val effects: Flow<ChatThreadEffect> = effectChannel.receiveAsFlow()
 
+    private var lastTypingSentAtMs = 0L
+    private var typingHideJob: Job? = null
+
     init {
         observeConversation()
         loadMessages()
@@ -35,7 +45,10 @@ class ChatThreadViewModel(
 
     fun onIntent(intent: ChatThreadIntent) {
         when (intent) {
-            is ChatThreadIntent.DraftChanged -> _state.update { it.copy(draft = intent.text) }
+            is ChatThreadIntent.DraftChanged -> {
+                _state.update { it.copy(draft = intent.text) }
+                if (intent.text.isNotEmpty()) throttledSendTyping()
+            }
             ChatThreadIntent.SendMessage -> sendMessage()
             ChatThreadIntent.OpenListing -> {
                 val listingId = _state.value.chat?.listing?.id ?: return
@@ -49,6 +62,15 @@ class ChatThreadViewModel(
             }
             ChatThreadIntent.Back -> viewModelScope.launch { effectChannel.send(ChatThreadEffect.Back) }
             ChatThreadIntent.RetryLoad -> loadMessages()
+        }
+    }
+
+    private fun throttledSendTyping() {
+        val now = nowEpochMillis()
+        if (now - lastTypingSentAtMs < TYPING_THROTTLE_MS) return
+        lastTypingSentAtMs = now
+        viewModelScope.launch {
+            runCatching { messagesRepo.sendTyping(conversationId) }
         }
     }
 
@@ -67,6 +89,14 @@ class ChatThreadViewModel(
                             state.copy(messages = state.messages.map { msg ->
                                 if (msg.id == event.messageId) msg.copy(isDeleted = true, text = "") else msg
                             })
+                        }
+                    }
+                    WsMessageEvent.TypingStarted -> {
+                        _state.update { it.copy(isParticipantTyping = true) }
+                        typingHideJob?.cancel()
+                        typingHideJob = viewModelScope.launch {
+                            delay(TYPING_HIDE_MS.milliseconds)
+                            _state.update { it.copy(isParticipantTyping = false) }
                         }
                     }
                 }

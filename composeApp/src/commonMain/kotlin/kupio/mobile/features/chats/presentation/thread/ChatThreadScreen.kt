@@ -53,6 +53,7 @@ import kupio.mobile.features.listings.presentation.detail.ListingDetailScreen
 import kupio.mobile.features.userprofile.presentation.UserPublicProfileScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.chat_active_unknown
+import mobile.composeapp.generated.resources.chat_typing_indicator
 import mobile.composeapp.generated.resources.chat_day_date_format
 import mobile.composeapp.generated.resources.chat_day_n_days_ago
 import mobile.composeapp.generated.resources.chat_day_today
@@ -114,6 +115,7 @@ private fun ChatThreadContent(
         topBar = {
             ChatThreadTopBar(
                 chat = state.chat,
+                isParticipantTyping = state.isParticipantTyping,
                 onBack = { onIntent(ChatThreadIntent.Back) },
                 onProfile = { onIntent(ChatThreadIntent.OpenProfile) },
             )
@@ -208,12 +210,18 @@ private fun ChatThreadContent(
 @Composable
 private fun ChatThreadTopBar(
     chat: ChatSummary?,
+    isParticipantTyping: Boolean,
     onBack: () -> Unit,
     onProfile: () -> Unit,
 ) {
+    val subtitle = if (isParticipantTyping) {
+        stringResource(Res.string.chat_typing_indicator)
+    } else {
+        stringResource(Res.string.chat_active_unknown)
+    }
     KupioTopNavbar(
         title = chat?.participantLabel ?: "",
-        subtitle = stringResource(Res.string.chat_active_unknown),
+        subtitle = subtitle,
         leadingContent = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

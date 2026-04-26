@@ -3,6 +3,7 @@ package kupio.mobile.features.listings.data.repository
 import kupio.mobile.features.listings.data.remote.CategoriesApi
 import kupio.mobile.features.listings.data.remote.toDomain
 import kupio.mobile.features.listings.domain.model.Category
+import kupio.mobile.features.listings.domain.model.FilterDefinition
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 
 class CategoriesRepositoryImpl(
@@ -11,4 +12,9 @@ class CategoriesRepositoryImpl(
     override suspend fun getRootCategories(limit: Int): List<Category> =
         categoriesApi.getCategories(depth = 0, limit = limit)
             .map { it.toDomain() }
+
+    override suspend fun getCategoryFilters(categoryId: Int): List<FilterDefinition> =
+        categoriesApi.getCategoryFilters(categoryId)
+            .map { it.toDomain() }
+            .sortedBy { it.displayOrder }
 }

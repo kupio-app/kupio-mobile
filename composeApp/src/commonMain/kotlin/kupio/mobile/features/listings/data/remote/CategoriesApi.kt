@@ -16,4 +16,9 @@ class CategoriesApi(private val httpClient: HttpClient) {
             parameters.append("offset", offset.toString())
         }
     }.bodyOrThrow()
+
+    suspend fun getCategoryFilters(
+        categoryId: Int,
+    ): List<FilterDefinitionResponseDto> =
+        httpClient.get("/api/categories/$categoryId/filters").bodyOrThrow()
 }

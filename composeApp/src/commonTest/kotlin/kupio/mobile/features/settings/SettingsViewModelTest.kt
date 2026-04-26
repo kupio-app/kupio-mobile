@@ -94,6 +94,10 @@ class SettingsViewModelTest {
         override suspend fun setThemeMode(mode: ThemeMode) {
             themeMode.value = mode
         }
+
+        override fun chatLastSeenEpochMillis(conversationId: String) = MutableStateFlow<Long?>(null)
+
+        override suspend fun markChatSeen(conversationId: String, epochMillis: Long) = Unit
     }
 
     private class FakeSecureSessionStore(

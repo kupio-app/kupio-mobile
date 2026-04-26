@@ -18,9 +18,11 @@ sealed interface MessageListItem {
     data class DaySeparator(val label: DayLabel) : MessageListItem
 }
 
-internal fun groupMessagesByDay(messages: List<MessageItem>): List<MessageListItem> {
+internal fun groupMessagesByDay(
+    messages: List<MessageItem>,
+    todayDate: LocalDate = today(),
+): List<MessageListItem> {
     if (messages.isEmpty()) return emptyList()
-    val todayDate = today()
     val result = mutableListOf<MessageListItem>()
     var lastDate: LocalDate? = null
     for (message in messages) {
@@ -35,7 +37,7 @@ internal fun groupMessagesByDay(messages: List<MessageItem>): List<MessageListIt
     return result
 }
 
-private fun buildDayLabel(date: LocalDate, today: LocalDate): DayLabel {
+internal fun buildDayLabel(date: LocalDate, today: LocalDate): DayLabel {
     val diff = (today.toEpochDays() - date.toEpochDays()).toInt()
     return when {
         diff <= 0 -> DayLabel.Today

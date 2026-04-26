@@ -13,11 +13,15 @@ data class WsAuthRequestDto(val type: String = "auth", val token: String)
 @Serializable
 data class WsPingRequestDto(val type: String = "ping")
 
+@Serializable
+data class WsTypingRequestDto(val type: String = "typing")
+
 internal sealed interface WsServerEvent {
     data object AuthOk : WsServerEvent
     data object Pong : WsServerEvent
     data class NewMessage(val dto: MessageResponseDto) : WsServerEvent
     data class MessageDeleted(val messageId: String) : WsServerEvent
+    data class Typing(val userId: String) : WsServerEvent
     data class Error(val code: String) : WsServerEvent
     data object Unknown : WsServerEvent
 }
@@ -32,6 +36,9 @@ internal fun parseWsFrame(text: String): WsServerEvent = try {
         "new_message" -> WsServerEvent.NewMessage(wsJson.decodeFromJsonElement(obj))
         "message_deleted" -> WsServerEvent.MessageDeleted(
             obj["message_id"]?.jsonPrimitive?.contentOrNull.orEmpty()
+        )
+        "typing" -> WsServerEvent.Typing(
+            obj["user_id"]?.jsonPrimitive?.contentOrNull.orEmpty()
         )
         "error" -> WsServerEvent.Error(
             obj["code"]?.jsonPrimitive?.contentOrNull ?: "unknown"

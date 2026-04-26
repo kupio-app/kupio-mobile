@@ -27,6 +27,7 @@ data class CreateState(
     val filtersError: String? = null,
     val fieldErrors: Map<CreateField, String> = emptyMap(),
     val filterErrors: Map<String, String> = emptyMap(),
+    val imageWarning: String? = null,
     val submitError: String? = null,
     val isSubmitting: Boolean = false,
 ) : UiState {
@@ -54,6 +55,7 @@ enum class CreateField {
 }
 
 sealed interface CreateIntent : UiAction {
+    data object ImageLimitReached : CreateIntent
     data class ImagesSelected(val images: List<SelectedListingImage>) : CreateIntent
     data class RemoveImage(val id: String) : CreateIntent
     data class TitleChanged(val value: String) : CreateIntent

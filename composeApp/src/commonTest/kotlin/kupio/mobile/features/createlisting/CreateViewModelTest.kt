@@ -128,6 +128,32 @@ class CreateViewModelTest {
         assertEquals(null, listings.createdListing)
     }
 
+    @Test
+    fun `adding more than eight images keeps first eight and shows warning`() = runTest(dispatcher) {
+        val viewModel = CreateViewModel(
+            listingsRepository = FakeListingsRepository(),
+            categoriesRepository = FakeCategoriesRepository(),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(
+            CreateIntent.ImagesSelected(
+                (1..10).map { index ->
+                    SelectedListingImage(
+                        id = "local-$index",
+                        fileName = "photo-$index.jpg",
+                        mimeType = "image/jpeg",
+                        bytes = byteArrayOf(index.toByte()),
+                    )
+                },
+            ),
+        )
+
+        val state = viewModel.state.value
+        assertEquals(8, state.images.size)
+        assertEquals("You can add up to 8 photos.", state.imageWarning)
+    }
+
     private class FakeCategoriesRepository(
         private val categories: List<Category> = listOf(
             Category(1, "Furniture", null, 0, null),

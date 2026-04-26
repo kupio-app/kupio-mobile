@@ -1,6 +1,7 @@
 package kupio.mobile.features.createlisting
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image as ComposeImage
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,9 +29,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.ChevronLeft
+import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Euro
-import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Image as ImageIcon
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -47,12 +50,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -64,9 +69,11 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.ismoy.imagepickerkmp.domain.extensions.loadBytes
-import io.github.ismoy.imagepickerkmp.domain.models.GalleryPhotoResult
+import io.github.ismoy.imagepickerkmp.domain.extensions.loadImageBitmap
 import io.github.ismoy.imagepickerkmp.domain.models.MimeType
-import io.github.ismoy.imagepickerkmp.presentation.ui.components.GalleryPickerLauncher
+import io.github.ismoy.imagepickerkmp.domain.models.PhotoResult
+import io.github.ismoy.imagepickerkmp.features.imagepicker.model.ImagePickerResult
+import io.github.ismoy.imagepickerkmp.features.imagepicker.ui.rememberImagePickerKMP
 import kotlin.random.Random
 import kupio.mobile.core.designsystem.KupioPrimaryButton
 import kupio.mobile.core.designsystem.KupioThemeDefaults
@@ -111,21 +118,20 @@ private fun CreateContent(
     state: CreateState,
     onIntent: (CreateIntent) -> Unit,
 ) {
-    var showImagePicker by remember { mutableStateOf(false) }
+    val imagePicker = rememberImagePickerKMP()
     val listState = rememberLazyListState()
 
-    if (showImagePicker) {
-        GalleryPickerLauncher(
-            allowMultiple = true,
-            selectionLimit = MaxListingImages.toLong(),
-            mimeTypes = listOf(MimeType.IMAGE_JPEG, MimeType.IMAGE_PNG, MimeType.IMAGE_WEBP, MimeType.IMAGE_HEIC),
-            onPhotosSelected = { photos ->
-                showImagePicker = false
-                onIntent(CreateIntent.ImagesSelected(photos.toSelectedImages()))
-            },
-            onError = { showImagePicker = false },
-            onDismiss = { showImagePicker = false },
-        )
+    LaunchedEffect(imagePicker.result) {
+        when (val result = imagePicker.result) {
+            is ImagePickerResult.Success -> {
+                onIntent(CreateIntent.ImagesSelected(result.photos.toSelectedImages()))
+                imagePicker.reset()
+            }
+            is ImagePickerResult.Dismissed,
+            is ImagePickerResult.Error -> imagePicker.reset()
+            ImagePickerResult.Idle,
+            ImagePickerResult.Loading -> Unit
+        }
     }
 
     Scaffold(
@@ -171,7 +177,23 @@ private fun CreateContent(
                 item(key = CreateSection.Photos.key) {
                     PhotosSection(
                         images = state.images,
-                        onAdd = { showImagePicker = true },
+                        imageWarning = state.imageWarning,
+                        onAdd = {
+                            if (state.images.size >= MaxListingImages) {
+                                onIntent(CreateIntent.ImageLimitReached)
+                            } else {
+                                imagePicker.launchGallery(
+                                    allowMultiple = true,
+                                    selectionLimit = MaxListingImages - state.images.size,
+                                    mimeTypes = listOf(
+                                        MimeType.IMAGE_JPEG,
+                                        MimeType.IMAGE_PNG,
+                                        MimeType.IMAGE_WEBP,
+                                        MimeType.IMAGE_HEIC,
+                                    ),
+                                )
+                            }
+                        },
                         onRemove = { onIntent(CreateIntent.RemoveImage(it)) },
                     )
                 }
@@ -216,13 +238,17 @@ private enum class CreateSection(
 @Composable
 private fun PhotosSection(
     images: List<SelectedListingImage>,
+    imageWarning: String?,
     onAdd: () -> Unit,
     onRemove: (String) -> Unit,
 ) {
+    var selectedImageIndex by remember { mutableStateOf(0) }
+    val safeSelectedIndex = selectedImageIndex.coerceIn(0, (images.size - 1).coerceAtLeast(0))
+    val selectedImage = images.getOrNull(safeSelectedIndex)
+
     FormSection(
         title = "Photos",
     ) {
-        val cover = images.firstOrNull()
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -236,40 +262,41 @@ private fun PhotosSection(
                 .clickable(onClick = onAdd),
             contentAlignment = Alignment.Center,
         ) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .background(if (cover == null) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant),
-            )
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                Surface(
-                    modifier = Modifier.size(56.dp),
-                    shape = RoundedCornerShape(18.dp),
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                    shadowElevation = 2.dp,
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = if (cover == null) Icons.Outlined.PhotoCamera else Icons.Outlined.Image,
-                            contentDescription = null,
-                            modifier = Modifier.size(28.dp),
-                            tint = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
-                }
-                Text(
-                    text = cover?.fileName ?: "Tap to add a photo",
-                    style = MaterialTheme.typography.titleMedium.copy(letterSpacing = (-0.2).sp),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Medium,
+            if (selectedImage?.previewBitmap != null) {
+                ComposeImage(
+                    bitmap = selectedImage.previewBitmap,
+                    contentDescription = selectedImage.fileName,
+                    modifier = Modifier.matchParentSize(),
+                    contentScale = ContentScale.Crop,
                 )
-                Text(
-                    text = if (cover == null) "JPG, PNG or WEBP" else "${images.size} selected",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+            } else {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                )
+                PhotoPlaceholder(
+                    title = selectedImage?.fileName ?: "Tap to add a photo",
+                    subtitle = if (selectedImage == null) "JPG, PNG or WEBP" else "${images.size} selected",
+                    icon = if (selectedImage == null) Icons.Outlined.PhotoCamera else Icons.Outlined.ImageIcon,
+                )
+            }
+            if (images.size > 1) {
+                PreviewArrow(
+                    icon = Icons.Outlined.ChevronLeft,
+                    contentDescription = "Previous photo",
+                    modifier = Modifier.align(Alignment.CenterStart).padding(start = 8.dp),
+                    onClick = {
+                        selectedImageIndex = if (selectedImageIndex <= 0) images.lastIndex else selectedImageIndex - 1
+                    },
+                )
+                PreviewArrow(
+                    icon = Icons.Outlined.ChevronRight,
+                    contentDescription = "Next photo",
+                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 8.dp),
+                    onClick = {
+                        selectedImageIndex = if (selectedImageIndex >= images.lastIndex) 0 else selectedImageIndex + 1
+                    },
                 )
             }
             CoverBadge(Modifier.align(Alignment.TopStart).padding(10.dp))
@@ -282,15 +309,79 @@ private fun PhotosSection(
             items(images, key = { it.id }) { image ->
                 ImageTile(
                     image = image,
+                    selected = images.indexOf(image) == safeSelectedIndex,
+                    onClick = { selectedImageIndex = images.indexOf(image) },
                     onRemove = { onRemove(image.id) },
                 )
             }
-            if (images.size < MaxListingImages) {
-                item(key = "add") {
-                    AddImageTile(onClick = onAdd)
-                }
+            item(key = "add") {
+                AddImageTile(onClick = onAdd)
             }
         }
+        imageWarning?.let { ErrorText(it) }
+    }
+}
+
+@Composable
+private fun PhotoPlaceholder(
+    title: String,
+    subtitle: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Surface(
+            modifier = Modifier.size(56.dp),
+            shape = RoundedCornerShape(18.dp),
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+            shadowElevation = 2.dp,
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp),
+                    tint = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+        }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium.copy(letterSpacing = (-0.2).sp),
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Medium,
+        )
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun PreviewArrow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
+    modifier: Modifier,
+    onClick: () -> Unit,
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+            .size(40.dp)
+            .background(
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f),
+                shape = RoundedCornerShape(14.dp),
+            ),
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = MaterialTheme.colorScheme.onSurface,
+        )
     }
 }
 
@@ -314,6 +405,8 @@ private fun CoverBadge(modifier: Modifier = Modifier) {
 @Composable
 private fun ImageTile(
     image: SelectedListingImage,
+    selected: Boolean,
+    onClick: () -> Unit,
     onRemove: () -> Unit,
 ) {
     Box(
@@ -322,16 +415,33 @@ private fun ImageTile(
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .border(
-                BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
+                BorderStroke(
+                    width = if (selected) 2.dp else 1.dp,
+                    color = if (selected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)
+                    },
+                ),
                 RoundedCornerShape(10.dp)
-            ),
+            )
+            .clickable(onClick = onClick),
     ) {
-        Icon(
-            imageVector = Icons.Outlined.Image,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.align(Alignment.Center),
-        )
+        if (image.previewBitmap != null) {
+            ComposeImage(
+                bitmap = image.previewBitmap,
+                contentDescription = image.fileName,
+                modifier = Modifier.matchParentSize(),
+                contentScale = ContentScale.Crop,
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Outlined.ImageIcon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.align(Alignment.Center),
+            )
+        }
         IconButton(
             onClick = onRemove,
             modifier = Modifier
@@ -997,7 +1107,7 @@ private fun ErrorText(text: String) {
     )
 }
 
-private fun List<GalleryPhotoResult>.toSelectedImages(): List<SelectedListingImage> =
+private fun List<PhotoResult>.toSelectedImages(): List<SelectedListingImage> =
     mapNotNull { photo ->
         val bytes = photo.loadBytes()
         if (bytes.isEmpty()) return@mapNotNull null
@@ -1006,6 +1116,7 @@ private fun List<GalleryPhotoResult>.toSelectedImages(): List<SelectedListingIma
             fileName = photo.fileName ?: "listing-photo-${Random.nextLong().toString().takeLast(6)}.jpg",
             mimeType = photo.mimeType ?: "image/jpeg",
             bytes = bytes,
+            previewBitmap = photo.loadImageBitmap(),
         )
     }
 

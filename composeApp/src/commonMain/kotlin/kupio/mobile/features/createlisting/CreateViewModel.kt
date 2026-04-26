@@ -39,9 +39,15 @@ class CreateViewModel(
 
     fun onIntent(intent: CreateIntent) {
         when (intent) {
+            CreateIntent.ImageLimitReached -> _state.update {
+                it.copy(imageWarning = "You can add up to $MaxListingImages photos.")
+            }
             is CreateIntent.ImagesSelected -> addImages(intent.images)
             is CreateIntent.RemoveImage -> _state.update {
-                it.copy(images = it.images.filterNot { image -> image.id == intent.id })
+                it.copy(
+                    images = it.images.filterNot { image -> image.id == intent.id },
+                    imageWarning = null,
+                )
             }
             is CreateIntent.TitleChanged -> updateField(CreateField.TITLE) { it.copy(title = intent.value) }
             is CreateIntent.DescriptionChanged -> updateField(CreateField.DESCRIPTION) {
@@ -71,8 +77,14 @@ class CreateViewModel(
         if (images.isEmpty()) return
         _state.update { state ->
             val existingIds = state.images.map { it.id }.toSet()
-            val merged = state.images + images.filterNot { it.id in existingIds }
-            state.copy(images = merged.take(MaxListingImages))
+            val newImages = images.filterNot { it.id in existingIds }
+            val remainingSlots = MaxListingImages - state.images.size
+            val merged = state.images + newImages.take(remainingSlots.coerceAtLeast(0))
+            val hitLimit = remainingSlots <= 0 || newImages.size > remainingSlots
+            state.copy(
+                images = merged,
+                imageWarning = if (hitLimit) "You can add up to $MaxListingImages photos." else null,
+            )
         }
     }
 

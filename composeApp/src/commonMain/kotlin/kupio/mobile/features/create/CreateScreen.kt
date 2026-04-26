@@ -2,6 +2,7 @@ package kupio.mobile.features.create
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,8 +20,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -36,16 +39,16 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,6 +60,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -82,6 +86,16 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val MaxListingImages = 8
+
+private val CreateBackground = Color(0xFFF6EFE5)
+private val CreateCard = Color(0xFFFDFAF6)
+private val CreateCardAlt = Color(0xFFF2E8D8)
+private val CreateAccent = Color(0xFFB4623A)
+private val CreateInk = Color(0xFF3B2A1A)
+private val CreateInk2 = Color(0xFF7A6650)
+private val CreateInk3 = Color(0xFFA8957B)
+private val CreateLine = Color(0x1A523D27)
+private val CreateLineStrong = Color(0x38523D27)
 
 class CreateScreen : Screen {
     @Composable
@@ -110,6 +124,8 @@ private fun CreateContent(
     onIntent: (CreateIntent) -> Unit,
 ) {
     var showImagePicker by remember { mutableStateOf(false) }
+    val listState = rememberLazyListState()
+    val activeSection by rememberActiveCreateSection(listState)
 
     if (showImagePicker) {
         GalleryPickerLauncher(
@@ -127,16 +143,18 @@ private fun CreateContent(
 
     Scaffold(
         topBar = {
-            KupioTopNavbar(
-                title = stringResource(Res.string.topbar_new_listing_title),
-                subtitle = "Create and publish your item",
-                leadingContent = {
-                    KupioTopBarBackAction(
-                        contentDescription = stringResource(Res.string.topbar_back),
-                        onClick = { onIntent(CreateIntent.Back) },
-                    )
-                },
-            )
+            Surface(color = CreateBackground) {
+                KupioTopNavbar(
+                    title = stringResource(Res.string.topbar_new_listing_title),
+                    subtitle = "Create and publish your item",
+                    leadingContent = {
+                        KupioTopBarBackAction(
+                            contentDescription = stringResource(Res.string.topbar_back),
+                            onClick = { onIntent(CreateIntent.Back) },
+                        )
+                    },
+                )
+            }
         },
         bottomBar = {
             PublishBar(
@@ -145,49 +163,54 @@ private fun CreateContent(
                 onPublish = { onIntent(CreateIntent.Publish) },
             )
         },
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = CreateBackground,
     ) { paddingValues ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            contentPadding = PaddingValues(
-                start = KupioThemeDefaults.spacing.lg,
-                top = KupioThemeDefaults.spacing.md,
-                end = KupioThemeDefaults.spacing.lg,
-                bottom = KupioThemeDefaults.spacing.xl,
-            ),
-            verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.lg),
         ) {
-            item(key = "progress") { CreateProgress() }
-            item(key = "photos") {
-                PhotosSection(
-                    images = state.images,
-                    onAdd = { showImagePicker = true },
-                    onRemove = { onIntent(CreateIntent.RemoveImage(it)) },
-                )
-            }
-            item(key = "details") {
-                DetailsSection(
-                    state = state,
-                    onIntent = onIntent,
-                )
-            }
-            item(key = "filters") {
-                FiltersSection(
-                    state = state,
-                    onIntent = onIntent,
-                )
-            }
-            item(key = "price") {
-                PriceSection(
-                    state = state,
-                    onIntent = onIntent,
-                )
-            }
-            state.submitError?.let { error ->
-                item(key = "submit_error") {
-                    ErrorText(text = error)
+            CreateProgress(activeSection = activeSection)
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = 18.dp,
+                    top = 16.dp,
+                    end = 18.dp,
+                    bottom = KupioThemeDefaults.spacing.xl,
+                ),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                item(key = CreateSection.Photos.key) {
+                    PhotosSection(
+                        images = state.images,
+                        onAdd = { showImagePicker = true },
+                        onRemove = { onIntent(CreateIntent.RemoveImage(it)) },
+                    )
+                }
+                item(key = CreateSection.Details.key) {
+                    DetailsSection(
+                        state = state,
+                        onIntent = onIntent,
+                    )
+                }
+                item(key = CreateSection.Filters.key) {
+                    FiltersSection(
+                        state = state,
+                        onIntent = onIntent,
+                    )
+                }
+                item(key = CreateSection.Price.key) {
+                    PriceSection(
+                        state = state,
+                        onIntent = onIntent,
+                    )
+                }
+                state.submitError?.let { error ->
+                    item(key = "submit_error") {
+                        ErrorText(text = error)
+                    }
                 }
             }
         }
@@ -195,41 +218,70 @@ private fun CreateContent(
 }
 
 @Composable
-private fun CreateProgress() {
-    val steps = listOf("Photos", "Details", "Filters", "Price")
-    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        steps.forEachIndexed { index, label ->
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(3.dp)
-                        .clip(RoundedCornerShape(99.dp))
-                        .background(
-                            if (index == 0) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
-                            },
-                        ),
-                )
-                Text(
-                    text = label.uppercase(),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = if (index == 0) {
-                        MaterialTheme.colorScheme.onSurface
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                    fontWeight = if (index == 0) FontWeight.SemiBold else FontWeight.Medium,
-                )
+private fun rememberActiveCreateSection(listState: LazyListState) = remember(listState) {
+    derivedStateOf {
+        val visibleSection = listState.layoutInfo.visibleItemsInfo
+            .firstOrNull { item -> (item.key as? String) in CreateSectionKeys && item.offset + item.size > item.size / 2 }
+            ?: listState.layoutInfo.visibleItemsInfo.firstOrNull { (it.key as? String) in CreateSectionKeys }
+
+        CreateSection.fromKey(visibleSection?.key) ?: CreateSection.Photos
+    }
+}
+
+@Composable
+private fun CreateProgress(activeSection: CreateSection) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = CreateBackground,
+        shadowElevation = 2.dp,
+    ) {
+        Row(
+            modifier = Modifier.padding(start = 8.dp, top = 10.dp, end = 8.dp, bottom = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            CreateSection.entries.forEach { section ->
+                val selected = section == activeSection
+
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(3.dp)
+                            .clip(RoundedCornerShape(99.dp))
+                            .background(
+                                if (selected) CreateAccent else CreateLineStrong,
+                            ),
+                    )
+                    Text(
+                        text = section.label.uppercase(),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (selected) CreateInk else CreateInk3,
+                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+                    )
+                }
             }
         }
     }
 }
+
+private enum class CreateSection(
+    val key: String,
+    val label: String,
+) {
+    Photos("photos", "Photos"),
+    Details("details", "Details"),
+    Filters("filters", "Filters"),
+    Price("price", "Price");
+
+    companion object {
+        fun fromKey(key: Any?): CreateSection? = entries.firstOrNull { it.key == key }
+    }
+}
+
+private val CreateSectionKeys = CreateSection.entries.map { it.key }.toSet()
 
 @Composable
 private fun PhotosSection(
@@ -239,7 +291,7 @@ private fun PhotosSection(
 ) {
     FormSection(
         title = "Photos",
-        trailing = "Up to $MaxListingImages",
+        trailing = "Up to $MaxListingImages · first one is the cover",
     ) {
         val cover = images.firstOrNull()
         Box(
@@ -247,39 +299,53 @@ private fun PhotosSection(
                 .fillMaxWidth()
                 .aspectRatio(4f / 3f)
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.surface)
+                .background(CreateCard)
+                .border(BorderStroke(1.dp, CreateLineStrong), RoundedCornerShape(16.dp))
                 .clickable(onClick = onAdd),
             contentAlignment = Alignment.Center,
         ) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(if (cover == null) CreateCard else CreateCardAlt),
+            )
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Icon(
-                    imageVector = if (cover == null) Icons.Outlined.PhotoCamera else Icons.Outlined.Image,
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
+                Surface(
+                    modifier = Modifier.size(56.dp),
+                    shape = RoundedCornerShape(18.dp),
+                    color = CreateCard.copy(alpha = 0.92f),
+                    shadowElevation = 2.dp,
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = if (cover == null) Icons.Outlined.PhotoCamera else Icons.Outlined.Image,
+                            contentDescription = null,
+                            modifier = Modifier.size(28.dp),
+                            tint = CreateInk,
+                        )
+                    }
+                }
                 Text(
-                    text = cover?.fileName ?: "Tap to add photos",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    text = cover?.fileName ?: "Tap to add a photo",
+                    style = MaterialTheme.typography.titleMedium.copy(letterSpacing = (-0.2).sp),
+                    color = CreateInk,
+                    fontWeight = FontWeight.Medium,
                 )
                 Text(
                     text = if (cover == null) "JPG, PNG or WEBP" else "${images.size} selected",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = CreateInk2,
                 )
             }
-            if (cover != null) {
-                CoverBadge(Modifier.align(Alignment.TopStart).padding(10.dp))
-            }
+            CoverBadge(Modifier.align(Alignment.TopStart).padding(10.dp))
         }
 
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
-            contentPadding = PaddingValues(top = KupioThemeDefaults.spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(top = 10.dp),
         ) {
             items(images, key = { it.id }) { image ->
                 ImageTile(
@@ -300,14 +366,14 @@ private fun PhotosSection(
 private fun CoverBadge(modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier,
-        color = MaterialTheme.colorScheme.primary,
+        color = CreateAccent,
         shape = RoundedCornerShape(4.dp),
     ) {
         Text(
             text = "COVER",
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = CreateCard,
             fontWeight = FontWeight.Bold,
         )
     }
@@ -322,12 +388,13 @@ private fun ImageTile(
         modifier = Modifier
             .size(72.dp)
             .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant),
+            .background(CreateCardAlt)
+            .border(BorderStroke(1.dp, CreateLine), RoundedCornerShape(10.dp)),
     ) {
         Icon(
             imageVector = Icons.Outlined.Image,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = CreateInk2,
             modifier = Modifier.align(Alignment.Center),
         )
         IconButton(
@@ -340,6 +407,7 @@ private fun ImageTile(
                 imageVector = Icons.Outlined.Close,
                 contentDescription = "Remove ${image.fileName}",
                 modifier = Modifier.size(16.dp),
+                tint = CreateInk,
             )
         }
     }
@@ -353,13 +421,13 @@ private fun AddImageTile(onClick: () -> Unit) {
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(10.dp),
         color = Color.Transparent,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
+        border = BorderStroke(1.dp, CreateLineStrong),
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = Icons.Outlined.Add,
                 contentDescription = "Add photo",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = CreateInk2,
             )
         }
     }
@@ -413,12 +481,12 @@ private fun CategorySelector(
             onRetry = { onIntent(CreateIntent.RetryCategories) },
         )
         else -> {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm)) {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 items(state.categories, key = { it.id }) { category ->
-                    FilterChip(
+                    ChoiceChip(
                         selected = state.selectedCategoryId == category.id,
                         onClick = { onIntent(CreateIntent.CategorySelected(category.id)) },
-                        label = { Text(category.name) },
+                        text = category.name,
                     )
                 }
             }
@@ -432,10 +500,13 @@ private fun FiltersSection(
     state: CreateState,
     onIntent: (CreateIntent) -> Unit,
 ) {
-    if (state.selectedCategoryId == null) return
-
     FormSection(title = "Category filters") {
         when {
+            state.selectedCategoryId == null -> Text(
+                text = "Select a category to see available filters.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = CreateInk2,
+            )
             state.isLoadingFilters -> LoadingRow()
             state.filtersError != null -> RetryRow(
                 message = "Could not load category filters.",
@@ -444,7 +515,7 @@ private fun FiltersSection(
             state.filters.isEmpty() -> Text(
                 text = "No extra details needed for this category.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = CreateInk2,
             )
             else -> state.filters.forEach { filter ->
                 FilterInput(
@@ -513,14 +584,14 @@ private fun SelectFilter(
         required = filter.isRequired,
     )
     FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
-        verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         filter.options.values.forEach { option ->
-            FilterChip(
+            ChoiceChip(
                 selected = value == option,
                 onClick = { onChange(option) },
-                label = { Text(option) },
+                text = option,
             )
         }
     }
@@ -539,26 +610,55 @@ private fun BooleanFilter(
         label = filter.label,
         required = filter.isRequired,
     )
-    Row(horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         if (!filter.isRequired) {
-            FilterChip(
+            ChoiceChip(
                 selected = value == null,
                 onClick = { onChange(null) },
-                label = { Text("Unset") },
+                text = "Unset",
             )
         }
-        FilterChip(
+        ChoiceChip(
             selected = value == true,
             onClick = { onChange(true) },
-            label = { Text("Yes") },
+            text = "Yes",
         )
-        FilterChip(
+        ChoiceChip(
             selected = value == false,
             onClick = { onChange(false) },
-            label = { Text("No") },
+            text = "No",
         )
     }
     error?.let { ErrorText(it) }
+}
+
+@Composable
+private fun ChoiceChip(
+    selected: Boolean,
+    onClick: () -> Unit,
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier
+            .height(34.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(99.dp),
+        color = if (selected) CreateInk else Color.Transparent,
+        border = if (selected) null else BorderStroke(1.dp, CreateLineStrong),
+    ) {
+        Box(
+            modifier = Modifier.padding(horizontal = 13.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelMedium,
+                color = if (selected) CreateCard else CreateInk2,
+                fontWeight = FontWeight.Medium,
+            )
+        }
+    }
 }
 
 @Composable
@@ -567,27 +667,14 @@ private fun PriceSection(
     onIntent: (CreateIntent) -> Unit,
 ) {
     FormSection(title = "Price") {
-        Row(horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm)) {
-            OutlinedTextField(
-                value = state.price,
-                onValueChange = { onIntent(CreateIntent.PriceChanged(it.digitsOnly())) },
-                modifier = Modifier.weight(1f),
-                label = { Text("Price") },
-                leadingIcon = { Icon(Icons.Outlined.Euro, contentDescription = null) },
-                isError = state.fieldErrors[CreateField.PRICE] != null,
-                enabled = !state.isFree,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                supportingText = {
-                    state.fieldErrors[CreateField.PRICE]?.let { Text(it) }
-                },
-                shape = RoundedCornerShape(12.dp),
-            )
-            CurrencyMenu(
-                selected = state.currency,
-                onSelect = { onIntent(CreateIntent.CurrencyChanged(it)) },
-            )
-        }
+        CreatePriceField(
+            price = state.price,
+            currency = state.currency,
+            error = state.fieldErrors[CreateField.PRICE],
+            enabled = !state.isFree,
+            onPriceChange = { onIntent(CreateIntent.PriceChanged(it.digitsOnly())) },
+            onCurrencySelect = { onIntent(CreateIntent.CurrencyChanged(it)) },
+        )
 
         ToggleRow(
             checked = state.isFree,
@@ -605,6 +692,77 @@ private fun PriceSection(
 }
 
 @Composable
+private fun CreatePriceField(
+    price: String,
+    currency: Currency,
+    error: String?,
+    enabled: Boolean,
+    onPriceChange: (String) -> Unit,
+    onCurrencySelect: (Currency) -> Unit,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        color = CreateCard,
+        border = BorderStroke(1.dp, if (error == null) CreateLine else MaterialTheme.colorScheme.error),
+    ) {
+        Row(
+            modifier = Modifier.padding(start = 16.dp, top = 10.dp, end = 10.dp, bottom = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Euro,
+                contentDescription = null,
+                tint = CreateInk2,
+                modifier = Modifier.size(22.dp),
+            )
+            OutlinedTextField(
+                value = price,
+                onValueChange = onPriceChange,
+                modifier = Modifier.weight(1f),
+                enabled = enabled,
+                placeholder = { Text("0") },
+                isError = error != null,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                textStyle = MaterialTheme.typography.headlineMedium.copy(
+                    color = CreateInk,
+                    fontWeight = FontWeight.Normal,
+                    letterSpacing = (-0.6).sp,
+                ),
+                colors = priceTextFieldColors(),
+                shape = RoundedCornerShape(12.dp),
+            )
+            CurrencyMenu(
+                selected = currency,
+                onSelect = onCurrencySelect,
+            )
+        }
+    }
+    error?.let { ErrorText(it) }
+}
+
+@Composable
+private fun priceTextFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedTextColor = CreateInk,
+    unfocusedTextColor = CreateInk,
+    disabledTextColor = CreateInk3,
+    focusedContainerColor = Color.Transparent,
+    unfocusedContainerColor = Color.Transparent,
+    disabledContainerColor = Color.Transparent,
+    errorContainerColor = Color.Transparent,
+    cursorColor = CreateAccent,
+    focusedBorderColor = Color.Transparent,
+    unfocusedBorderColor = Color.Transparent,
+    disabledBorderColor = Color.Transparent,
+    errorBorderColor = Color.Transparent,
+    focusedPlaceholderColor = CreateInk3,
+    unfocusedPlaceholderColor = CreateInk3,
+    disabledPlaceholderColor = CreateInk3,
+)
+
+@Composable
 private fun CurrencyMenu(
     selected: Currency,
     onSelect: (Currency) -> Unit,
@@ -613,12 +771,12 @@ private fun CurrencyMenu(
     Box {
         Button(
             onClick = { expanded = true },
-            modifier = Modifier.height(64.dp),
+            modifier = Modifier.height(48.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface,
+                containerColor = CreateCardAlt,
+                contentColor = CreateInk,
             ),
-            border = KupioThemeDefaults.defaultBorder,
+            border = BorderStroke(1.dp, CreateLine),
             shape = RoundedCornerShape(12.dp),
         ) {
             Text(selected.name)
@@ -652,23 +810,27 @@ private fun ToggleRow(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         color = Color.Transparent,
-        border = KupioThemeDefaults.defaultBorder,
+        border = BorderStroke(1.dp, CreateLine),
         shape = RoundedCornerShape(12.dp),
     ) {
         Row(
-            modifier = Modifier.padding(14.dp),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Box(
                 modifier = Modifier
-                    .size(22.dp)
+                    .size(20.dp)
                     .clip(RoundedCornerShape(6.dp))
+                    .border(
+                        BorderStroke(1.dp, if (checked) CreateAccent else CreateLineStrong),
+                        RoundedCornerShape(6.dp),
+                    )
                     .background(
                         if (checked) {
-                            MaterialTheme.colorScheme.primary
+                            CreateAccent
                         } else {
-                            MaterialTheme.colorScheme.surface
+                            Color.Transparent
                         },
                     ),
                 contentAlignment = Alignment.Center,
@@ -677,14 +839,14 @@ private fun ToggleRow(
                     Icon(
                         Icons.Outlined.Check,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(16.dp),
+                        tint = CreateCard,
+                        modifier = Modifier.size(14.dp),
                     )
                 }
             }
             Column(modifier = Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(title, style = MaterialTheme.typography.bodyMedium, color = CreateInk, fontWeight = FontWeight.Medium)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = CreateInk3)
             }
         }
     }
@@ -697,19 +859,29 @@ private fun PublishBar(
     onPublish: () -> Unit,
 ) {
     Surface(
-        color = MaterialTheme.colorScheme.background,
-        shadowElevation = 8.dp,
+        color = CreateBackground,
+        border = BorderStroke(1.dp, CreateLine),
+        shadowElevation = 0.dp,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = KupioThemeDefaults.spacing.lg, vertical = KupioThemeDefaults.spacing.md),
+                .padding(start = 18.dp, top = 10.dp, end = 18.dp, bottom = 24.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            TextButton(
+            Button(
                 onClick = onSaveDraft,
                 enabled = !state.isSubmitting,
+                modifier = Modifier.height(48.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = CreateInk2,
+                    disabledContainerColor = Color.Transparent,
+                    disabledContentColor = CreateInk3,
+                ),
+                border = BorderStroke(1.dp, CreateLineStrong),
             ) {
                 Text("Cancel")
             }
@@ -730,23 +902,23 @@ private fun FormSection(
     trailing: String? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm)) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.Bottom,
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleLarge.copy(letterSpacing = (-0.3).sp),
+                fontWeight = FontWeight.Medium,
+                color = CreateInk,
             )
             Spacer(Modifier.weight(1f))
             trailing?.let {
                 Text(
                     text = it,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = CreateInk3,
                 )
             }
         }
@@ -783,9 +955,29 @@ private fun CreateTextField(
         singleLine = singleLine,
         minLines = minLines,
         supportingText = { error?.let { Text(it) } },
+        colors = createTextFieldColors(),
         shape = RoundedCornerShape(12.dp),
     )
 }
+
+@Composable
+private fun createTextFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedTextColor = CreateInk,
+    unfocusedTextColor = CreateInk,
+    disabledTextColor = CreateInk3,
+    focusedContainerColor = CreateCard,
+    unfocusedContainerColor = CreateCard,
+    disabledContainerColor = CreateCardAlt,
+    errorContainerColor = CreateCard,
+    cursorColor = CreateAccent,
+    focusedBorderColor = CreateAccent,
+    unfocusedBorderColor = CreateLine,
+    disabledBorderColor = CreateLine,
+    errorBorderColor = MaterialTheme.colorScheme.error,
+    focusedPlaceholderColor = CreateInk3,
+    unfocusedPlaceholderColor = CreateInk3,
+    disabledPlaceholderColor = CreateInk3,
+)
 
 @Composable
 private fun FieldLabel(
@@ -802,7 +994,7 @@ private fun FieldLabel(
         Text(
             text = label.uppercase() + if (required) " *" else "",
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = CreateInk3,
             fontWeight = FontWeight.SemiBold,
         )
         Spacer(Modifier.weight(1f))
@@ -810,7 +1002,7 @@ private fun FieldLabel(
             Text(
                 text = it,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = CreateInk3,
             )
         }
     }

@@ -7,6 +7,7 @@ import kupio.mobile.core.preferences.ThemeMode
 import kupio.mobile.core.presentation.UiAction
 import kupio.mobile.core.presentation.UiEffect
 import kupio.mobile.core.presentation.UiState
+import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +19,7 @@ import kotlinx.coroutines.launch
 data class SettingsState(
     val selectedThemeMode: ThemeMode = ThemeMode.SYSTEM,
     val isSigningOut: Boolean = false,
+    val userId: String = "",
 ) : UiState
 
 sealed interface SettingsAction : UiAction {
@@ -44,6 +46,12 @@ class SettingsViewModel(
         viewModelScope.launch {
             preferencesRepository.themeMode.collect { themeMode ->
                 _state.value = _state.value.copy(selectedThemeMode = themeMode)
+            }
+        }
+        viewModelScope.launch {
+            sessionManager.sessionState.collect { session ->
+                val id = (session as? SessionState.SignedIn)?.user?.id.orEmpty()
+                _state.value = _state.value.copy(userId = id)
             }
         }
     }

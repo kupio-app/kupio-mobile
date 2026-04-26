@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
-import kupio.mobile.features.home.presentation.HomeScreen
+import kupio.mobile.features.listings.presentation.feed.FeedScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.nav_home
 import org.jetbrains.compose.resources.stringResource
@@ -12,7 +12,7 @@ import org.jetbrains.compose.resources.stringResource
 object HomeTab : Tab {
     @Composable
     override fun Content() {
-        Navigator(HomeScreen())
+        Navigator(FeedScreen())
     }
 
     override val options: TabOptions

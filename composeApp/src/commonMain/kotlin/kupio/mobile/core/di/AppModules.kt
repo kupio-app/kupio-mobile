@@ -21,17 +21,33 @@ import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.auth.AuthViewModel
 import kupio.mobile.features.auth.presentation.username.UsernameViewModel
-import kupio.mobile.features.home.presentation.HomeViewModel
-import kupio.mobile.features.home.data.remote.CategoriesApi
-import kupio.mobile.features.home.data.remote.ListingsApi
-import kupio.mobile.features.home.data.repository.CategoriesRepositoryImpl
-import kupio.mobile.features.home.data.repository.ListingsRepositoryImpl
-import kupio.mobile.features.home.domain.repository.CategoriesRepository
-import kupio.mobile.features.home.domain.repository.ListingsRepository
+import kupio.mobile.core.di.SessionCleaner
+import kupio.mobile.features.chats.data.ChatWebSocket
+import kupio.mobile.features.chats.data.ConversationsStore
+import kupio.mobile.features.chats.data.remote.ChatApi
+import kupio.mobile.features.chats.data.remote.UserApi
+import kupio.mobile.features.chats.data.repository.ChatsRepositoryImpl
+import kupio.mobile.features.chats.data.repository.MessagesRepositoryImpl
+import kupio.mobile.features.chats.domain.repository.ChatsRepository
+import kupio.mobile.features.chats.domain.repository.MessagesRepository
+import kupio.mobile.features.chats.presentation.list.ChatsListViewModel
+import kupio.mobile.features.chats.presentation.thread.ChatThreadViewModel
+import kupio.mobile.features.listings.data.remote.CategoriesApi
+import kupio.mobile.features.listings.data.remote.ListingsApi
+import kupio.mobile.features.listings.data.repository.CategoriesRepositoryImpl
+import kupio.mobile.features.listings.data.repository.ListingsRepositoryImpl
+import kupio.mobile.features.listings.domain.repository.CategoriesRepository
+import kupio.mobile.features.listings.domain.repository.ListingsRepository
+import kupio.mobile.features.listings.presentation.detail.ListingDetailViewModel
+import kupio.mobile.features.listings.presentation.feed.FeedViewModel
 import kupio.mobile.features.me.MeViewModel
 import kupio.mobile.features.settings.SettingsViewModel
 import kupio.mobile.core.navigation.RootNavigationViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -40,6 +56,7 @@ expect val platformModule: Module
 val kupioAppModules: List<Module> = listOf(
     platformModule,
     module {
+        single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
         single<HttpClient> {
             val config = get<BackendConfig>()
             createKupioHttpClient(
@@ -49,9 +66,18 @@ val kupioAppModules: List<Module> = listOf(
         }
         single { AuthApi(get()) }
         single { ListingsApi(get()) }
-        single<ListingsRepository> { ListingsRepositoryImpl(get()) }
+        single<ListingsRepository> { ListingsRepositoryImpl(get(), get()) }
         single { CategoriesApi(get()) }
         single<CategoriesRepository> { CategoriesRepositoryImpl(get()) }
+        single { ChatApi(get()) }
+        single { UserApi(get()) }
+        single<ChatsRepository> { ChatsRepositoryImpl(get(), get()) }
+        single { ChatWebSocket(get(), get(), get(), get()) }
+        single<MessagesRepository> { MessagesRepositoryImpl(get(), get(), get(), get()) }
+        single { SessionCleaner(get(), get()) }
+        single { ConversationsStore(get(), get(), get(), get(), get(), get()) }
+        viewModelOf(::ChatsListViewModel)
+        viewModel { params -> ChatThreadViewModel(params.get(), get(), get()) }
         single<AuthClock> { SystemAuthClock() }
         single { AuthTokenProvider(get(), get(), get(), get()) }
         single<AuthenticatedApiClient> {
@@ -69,9 +95,10 @@ val kupioAppModules: List<Module> = listOf(
         single<PreferencesRepository> { DataStorePreferencesRepository(get()) }
         viewModelOf(::RootNavigationViewModel)
         viewModelOf(::AuthViewModel)
-        viewModelOf(::HomeViewModel)
+        viewModelOf(::FeedViewModel)
         viewModelOf(::MeViewModel)
         viewModelOf(::SettingsViewModel)
         viewModelOf(::UsernameViewModel)
+        viewModel { params -> ListingDetailViewModel(params.get(), get()) }
     },
 )

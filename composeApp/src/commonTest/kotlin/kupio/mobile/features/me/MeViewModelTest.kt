@@ -34,6 +34,7 @@ class MeViewModelTest {
     fun `theme toggle switches light to dark`() = runTest(dispatcher) {
         val preferences = FakePreferencesRepository(initialMode = ThemeMode.LIGHT)
         val viewModel = MeViewModel(preferencesRepository = preferences)
+        advanceUntilIdle()
 
         viewModel.onIntent(MeIntent.ThemeToggleClicked)
         advanceUntilIdle()
@@ -45,6 +46,7 @@ class MeViewModelTest {
     fun `theme toggle switches dark to light`() = runTest(dispatcher) {
         val preferences = FakePreferencesRepository(initialMode = ThemeMode.DARK)
         val viewModel = MeViewModel(preferencesRepository = preferences)
+        advanceUntilIdle()
 
         viewModel.onIntent(MeIntent.ThemeToggleClicked)
         advanceUntilIdle()
@@ -56,6 +58,7 @@ class MeViewModelTest {
     fun `theme toggle switches system to dark`() = runTest(dispatcher) {
         val preferences = FakePreferencesRepository(initialMode = ThemeMode.SYSTEM)
         val viewModel = MeViewModel(preferencesRepository = preferences)
+        advanceUntilIdle()
 
         viewModel.onIntent(MeIntent.ThemeToggleClicked)
         advanceUntilIdle()
@@ -83,6 +86,9 @@ class MeViewModelTest {
         override suspend fun setThemeMode(mode: ThemeMode) {
             themeMode.value = mode
         }
+
+        override fun chatLastSeenEpochMillis(conversationId: String) = MutableStateFlow<Long?>(null)
+
+        override suspend fun markChatSeen(conversationId: String, epochMillis: Long) = Unit
     }
 }
-

@@ -1,6 +1,7 @@
 package kupio.mobile.features.chats.presentation.thread
 
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.number
 import kupio.mobile.core.datetime.today
 import kupio.mobile.core.datetime.toLocalDate
 import kupio.mobile.features.chats.domain.model.MessageItem
@@ -40,6 +41,6 @@ private fun buildDayLabel(date: LocalDate, today: LocalDate): DayLabel {
         diff <= 0 -> DayLabel.Today
         diff == 1 -> DayLabel.Yesterday
         diff in 2..6 -> DayLabel.DaysAgo(diff)
-        else -> DayLabel.AbsoluteDate(date.day, date.month.ordinal)
+        else -> DayLabel.AbsoluteDate(date.day, date.month.number)
     }
 }

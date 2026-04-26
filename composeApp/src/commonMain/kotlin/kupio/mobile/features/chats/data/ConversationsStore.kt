@@ -61,7 +61,7 @@ class ConversationsStore(
 
                 val currentUserId = currentUserId()
                 val summaries = merged.map { (conv, role) ->
-                    async { buildSummary(conv, role, currentUserId) }
+                    async { buildSummary(conv, role) }
                 }.awaitAll()
 
                 _chats.value = summaries
@@ -101,8 +101,7 @@ class ConversationsStore(
 
     private suspend fun buildSummary(
         conv: ConversationData,
-        role: ChatRole,
-        currentUserId: String,
+        role: ChatRole
     ): ChatSummary {
         val otherPartyId = if (role == ChatRole.BUYING) conv.sellerId else conv.buyerId
 

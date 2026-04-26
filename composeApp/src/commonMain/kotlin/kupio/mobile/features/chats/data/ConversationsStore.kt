@@ -22,8 +22,6 @@ import kupio.mobile.features.chats.domain.model.ChatSummary
 import kupio.mobile.features.chats.domain.model.ConversationData
 import kupio.mobile.features.chats.domain.model.ListingSummary
 import kupio.mobile.features.chats.domain.repository.ChatsRepository
-import kupio.mobile.features.listings.domain.model.Listing
-import kupio.mobile.features.listings.domain.model.formatPrice
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 
 class ConversationsStore(
@@ -153,11 +151,3 @@ class ConversationsStore(
     private fun currentUserId() =
         (sessionManager.sessionState.value as? SessionState.SignedIn)?.user?.id.orEmpty()
 }
-
-private fun Listing.toSummary() = ListingSummary(
-    id = id,
-    title = title,
-    priceFormatted = formatPrice(),
-    placeholderSeed = id.hashCode(),
-)
-

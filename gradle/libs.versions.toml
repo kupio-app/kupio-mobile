@@ -22,7 +22,7 @@ kotlinx-serialization = "1.9.0"
 ktor = "3.4.2"
 kvault = "1.12.0"
 googleid = "1.2.0"
-imagepickerkmp = "1.0.35"
+imagepickerkmp = "1.0.39"
 voyager = "1.0.1"
 
 [libraries]

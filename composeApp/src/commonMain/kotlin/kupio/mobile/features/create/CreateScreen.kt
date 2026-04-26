@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -48,7 +47,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -115,7 +113,6 @@ private fun CreateContent(
 ) {
     var showImagePicker by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
-    val activeSection by rememberActiveCreateSection(listState)
 
     if (showImagePicker) {
         GalleryPickerLauncher(
@@ -160,7 +157,6 @@ private fun CreateContent(
                 .fillMaxSize()
                 .padding(paddingValues),
         ) {
-            CreateProgress(activeSection = activeSection)
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize(),
@@ -207,71 +203,15 @@ private fun CreateContent(
     }
 }
 
-@Composable
-private fun rememberActiveCreateSection(listState: LazyListState) = remember(listState) {
-    derivedStateOf {
-        val visibleSection = listState.layoutInfo.visibleItemsInfo
-            .firstOrNull { item -> (item.key as? String) in CreateSectionKeys && item.offset + item.size > item.size / 2 }
-            ?: listState.layoutInfo.visibleItemsInfo.firstOrNull { (it.key as? String) in CreateSectionKeys }
-
-        CreateSection.fromKey(visibleSection?.key) ?: CreateSection.Photos
-    }
-}
-
-@Composable
-private fun CreateProgress(activeSection: CreateSection) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.background,
-        shadowElevation = 2.dp,
-    ) {
-        Row(
-            modifier = Modifier.padding(start = 8.dp, top = 10.dp, end = 8.dp, bottom = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            CreateSection.entries.forEach { section ->
-                val selected = section == activeSection
-
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(3.dp)
-                            .clip(RoundedCornerShape(99.dp))
-                            .background(
-                                if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
-                            ),
-                    )
-                    Text(
-                        text = section.label.uppercase(),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
-                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-                    )
-                }
-            }
-        }
-    }
-}
-
 private enum class CreateSection(
     val key: String,
-    val label: String,
 ) {
-    Photos("photos", "Photos"),
-    Details("details", "Details"),
-    Filters("filters", "Filters"),
-    Price("price", "Price");
+    Photos("photos"),
+    Details("details"),
+    Filters("filters"),
+    Price("price");
 
-    companion object {
-        fun fromKey(key: Any?): CreateSection? = entries.firstOrNull { it.key == key }
-    }
 }
-
-private val CreateSectionKeys = CreateSection.entries.map { it.key }.toSet()
 
 @Composable
 private fun PhotosSection(
@@ -281,7 +221,6 @@ private fun PhotosSection(
 ) {
     FormSection(
         title = "Photos",
-        trailing = "Up to $MaxListingImages · first one is the cover",
     ) {
         val cover = images.firstOrNull()
         Box(
@@ -290,7 +229,10 @@ private fun PhotosSection(
                 .aspectRatio(4f / 3f)
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surface)
-                .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)), RoundedCornerShape(16.dp))
+                .border(
+                    BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
+                    RoundedCornerShape(16.dp)
+                )
                 .clickable(onClick = onAdd),
             contentAlignment = Alignment.Center,
         ) {
@@ -379,7 +321,10 @@ private fun ImageTile(
             .size(72.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)), RoundedCornerShape(10.dp)),
+            .border(
+                BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
+                RoundedCornerShape(10.dp)
+            ),
     ) {
         Icon(
             imageVector = Icons.Outlined.Image,
@@ -470,6 +415,7 @@ private fun CategorySelector(
             message = "Could not load categories.",
             onRetry = { onIntent(CreateIntent.RetryCategories) },
         )
+
         else -> {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 items(state.categories, key = { it.id }) { category ->
@@ -497,16 +443,19 @@ private fun FiltersSection(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+
             state.isLoadingFilters -> LoadingRow()
             state.filtersError != null -> RetryRow(
                 message = "Could not load category filters.",
                 onRetry = { onIntent(CreateIntent.RetryFilters) },
             )
+
             state.filters.isEmpty() -> Text(
                 text = "No extra details needed for this category.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+
             else -> state.filters.forEach { filter ->
                 FilterInput(
                     filter = filter,
@@ -536,6 +485,7 @@ private fun FilterInput(
             required = filter.isRequired,
             singleLine = true,
         )
+
         FilterType.NUMBER, FilterType.RANGE -> CreateTextField(
             label = filter.label,
             value = (value as? CreateFilterInput.Text)?.value.orEmpty(),
@@ -546,12 +496,14 @@ private fun FilterInput(
             singleLine = true,
             keyboardType = KeyboardType.Decimal,
         )
+
         FilterType.BOOLEAN -> BooleanFilter(
             filter = filter,
             value = (value as? CreateFilterInput.BooleanValue)?.value,
             error = error,
             onChange = { onIntent(CreateIntent.FilterBooleanChanged(filter.slug, it)) },
         )
+
         FilterType.SELECT -> SelectFilter(
             filter = filter,
             value = (value as? CreateFilterInput.Text)?.value.orEmpty(),
@@ -694,7 +646,10 @@ private fun CreatePriceField(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, if (error == null) MaterialTheme.colorScheme.outline.copy(alpha = 0.16f) else MaterialTheme.colorScheme.error),
+        border = BorderStroke(
+            1.dp,
+            if (error == null) MaterialTheme.colorScheme.outline.copy(alpha = 0.16f) else MaterialTheme.colorScheme.error
+        ),
     ) {
         Row(
             modifier = Modifier.padding(start = 16.dp, top = 10.dp, end = 10.dp, bottom = 10.dp),
@@ -813,7 +768,12 @@ private fun ToggleRow(
                     .size(20.dp)
                     .clip(RoundedCornerShape(6.dp))
                     .border(
-                        BorderStroke(1.dp, if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
+                        BorderStroke(
+                            1.dp,
+                            if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(
+                                alpha = 0.35f
+                            )
+                        ),
                         RoundedCornerShape(6.dp),
                     )
                     .background(
@@ -835,7 +795,12 @@ private fun ToggleRow(
                 }
             }
             Column(modifier = Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
+                Text(
+                    title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Medium
+                )
                 Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
             }
         }

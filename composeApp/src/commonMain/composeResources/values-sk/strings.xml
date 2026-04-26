@@ -122,4 +122,5 @@
     <string name="chat_profile_placeholder">Verejný profil čoskoro.</string>
     <string name="chat_participant_fallback">Používateľ %1$s</string>
     <string name="chat_active_unknown">Člen</string>
+    <string name="chat_typing_indicator">píše…</string>
 </resources>

@@ -122,4 +122,5 @@
     <string name="chat_profile_placeholder">Public profile coming soon.</string>
     <string name="chat_participant_fallback">User %1$s</string>
     <string name="chat_active_unknown">Member</string>
+    <string name="chat_typing_indicator">is typing…</string>
 </resources>

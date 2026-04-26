@@ -48,30 +48,32 @@ class ConversationsStore(
     suspend fun refresh() {
         _isLoading.value = true
         _error.value = null
-        runCatching {
-            coroutineScope {
-                val buyingDeferred = async {
-                    chatsRepository.listConversations(ChatRole.BUYING).map { it to ChatRole.BUYING }
-                }
-                val sellingDeferred = async {
-                    chatsRepository.listConversations(ChatRole.SELLING).map { it to ChatRole.SELLING }
-                }
-                val merged = (buyingDeferred.await() + sellingDeferred.await())
-                    .sortedByDescending { (conv, _) -> conv.createdAt }
+        try {
+            runCatching {
+                coroutineScope {
+                    val buyingDeferred = async {
+                        chatsRepository.listConversations(ChatRole.BUYING).map { it to ChatRole.BUYING }
+                    }
+                    val sellingDeferred = async {
+                        chatsRepository.listConversations(ChatRole.SELLING).map { it to ChatRole.SELLING }
+                    }
+                    val merged = (buyingDeferred.await() + sellingDeferred.await())
+                        .sortedByDescending { (conv, _) -> conv.createdAt }
 
-                val currentUserId = currentUserId()
-                val summaries = merged.map { (conv, role) ->
-                    async { buildSummary(conv, role) }
-                }.awaitAll()
+                    val summaries = merged.map { (conv, role) ->
+                        async { buildSummary(conv, role) }
+                    }.awaitAll()
 
-                _chats.value = summaries
-                _unreadCount.value = summaries.sumOf { it.unreadCount }
+                    _chats.value = summaries
+                    _unreadCount.value = summaries.sumOf { it.unreadCount }
+                }
+            }.onFailure { t ->
+                if (t is CancellationException) throw t
+                _error.value = t.message ?: "Unknown error"
             }
-        }.onFailure { t ->
-            if (t is CancellationException) throw t
-            _error.value = t.message ?: "Unknown error"
+        } finally {
+            _isLoading.value = false
         }
-        _isLoading.value = false
     }
 
     suspend fun refreshUnreadCount() {

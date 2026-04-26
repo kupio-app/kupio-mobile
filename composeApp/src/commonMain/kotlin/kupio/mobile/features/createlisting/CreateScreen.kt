@@ -38,12 +38,14 @@ import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -120,6 +122,7 @@ private fun CreateContent(
 ) {
     val imagePicker = rememberImagePickerKMP()
     val listState = rememberLazyListState()
+    var showImageSourceSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(imagePicker.result) {
         when (val result = imagePicker.result) {
@@ -132,6 +135,50 @@ private fun CreateContent(
             ImagePickerResult.Idle,
             ImagePickerResult.Loading -> Unit
         }
+    }
+    val launchGallery = {
+        if (state.images.size >= MaxListingImages) {
+            onIntent(CreateIntent.ImageLimitReached)
+        } else {
+            imagePicker.launchGallery(
+                allowMultiple = true,
+                selectionLimit = MaxListingImages - state.images.size,
+                mimeTypes = listOf(
+                    MimeType.IMAGE_JPEG,
+                    MimeType.IMAGE_PNG,
+                    MimeType.IMAGE_WEBP,
+                    MimeType.IMAGE_HEIC,
+                ),
+            )
+        }
+    }
+    val launchCamera = {
+        if (state.images.size >= MaxListingImages) {
+            onIntent(CreateIntent.ImageLimitReached)
+        } else {
+            imagePicker.launchCamera()
+        }
+    }
+    val showImageSourcePicker = {
+        if (state.images.size >= MaxListingImages) {
+            onIntent(CreateIntent.ImageLimitReached)
+        } else {
+            showImageSourceSheet = true
+        }
+    }
+
+    if (showImageSourceSheet) {
+        ImageSourceSheet(
+            onDismiss = { showImageSourceSheet = false },
+            onTakePhoto = {
+                showImageSourceSheet = false
+                launchCamera()
+            },
+            onChooseFromGallery = {
+                showImageSourceSheet = false
+                launchGallery()
+            },
+        )
     }
 
     Scaffold(
@@ -178,22 +225,7 @@ private fun CreateContent(
                     PhotosSection(
                         images = state.images,
                         imageWarning = state.imageWarning,
-                        onAdd = {
-                            if (state.images.size >= MaxListingImages) {
-                                onIntent(CreateIntent.ImageLimitReached)
-                            } else {
-                                imagePicker.launchGallery(
-                                    allowMultiple = true,
-                                    selectionLimit = MaxListingImages - state.images.size,
-                                    mimeTypes = listOf(
-                                        MimeType.IMAGE_JPEG,
-                                        MimeType.IMAGE_PNG,
-                                        MimeType.IMAGE_WEBP,
-                                        MimeType.IMAGE_HEIC,
-                                    ),
-                                )
-                            }
-                        },
+                        onAdd = showImageSourcePicker,
                         onRemove = { onIntent(CreateIntent.RemoveImage(it)) },
                     )
                 }
@@ -321,6 +353,47 @@ private fun PhotosSection(
             }
         }
         imageWarning?.let { ErrorText(it) }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ImageSourceSheet(
+    onDismiss: () -> Unit,
+    onTakePhoto: () -> Unit,
+    onChooseFromGallery: () -> Unit,
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Text(
+            text = "Add photo",
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Medium,
+        )
+        ListItem(
+            headlineContent = { Text("Take photo") },
+            supportingContent = { Text("Use camera") },
+            leadingContent = {
+                Icon(
+                    imageVector = Icons.Outlined.PhotoCamera,
+                    contentDescription = null,
+                )
+            },
+            modifier = Modifier.clickable(onClick = onTakePhoto),
+        )
+        ListItem(
+            headlineContent = { Text("Choose from gallery") },
+            supportingContent = { Text("Select existing images") },
+            leadingContent = {
+                Icon(
+                    imageVector = Icons.Outlined.ImageIcon,
+                    contentDescription = null,
+                )
+            },
+            modifier = Modifier.clickable(onClick = onChooseFromGallery),
+        )
+        Spacer(Modifier.height(24.dp))
     }
 }
 

@@ -1,9 +1,9 @@
-package kupio.mobile.features.create
+package kupio.mobile.features.createlisting
 
 import kupio.mobile.core.presentation.UiAction
 import kupio.mobile.core.presentation.UiEffect
 import kupio.mobile.core.presentation.UiState
-import kupio.mobile.features.create.domain.model.SelectedListingImage
+import kupio.mobile.features.createlisting.domain.model.SelectedListingImage
 import kupio.mobile.features.listings.domain.model.Category
 import kupio.mobile.features.listings.domain.model.Currency
 import kupio.mobile.features.listings.domain.model.FilterDefinition

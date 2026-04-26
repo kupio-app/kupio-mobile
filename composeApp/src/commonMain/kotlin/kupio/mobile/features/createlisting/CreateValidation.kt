@@ -1,4 +1,4 @@
-package kupio.mobile.features.create
+package kupio.mobile.features.createlisting
 
 import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.CustomFilterPayloadValue

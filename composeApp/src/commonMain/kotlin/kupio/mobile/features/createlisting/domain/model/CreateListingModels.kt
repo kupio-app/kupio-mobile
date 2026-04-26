@@ -1,4 +1,4 @@
-package kupio.mobile.features.create.domain.model
+package kupio.mobile.features.createlisting.domain.model
 
 data class SelectedListingImage(
     val id: String,

@@ -1,4 +1,4 @@
-package kupio.mobile.features.create
+package kupio.mobile.features.createlisting
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

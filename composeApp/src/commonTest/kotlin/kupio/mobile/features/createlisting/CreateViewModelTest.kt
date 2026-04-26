@@ -1,4 +1,4 @@
-package kupio.mobile.features.create
+package kupio.mobile.features.createlisting
 
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -14,7 +14,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kupio.mobile.features.create.domain.model.SelectedListingImage
+import kupio.mobile.features.createlisting.domain.model.SelectedListingImage
 import kupio.mobile.features.listings.domain.model.Category
 import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.CustomFilterPayloadValue

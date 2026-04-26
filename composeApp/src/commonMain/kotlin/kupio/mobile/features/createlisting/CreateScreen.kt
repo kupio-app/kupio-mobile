@@ -444,21 +444,18 @@ private fun ImageTile(
                 modifier = Modifier.align(Alignment.Center),
             )
         }
-        IconButton(
-            onClick = onRemove,
+        Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(4.dp)
-                .size(22.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f),
-                    shape = RoundedCornerShape(8.dp),
-                ),
+                .padding(6.dp)
+                .size(16.dp)
+                .clickable(onClick = onRemove),
+            contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = Icons.Outlined.Close,
                 contentDescription = "Remove ${image.fileName}",
-                modifier = Modifier.size(14.dp),
+                modifier = Modifier.size(16.dp),
                 tint = MaterialTheme.colorScheme.onSurface,
             )
         }

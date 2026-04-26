@@ -32,7 +32,6 @@ import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ChevronLeft
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Euro
 import androidx.compose.material.icons.outlined.Image as ImageIcon
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material3.Button
@@ -843,11 +842,9 @@ private fun CreatePriceField(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Icon(
-                imageVector = Icons.Outlined.Euro,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(22.dp),
+            CurrencyMenu(
+                selected = currency,
+                onSelect = onCurrencySelect,
             )
             OutlinedTextField(
                 value = price,
@@ -865,10 +862,6 @@ private fun CreatePriceField(
                 ),
                 colors = priceTextFieldColors(),
                 shape = RoundedCornerShape(12.dp),
-            )
-            CurrencyMenu(
-                selected = currency,
-                onSelect = onCurrencySelect,
             )
         }
     }
@@ -901,17 +894,22 @@ private fun CurrencyMenu(
 ) {
     var expanded by remember { mutableStateOf(false) }
     Box {
-        Button(
-            onClick = { expanded = true },
-            modifier = Modifier.height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-            ),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
+        Surface(
+            modifier = Modifier
+                .size(48.dp)
+                .clickable { expanded = true },
             shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
         ) {
-            Text(selected.name)
+            Box(contentAlignment = Alignment.Center) {
+                Text(
+                    text = selected.symbol,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
         }
         DropdownMenu(
             expanded = expanded,
@@ -920,6 +918,14 @@ private fun CurrencyMenu(
             Currency.entries.forEach { currency ->
                 DropdownMenuItem(
                     text = { Text(currency.name) },
+                    leadingIcon = {
+                        Text(
+                            text = currency.symbol,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    },
                     onClick = {
                         expanded = false
                         onSelect(currency)

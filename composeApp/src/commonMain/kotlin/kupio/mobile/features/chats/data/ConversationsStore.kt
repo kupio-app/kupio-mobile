@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kupio.mobile.core.datetime.nowEpochMillis
 import kupio.mobile.core.datetime.toTimeLabel
+import kupio.mobile.core.di.SessionCleaner
 import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.core.preferences.PreferencesRepository
 import kupio.mobile.features.auth.domain.model.SessionState
@@ -30,12 +31,23 @@ class ConversationsStore(
     private val userApi: UserApi,
     private val authenticatedApiClient: AuthenticatedApiClient,
     private val preferences: PreferencesRepository,
-    private val sessionManager: AuthSessionManager,
+    sessionCleaner: SessionCleaner,
 ) {
     private val _chats = MutableStateFlow<List<ChatSummary>>(emptyList())
     private val _isLoading = MutableStateFlow(false)
     private val _error = MutableStateFlow<String?>(null)
     private val _unreadCount = MutableStateFlow(0)
+
+    init {
+        sessionCleaner.register(::clearState)
+    }
+
+    private fun clearState() {
+        _chats.value = emptyList()
+        _unreadCount.value = 0
+        _error.value = null
+        _isLoading.value = false
+    }
 
     val chats: StateFlow<List<ChatSummary>> = _chats.asStateFlow()
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -148,7 +160,4 @@ class ConversationsStore(
             unreadCount = conv.unreadCount,
         )
     }
-
-    private fun currentUserId() =
-        (sessionManager.sessionState.value as? SessionState.SignedIn)?.user?.id.orEmpty()
 }

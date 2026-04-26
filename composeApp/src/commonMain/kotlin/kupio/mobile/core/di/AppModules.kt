@@ -21,6 +21,7 @@ import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.auth.AuthViewModel
 import kupio.mobile.features.auth.presentation.username.UsernameViewModel
+import kupio.mobile.core.di.SessionCleaner
 import kupio.mobile.features.chats.data.ChatWebSocket
 import kupio.mobile.features.chats.data.ConversationsStore
 import kupio.mobile.features.chats.data.remote.ChatApi
@@ -42,6 +43,9 @@ import kupio.mobile.features.listings.presentation.feed.FeedViewModel
 import kupio.mobile.features.me.MeViewModel
 import kupio.mobile.features.settings.SettingsViewModel
 import kupio.mobile.core.navigation.RootNavigationViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -52,6 +56,7 @@ expect val platformModule: Module
 val kupioAppModules: List<Module> = listOf(
     platformModule,
     module {
+        single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
         single<HttpClient> {
             val config = get<BackendConfig>()
             createKupioHttpClient(
@@ -69,6 +74,7 @@ val kupioAppModules: List<Module> = listOf(
         single<ChatsRepository> { ChatsRepositoryImpl(get(), get()) }
         single { ChatWebSocket(get(), get(), get(), get()) }
         single<MessagesRepository> { MessagesRepositoryImpl(get(), get(), get(), get()) }
+        single { SessionCleaner(get(), get()) }
         single { ConversationsStore(get(), get(), get(), get(), get(), get()) }
         viewModelOf(::ChatsListViewModel)
         viewModel { params -> ChatThreadViewModel(params.get(), get(), get()) }

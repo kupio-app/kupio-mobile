@@ -299,7 +299,9 @@ private fun PhotosSection(
                     },
                 )
             }
-            CoverBadge(Modifier.align(Alignment.TopStart).padding(10.dp))
+            if (safeSelectedIndex == 0 && selectedImage != null) {
+                CoverBadge(Modifier.align(Alignment.TopStart).padding(10.dp))
+            }
         }
 
         LazyRow(
@@ -446,12 +448,17 @@ private fun ImageTile(
             onClick = onRemove,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .size(28.dp),
+                .padding(4.dp)
+                .size(22.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f),
+                    shape = RoundedCornerShape(8.dp),
+                ),
         ) {
             Icon(
                 imageVector = Icons.Outlined.Close,
                 contentDescription = "Remove ${image.fileName}",
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(14.dp),
                 tint = MaterialTheme.colorScheme.onSurface,
             )
         }

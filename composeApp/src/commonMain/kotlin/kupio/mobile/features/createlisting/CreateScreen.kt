@@ -585,7 +585,7 @@ private fun DetailsSection(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun CategorySelector(
     state: CreateState,
@@ -603,8 +603,11 @@ private fun CategorySelector(
         )
 
         else -> {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                items(state.categories, key = { it.id }) { category ->
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                state.categories.forEach { category ->
                     ChoiceChip(
                         selected = state.selectedCategoryId == category.id,
                         onClick = { onIntent(CreateIntent.CategorySelected(category.id)) },
@@ -804,18 +807,25 @@ private fun PriceSection(
             onCurrencySelect = { onIntent(CreateIntent.CurrencyChanged(it)) },
         )
 
-        ToggleRow(
-            checked = state.isFree,
-            title = "Give away for free",
-            subtitle = "Price will be sent as 0",
-            onClick = { onIntent(CreateIntent.ToggleFree) },
-        )
-        ToggleRow(
-            checked = state.isTradable,
-            title = "Open to trades",
-            subtitle = "Buyers can offer swaps",
-            onClick = { onIntent(CreateIntent.ToggleTradable) },
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            ToggleRow(
+                checked = state.isFree,
+                title = "Give away for free",
+                subtitle = "Listed as free",
+                onClick = { onIntent(CreateIntent.ToggleFree) },
+                modifier = Modifier.weight(1f),
+            )
+            ToggleRow(
+                checked = state.isTradable,
+                title = "Open to trades",
+                subtitle = "Accept swap offers",
+                onClick = { onIntent(CreateIntent.ToggleTradable) },
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
@@ -942,10 +952,12 @@ private fun ToggleRow(
     title: String,
     subtitle: String,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
+            .height(96.dp)
             .clickable(onClick = onClick),
         color = Color.Transparent,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),

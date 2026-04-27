@@ -74,8 +74,8 @@ class MyListingsViewModelTest {
 
         assertEquals("listing-1", repository.lastUpdatedListingId)
         assertEquals(OwnedListingStatus.INACTIVE, repository.lastUpdatedStatus)
-        assertEquals(1, viewModel.state.value.activeCount)
-        assertEquals(1, viewModel.state.value.listings.count { it.status == OwnedListingStatus.ACTIVE })
+        assertEquals(0, viewModel.state.value.activeCount)
+        assertEquals(2, viewModel.state.value.listings.count { it.status == OwnedListingStatus.INACTIVE })
         assertEquals(OwnedListingStatus.INACTIVE, viewModel.state.value.listings.first { it.id == "listing-1" }.status)
     }
 

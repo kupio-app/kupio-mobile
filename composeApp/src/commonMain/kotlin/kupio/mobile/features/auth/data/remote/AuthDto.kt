@@ -61,6 +61,7 @@ data class UserPrivateDto(
     @SerialName("needs_username") val needsUsername: Boolean,
     val balance: Int,
     @SerialName("avatar_url") val avatarUrl: String? = null,
+    @SerialName("created_at") val createdAt: String? = null,
 )
 
 fun TokensResponseDto.toDomain(): AuthSession {
@@ -83,5 +84,6 @@ fun UserPrivateDto.toDomain(): AuthenticatedUser {
         needsUsername = needsUsername,
         balance = balance,
         avatarUrl = avatarUrl,
+        createdAt = createdAt,
     )
 }

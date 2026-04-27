@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image as ComposeImage
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -79,6 +78,7 @@ import kotlin.random.Random
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.KupioTopBarBackAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
+import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.createlisting.domain.model.SelectedListingImage
 import kupio.mobile.features.listings.domain.model.Category
@@ -289,7 +289,7 @@ private fun PhotosSection(
                     BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
                     RoundedCornerShape(16.dp)
                 )
-                .clickable(onClick = onAdd),
+                .bouncingDimClickable(shape = RoundedCornerShape(16.dp), onClick = onAdd),
             contentAlignment = Alignment.Center,
         ) {
             if (selectedImage?.previewBitmap != null) {
@@ -378,7 +378,7 @@ private fun ImageSourceSheet(
                     contentDescription = null,
                 )
             },
-            modifier = Modifier.clickable(onClick = onTakePhoto),
+            modifier = Modifier.bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onTakePhoto),
         )
         ListItem(
             headlineContent = { Text("Choose from gallery") },
@@ -389,7 +389,7 @@ private fun ImageSourceSheet(
                     contentDescription = null,
                 )
             },
-            modifier = Modifier.clickable(onClick = onChooseFromGallery),
+            modifier = Modifier.bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onChooseFromGallery),
         )
         Spacer(Modifier.height(24.dp))
     }
@@ -498,7 +498,7 @@ private fun ImageTile(
                 ),
                 RoundedCornerShape(10.dp)
             )
-            .clickable(onClick = onClick),
+            .bouncingDimClickable(shape = RoundedCornerShape(10.dp), onClick = onClick),
     ) {
         if (image.previewBitmap != null) {
             ComposeImage(
@@ -520,7 +520,7 @@ private fun ImageTile(
                 .align(Alignment.TopEnd)
                 .padding(6.dp)
                 .size(16.dp)
-                .clickable(onClick = onRemove),
+                .bouncingDimClickable(shape = RoundedCornerShape(99.dp), onClick = onRemove),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -538,7 +538,7 @@ private fun AddImageTile(onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .size(72.dp)
-            .clickable(onClick = onClick),
+            .bouncingDimClickable(shape = RoundedCornerShape(10.dp), onClick = onClick),
         shape = RoundedCornerShape(10.dp),
         color = Color.Transparent,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
@@ -629,7 +629,7 @@ private fun CategoryField(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surface,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
@@ -769,7 +769,7 @@ private fun CategoryBackRow(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
@@ -833,7 +833,7 @@ private fun CategoryBreadcrumbItem(
         text = text,
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
+            .bouncingDimClickable(shape = RoundedCornerShape(8.dp), onClick = onClick)
             .padding(horizontal = 4.dp, vertical = 4.dp),
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -860,7 +860,7 @@ private fun CategoryPickerRow(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         color = if (selected) {
             MaterialTheme.colorScheme.primaryContainer
@@ -1076,7 +1076,7 @@ private fun ChoiceChip(
     Surface(
         modifier = modifier
             .height(34.dp)
-            .clickable(onClick = onClick),
+            .bouncingDimClickable(shape = RoundedCornerShape(99.dp), onClick = onClick),
         shape = RoundedCornerShape(99.dp),
         color = if (selected) MaterialTheme.colorScheme.onSurface else Color.Transparent,
         border = if (selected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
@@ -1210,7 +1210,7 @@ private fun CurrencyMenu(
         Surface(
             modifier = Modifier
                 .size(48.dp)
-                .clickable { expanded = true },
+                .bouncingDimClickable(shape = RoundedCornerShape(12.dp)) { expanded = true },
             shape = RoundedCornerShape(12.dp),
             color = MaterialTheme.colorScheme.surfaceVariant,
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
@@ -1261,7 +1261,7 @@ private fun ToggleRow(
         modifier = modifier
             .fillMaxWidth()
             .height(96.dp)
-            .clickable(onClick = onClick),
+            .bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onClick),
         color = Color.Transparent,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
         shape = RoundedCornerShape(12.dp),

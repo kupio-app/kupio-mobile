@@ -123,6 +123,5 @@ class ChatWebSocket(
         return if (lastMessageId != null) "$path?last_message_id=$lastMessageId" else path
     }
 
-    private fun currentUserId() =
-        (sessionManager.sessionState.value as? SessionState.SignedIn)?.user?.id.orEmpty()
+    private fun currentUserId() = sessionManager.currentUserId()
 }

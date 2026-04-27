@@ -39,6 +39,5 @@ class MessagesRepositoryImpl(
     override fun observeMessages(conversationId: String): Flow<WsMessageEvent> =
         chatWebSocket.observe(conversationId)
 
-    private fun currentUserId() =
-        (sessionManager.sessionState.value as? SessionState.SignedIn)?.user?.id.orEmpty()
+    private fun currentUserId() = sessionManager.currentUserId()
 }

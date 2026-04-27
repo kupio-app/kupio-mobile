@@ -1,4 +1,4 @@
-package kupio.mobile.features.createlisting
+package kupio.mobile.features.createlisting.presentation.create
 
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -14,6 +14,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kupio.mobile.features.createlisting.UnsupportedListingImageMessage
 import kupio.mobile.features.createlisting.domain.model.SelectedListingImage
 import kupio.mobile.features.listings.domain.model.Category
 import kupio.mobile.features.listings.domain.model.CreateListing

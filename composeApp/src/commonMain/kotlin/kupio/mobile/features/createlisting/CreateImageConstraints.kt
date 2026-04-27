@@ -1,5 +1,7 @@
 package kupio.mobile.features.createlisting
 
+internal const val MaxListingImages = 8
+
 internal val AllowedListingImageMimeTypes = setOf(
     "image/jpeg",
     "image/png",

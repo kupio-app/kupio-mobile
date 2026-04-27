@@ -1,4 +1,4 @@
-package kupio.mobile.features.createlisting
+package kupio.mobile.features.createlisting.presentation.create
 
 import kupio.mobile.core.presentation.UiAction
 import kupio.mobile.core.presentation.UiEffect

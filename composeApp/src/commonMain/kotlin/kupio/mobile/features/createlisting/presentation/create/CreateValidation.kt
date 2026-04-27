@@ -1,4 +1,4 @@
-package kupio.mobile.features.createlisting
+package kupio.mobile.features.createlisting.presentation.create
 
 import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.CustomFilterPayloadValue
@@ -173,6 +173,3 @@ private fun FilterDefinition.readSelect(
 
 private fun CreateFilterInput?.asText(): String =
     (this as? CreateFilterInput.Text)?.value.orEmpty()
-
-private fun Double.formatForDisplay(): String =
-    if (this % 1.0 == 0.0) toInt().toString() else toString()

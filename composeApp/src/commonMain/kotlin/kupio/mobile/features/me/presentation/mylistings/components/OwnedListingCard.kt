@@ -33,6 +33,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.datetime.daysUntil
+import kupio.mobile.core.datetime.today
+import kupio.mobile.core.datetime.toLocalDate
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.features.me.domain.model.OwnedListing
@@ -391,9 +394,6 @@ private fun ActionButton(
 
 private fun promotionDaysLeft(expiresAt: String?): Int? {
     if (expiresAt == null) return null
-    return try {
-        expiresAt.substring(8, 10).toInt()
-    } catch (_: Throwable) {
-        null
-    }
+    val expiresDate = expiresAt.toLocalDate() ?: return null
+    return today().daysUntil(expiresDate).coerceAtLeast(0)
 }

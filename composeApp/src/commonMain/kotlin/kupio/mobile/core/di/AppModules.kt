@@ -40,7 +40,11 @@ import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.listings.presentation.detail.ListingDetailViewModel
 import kupio.mobile.features.listings.presentation.feed.FeedViewModel
-import kupio.mobile.features.me.MeViewModel
+import kupio.mobile.features.me.data.remote.MeApi
+import kupio.mobile.features.me.data.repository.MeRepositoryImpl
+import kupio.mobile.features.me.domain.repository.MeRepository
+import kupio.mobile.features.me.presentation.mylistings.MyListingsViewModel
+import kupio.mobile.features.me.presentation.profile.MeViewModel
 import kupio.mobile.features.settings.SettingsViewModel
 import kupio.mobile.core.navigation.RootNavigationViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -71,6 +75,8 @@ val kupioAppModules: List<Module> = listOf(
         single<CategoriesRepository> { CategoriesRepositoryImpl(get()) }
         single { ChatApi(get()) }
         single { UserApi(get()) }
+        single { MeApi(get()) }
+        single<MeRepository> { MeRepositoryImpl(get(), get()) }
         single<ChatsRepository> { ChatsRepositoryImpl(get(), get()) }
         single { ChatWebSocket(get(), get(), get(), get()) }
         single<MessagesRepository> { MessagesRepositoryImpl(get(), get(), get(), get()) }
@@ -97,6 +103,7 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::AuthViewModel)
         viewModelOf(::FeedViewModel)
         viewModelOf(::MeViewModel)
+        viewModelOf(::MyListingsViewModel)
         viewModelOf(::SettingsViewModel)
         viewModelOf(::UsernameViewModel)
         viewModel { params -> ListingDetailViewModel(params.get(), get()) }

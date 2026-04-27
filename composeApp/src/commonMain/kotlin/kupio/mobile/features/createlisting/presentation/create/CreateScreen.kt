@@ -26,6 +26,8 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.ismoy.imagepickerkmp.domain.models.MimeType
 import io.github.ismoy.imagepickerkmp.features.imagepicker.model.ImagePickerResult
 import io.github.ismoy.imagepickerkmp.features.imagepicker.ui.rememberImagePickerKMP
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.KupioTopBarBackAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
@@ -77,7 +79,10 @@ private fun CreateContent(
     LaunchedEffect(imagePicker.result) {
         when (val result = imagePicker.result) {
             is ImagePickerResult.Success -> {
-                onIntent(CreateIntent.ImagesSelected(result.photos.toSelectedImages()))
+                val selectedImages = withContext(Dispatchers.Default) {
+                    result.photos.toSelectedImages()
+                }
+                onIntent(CreateIntent.ImagesSelected(selectedImages))
                 imagePicker.reset()
             }
             is ImagePickerResult.Dismissed,

@@ -130,7 +130,7 @@ private fun MeRoute(state: MeState, onIntent: (MeIntent) -> Unit) {
             if (user != null && (user.role == "moderator" || user.role == "admin")) {
                 item {
                     ReportsDashboardCard(
-                        openCount = state.stats?.chatsCount ?: 0,
+                        openCount = 0,
                         onClick = { onIntent(MeIntent.ReportsDashboardClicked) },
                     )
                 }

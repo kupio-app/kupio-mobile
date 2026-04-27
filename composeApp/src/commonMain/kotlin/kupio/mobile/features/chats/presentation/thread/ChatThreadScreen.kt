@@ -41,6 +41,7 @@ import kupio.mobile.core.designsystem.KupioTopBarBackAction
 import kupio.mobile.core.designsystem.KupioTopBarIconAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
 import kupio.mobile.core.designsystem.borderBottom
+import kupio.mobile.core.datetime.monthName
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.chats.domain.model.ChatSummary
 import kupio.mobile.features.chats.domain.model.MessageItem
@@ -61,18 +62,6 @@ import mobile.composeapp.generated.resources.chat_day_yesterday
 import mobile.composeapp.generated.resources.chat_profile_view
 import mobile.composeapp.generated.resources.chat_thread_discussing
 import mobile.composeapp.generated.resources.chat_thread_view
-import mobile.composeapp.generated.resources.month_1
-import mobile.composeapp.generated.resources.month_10
-import mobile.composeapp.generated.resources.month_11
-import mobile.composeapp.generated.resources.month_12
-import mobile.composeapp.generated.resources.month_2
-import mobile.composeapp.generated.resources.month_3
-import mobile.composeapp.generated.resources.month_4
-import mobile.composeapp.generated.resources.month_5
-import mobile.composeapp.generated.resources.month_6
-import mobile.composeapp.generated.resources.month_7
-import mobile.composeapp.generated.resources.month_8
-import mobile.composeapp.generated.resources.month_9
 import mobile.composeapp.generated.resources.retry
 import mobile.composeapp.generated.resources.topbar_back
 import org.jetbrains.compose.resources.stringResource
@@ -302,18 +291,3 @@ private fun dayLabelText(label: DayLabel): String = when (label) {
     is DayLabel.AbsoluteDate -> stringResource(Res.string.chat_day_date_format, label.day, monthName(label.month))
 }
 
-@Composable
-private fun monthName(month: Int): String = when (month) {
-    1 -> stringResource(Res.string.month_1)
-    2 -> stringResource(Res.string.month_2)
-    3 -> stringResource(Res.string.month_3)
-    4 -> stringResource(Res.string.month_4)
-    5 -> stringResource(Res.string.month_5)
-    6 -> stringResource(Res.string.month_6)
-    7 -> stringResource(Res.string.month_7)
-    8 -> stringResource(Res.string.month_8)
-    9 -> stringResource(Res.string.month_9)
-    10 -> stringResource(Res.string.month_10)
-    11 -> stringResource(Res.string.month_11)
-    else -> stringResource(Res.string.month_12)
-}

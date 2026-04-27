@@ -21,6 +21,7 @@ import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.me.domain.model.OwnedListing
+import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.domain.model.UserListingStats
 import kupio.mobile.features.me.domain.repository.MeRepository
 import kupio.mobile.features.me.presentation.profile.MeEffect
@@ -131,5 +132,7 @@ class MeViewModelTest {
             UserListingStats(activeCount = 0, inactiveCount = 0, promotedCount = 0, chatsCount = 0, favouritesCount = 0)
 
         override suspend fun getMyListings(): List<OwnedListing> = emptyList()
+
+        override suspend fun updateListingStatus(listingId: String, status: OwnedListingStatus) = Unit
     }
 }

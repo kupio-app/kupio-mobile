@@ -124,6 +124,7 @@
     <string name="chat_active_unknown">Member</string>
     <string name="chat_profile_view">View profile</string>
     <string name="chat_typing_indicator">is typing…</string>
+    <string name="profile_hello">Hello, %1$s!</string>
     <string name="profile_balance_label">BALANCE</string>
     <string name="profile_topup">Top up</string>
     <string name="profile_my_listings">MY LISTINGS</string>
@@ -153,6 +154,8 @@
     <string name="my_listings_filter_active">Active</string>
     <string name="my_listings_filter_inactive">Inactive</string>
     <string name="my_listings_filter_draft">Draft</string>
+    <string name="my_listings_filter_planned">Planned</string>
+    <string name="my_listings_filter_sold">Sold</string>
     <string name="my_listings_filter_all">All</string>
     <string name="my_listings_bump_up">Bump up</string>
     <string name="my_listings_in_n_days">in %1$d days</string>

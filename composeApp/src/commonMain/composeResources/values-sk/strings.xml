@@ -124,6 +124,7 @@
     <string name="chat_active_unknown">Člen</string>
     <string name="chat_profile_view">Zobraziť profil</string>
     <string name="chat_typing_indicator">píše…</string>
+    <string name="profile_hello">Ahoj, %1$s!</string>
     <string name="profile_balance_label">ZOSTATOK</string>
     <string name="profile_topup">Dobiť</string>
     <string name="profile_my_listings">MOJE INZERÁTY</string>
@@ -153,6 +154,8 @@
     <string name="my_listings_filter_active">Aktívne</string>
     <string name="my_listings_filter_inactive">Neaktívne</string>
     <string name="my_listings_filter_draft">Šablony</string>
+    <string name="my_listings_filter_planned">Plánované</string>
+    <string name="my_listings_filter_sold">Predané</string>
     <string name="my_listings_filter_all">Všetky</string>
     <string name="my_listings_bump_up">Vyzdvihnúť</string>
     <string name="my_listings_in_n_days">za %1$d dní</string>
@@ -160,13 +163,12 @@
     <string name="my_listings_promote">Propagovať</string>
     <string name="my_listings_deactivate">Deaktivovať</string>
     <string name="my_listings_activate">Aktivovať</string>
-    <string name="my_listings_confirm_action">Potvrdit</string>
-    <string name="my_listings_cancel_action">Zrusit</string>
-    <string name="my_listings_confirm_activate_title">Aktivovat inzerat?</string>
-    <string name="my_listings_confirm_activate_body">Inzerat bude znova viditelny pre kupujucich.</string>
-    <string name="my_listings_confirm_deactivate_title">Deaktivovat inzerat?</string>
-    <string name="my_listings_confirm_deactivate_body">Inzerat bude skryty, kym ho znovu neaktivujete.</string>
-    <string name="my_listings_edit">Upraviť</string>
+    <string name="my_listings_confirm_action">Potvrdiť</string>
+    <string name="my_listings_cancel_action">Zrušiť</string>
+    <string name="my_listings_confirm_activate_title">Aktivovať inzerát?</string>
+    <string name="my_listings_confirm_activate_body">Inzerát bude znova viditeľný pre kupujúcich.</string>
+    <string name="my_listings_confirm_deactivate_title">Deaktivovať inzerát?</string>
+    <string name="my_listings_confirm_deactivate_body">Inzerát bude skrytý, kým ho znovu neaktivujete.</string>    <string name="my_listings_edit">Upraviť</string>
     <string name="my_listings_promoted_label">Propagované · končí za %1$d dní</string>
     <string name="my_listings_boost">%1$dx boost</string>
     <string name="my_listings_stats_icon_desc">Počítadlo štatistík</string>

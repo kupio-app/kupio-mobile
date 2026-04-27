@@ -40,13 +40,18 @@ internal actual fun normalizeListingImage(
 }
 
 @OptIn(BetaInteropApi::class, ExperimentalForeignApi::class)
-private fun ByteArray.toNSData(): NSData =
-    usePinned { pinned ->
+private fun ByteArray.toNSData(): NSData {
+    if (isEmpty()) {
+        return NSData.create(bytes = null, length = 0u)
+    }
+
+    return usePinned { pinned ->
         NSData.create(
             bytes = pinned.addressOf(0),
             length = size.toULong(),
         )
     }
+}
 
 @OptIn(ExperimentalForeignApi::class)
 private fun NSData.toByteArray(): ByteArray {

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.datetime.number
+import kupio.mobile.core.datetime.monthName
+import kupio.mobile.core.datetime.toLocalDate
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import mobile.composeapp.generated.resources.Res
@@ -50,15 +52,15 @@ internal fun UserInfoSection(user: AuthenticatedUser?) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                val year = memberSinceYear(user?.createdAt)
-                if (year != null) {
+                val memberSince = memberSinceMonthYear(user?.createdAt)
+                if (memberSince != null) {
                     Text(
                         text = "·",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        text = stringResource(Res.string.profile_member_since, year),
+                        text = stringResource(Res.string.profile_member_since, memberSince),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -95,8 +97,11 @@ internal fun buildInitials(user: AuthenticatedUser?): String {
         .ifEmpty { "?" }
 }
 
-internal fun memberSinceYear(createdAt: String?): String? =
-    createdAt?.take(4)?.toIntOrNull()?.toString()
+@Composable
+internal fun memberSinceMonthYear(createdAt: String?): String? {
+    val date = createdAt?.toLocalDate() ?: return null
+    return "${monthName(date.month.number)} ${date.year}"
+}
 
 private val avatarColors = listOf(
     Color(0xFF9B7653),

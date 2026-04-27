@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kupio.mobile.core.network.ApiException
 import kupio.mobile.features.createlisting.domain.model.SelectedListingImage
+import kupio.mobile.features.listings.domain.model.Category
 import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
@@ -32,6 +33,7 @@ class CreateViewModel(
     val effects: Flow<CreateEffect> = effectChannel.receiveAsFlow()
 
     private var filtersJob: Job? = null
+    private var subcategoriesJob: Job? = null
 
     init {
         loadCategories()
@@ -56,6 +58,11 @@ class CreateViewModel(
             is CreateIntent.PriceChanged -> updateField(CreateField.PRICE) { it.copy(price = intent.value) }
             is CreateIntent.CurrencyChanged -> _state.update { it.copy(currency = intent.value) }
             is CreateIntent.CategorySelected -> selectCategory(intent.id)
+            CreateIntent.CategoryPickerReset -> resetCategoryPicker()
+            CreateIntent.CategoryPickerBack -> navigateCategoryPickerBack()
+            CreateIntent.RetrySubcategories -> _state.value.categoryPath.lastOrNull()?.id?.let {
+                loadSubcategories(it, forceRefresh = true)
+            }
             is CreateIntent.FilterTextChanged -> updateFilterText(intent.slug, intent.value)
             is CreateIntent.FilterBooleanChanged -> updateFilterBoolean(intent.slug, intent.value)
             CreateIntent.ToggleFree -> _state.update {
@@ -127,24 +134,63 @@ class CreateViewModel(
     }
 
     private fun selectCategory(categoryId: Int) {
-        val category = _state.value.categories.firstOrNull { it.id == categoryId }
+        val state = _state.value
+        val category = state.findKnownCategory(categoryId)
+        val categoryPath = category?.let { state.pathTo(it) } ?: emptyList()
+        val isSameCategory = state.selectedCategoryId == categoryId
         _state.update {
             it.copy(
                 selectedCategoryId = categoryId,
                 selectedCategoryName = category?.name,
-                filters = emptyList(),
-                filterValues = emptyMap(),
-                filterErrors = emptyMap(),
+                categoryPath = categoryPath,
+                visibleSubcategories = emptyList(),
+                isLoadingSubcategories = false,
+                subcategoriesError = null,
+                filters = if (isSameCategory) it.filters else emptyList(),
+                filterValues = if (isSameCategory) it.filterValues else emptyMap(),
+                filterErrors = if (isSameCategory) it.filterErrors else emptyMap(),
                 fieldErrors = it.fieldErrors - CreateField.CATEGORY - CreateField.CUSTOM_FILTERS,
-                filtersError = null,
+                filtersError = if (isSameCategory) it.filtersError else null,
                 submitError = null,
             )
         }
-        loadFilters(categoryId)
+        if (!isSameCategory) {
+            loadFilters(categoryId)
+        }
+        loadSubcategories(categoryId)
+    }
+
+    private fun navigateCategoryPickerBack() {
+        val path = _state.value.categoryPath
+        if (path.size <= 1) {
+            resetCategoryPicker()
+        } else {
+            selectCategory(path[path.lastIndex - 1].id)
+        }
+    }
+
+    private fun resetCategoryPicker() {
+        subcategoriesJob?.cancel()
+        _state.update {
+            it.copy(
+                categoryPath = emptyList(),
+                visibleSubcategories = emptyList(),
+                isLoadingSubcategories = false,
+                subcategoriesError = null,
+            )
+        }
     }
 
     private fun loadCategories() {
-        _state.update { it.copy(isLoadingCategories = true, categoriesError = null) }
+        _state.update {
+            it.copy(
+                isLoadingCategories = true,
+                categoriesError = null,
+                categoryPath = emptyList(),
+                visibleSubcategories = emptyList(),
+                subcategoriesError = null,
+            )
+        }
         viewModelScope.launch {
             runCatching { categoriesRepository.getRootCategories(limit = 100) }
                 .onSuccess { categories ->
@@ -165,6 +211,52 @@ class CreateViewModel(
                         )
                     }
                 }
+        }
+    }
+
+    private fun loadSubcategories(
+        categoryId: Int,
+        forceRefresh: Boolean = false,
+    ) {
+        subcategoriesJob?.cancel()
+        _state.update {
+            it.copy(
+                isLoadingSubcategories = true,
+                subcategoriesError = null,
+            )
+        }
+        subcategoriesJob = viewModelScope.launch {
+            runCatching {
+                categoriesRepository.getSubcategories(
+                    categoryId = categoryId,
+                    limit = 100,
+                    forceRefresh = forceRefresh,
+                )
+            }.onSuccess { subcategories ->
+                _state.update { state ->
+                    if (state.selectedCategoryId != categoryId) {
+                        state
+                    } else {
+                        state.copy(
+                            visibleSubcategories = subcategories,
+                            isLoadingSubcategories = false,
+                            subcategoriesError = null,
+                        )
+                    }
+                }
+            }.onFailure { throwable ->
+                if (throwable is CancellationException) throw throwable
+                _state.update { state ->
+                    if (state.selectedCategoryId != categoryId) {
+                        state
+                    } else {
+                        state.copy(
+                            isLoadingSubcategories = false,
+                            subcategoriesError = throwable.message.orGenericError(),
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -251,6 +343,22 @@ class CreateViewModel(
                 }
             }
         }
+    }
+}
+
+private fun CreateState.findKnownCategory(categoryId: Int): Category? =
+    categories.firstOrNull { it.id == categoryId }
+        ?: categoryPath.firstOrNull { it.id == categoryId }
+        ?: visibleSubcategories.firstOrNull { it.id == categoryId }
+
+private fun CreateState.pathTo(category: Category): List<Category> {
+    val existingPathIndex = categoryPath.indexOfFirst { it.id == category.id }
+    if (existingPathIndex >= 0) return categoryPath.take(existingPathIndex + 1)
+
+    return if (category.parentId == categoryPath.lastOrNull()?.id) {
+        categoryPath + category
+    } else {
+        listOf(category)
     }
 }
 

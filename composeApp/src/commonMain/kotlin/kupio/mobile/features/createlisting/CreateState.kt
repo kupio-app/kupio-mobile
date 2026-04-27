@@ -17,10 +17,14 @@ data class CreateState(
     val isFree: Boolean = false,
     val isTradable: Boolean = false,
     val categories: List<Category> = emptyList(),
+    val categoryPath: List<Category> = emptyList(),
+    val visibleSubcategories: List<Category> = emptyList(),
     val selectedCategoryId: Int? = null,
     val selectedCategoryName: String? = null,
     val isLoadingCategories: Boolean = true,
     val categoriesError: String? = null,
+    val isLoadingSubcategories: Boolean = false,
+    val subcategoriesError: String? = null,
     val filters: List<FilterDefinition> = emptyList(),
     val filterValues: Map<String, CreateFilterInput> = emptyMap(),
     val isLoadingFilters: Boolean = false,
@@ -63,6 +67,9 @@ sealed interface CreateIntent : UiAction {
     data class PriceChanged(val value: String) : CreateIntent
     data class CurrencyChanged(val value: Currency) : CreateIntent
     data class CategorySelected(val id: Int) : CreateIntent
+    data object CategoryPickerReset : CreateIntent
+    data object CategoryPickerBack : CreateIntent
+    data object RetrySubcategories : CreateIntent
     data class FilterTextChanged(val slug: String, val value: String) : CreateIntent
     data class FilterBooleanChanged(val slug: String, val value: Boolean?) : CreateIntent
     data object ToggleFree : CreateIntent

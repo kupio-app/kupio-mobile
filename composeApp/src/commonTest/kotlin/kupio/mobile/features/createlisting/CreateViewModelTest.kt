@@ -68,6 +68,99 @@ class CreateViewModelTest {
     }
 
     @Test
+    fun `selecting parent category keeps it selected and loads subcategories`() = runTest(dispatcher) {
+        val viewModel = CreateViewModel(
+            listingsRepository = FakeListingsRepository(),
+            categoriesRepository = FakeCategoriesRepository(
+                subcategoriesByCategory = mapOf(
+                    2 to listOf(Category(3, "Phones", null, 1, 2)),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(CreateIntent.CategorySelected(2))
+        advanceUntilIdle()
+
+        val state = viewModel.state.value
+        assertEquals(2, state.selectedCategoryId)
+        assertEquals(listOf("Electronics"), state.categoryPath.map { it.name })
+        assertEquals(listOf("Phones"), state.visibleSubcategories.map { it.name })
+    }
+
+    @Test
+    fun `selecting subcategory extends path and loads its filters`() = runTest(dispatcher) {
+        val viewModel = CreateViewModel(
+            listingsRepository = FakeListingsRepository(),
+            categoriesRepository = FakeCategoriesRepository(
+                subcategoriesByCategory = mapOf(
+                    2 to listOf(Category(3, "Phones", null, 1, 2)),
+                ),
+                filtersByCategory = mapOf(
+                    3 to listOf(filter(slug = "storage")),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(CreateIntent.CategorySelected(2))
+        advanceUntilIdle()
+        viewModel.onIntent(CreateIntent.CategorySelected(3))
+        advanceUntilIdle()
+
+        val state = viewModel.state.value
+        assertEquals(3, state.selectedCategoryId)
+        assertEquals(listOf("Electronics", "Phones"), state.categoryPath.map { it.name })
+        assertEquals(listOf("storage"), state.filters.map { it.slug })
+    }
+
+    @Test
+    fun `category picker back returns to previous layer`() = runTest(dispatcher) {
+        val viewModel = CreateViewModel(
+            listingsRepository = FakeListingsRepository(),
+            categoriesRepository = FakeCategoriesRepository(
+                subcategoriesByCategory = mapOf(
+                    2 to listOf(Category(3, "Phones", null, 1, 2)),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(CreateIntent.CategorySelected(2))
+        advanceUntilIdle()
+        viewModel.onIntent(CreateIntent.CategorySelected(3))
+        advanceUntilIdle()
+        viewModel.onIntent(CreateIntent.CategoryPickerBack)
+        advanceUntilIdle()
+
+        val state = viewModel.state.value
+        assertEquals(2, state.selectedCategoryId)
+        assertEquals(listOf("Electronics"), state.categoryPath.map { it.name })
+    }
+
+    @Test
+    fun `selecting same category keeps entered filter values`() = runTest(dispatcher) {
+        val viewModel = CreateViewModel(
+            listingsRepository = FakeListingsRepository(),
+            categoriesRepository = FakeCategoriesRepository(
+                filtersByCategory = mapOf(
+                    2 to listOf(filter(slug = "condition")),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(CreateIntent.CategorySelected(2))
+        advanceUntilIdle()
+        viewModel.onIntent(CreateIntent.FilterTextChanged("condition", "new"))
+        viewModel.onIntent(CreateIntent.CategorySelected(2))
+        advanceUntilIdle()
+
+        val value = viewModel.state.value.filterValues["condition"] as? CreateFilterInput.Text
+        assertEquals("new", value?.value)
+    }
+
+    @Test
     fun `publish creates listing uploads images and navigates back`() = runTest(dispatcher) {
         val listings = FakeListingsRepository()
         val viewModel = CreateViewModel(
@@ -185,9 +278,16 @@ class CreateViewModelTest {
             Category(1, "Furniture", null, 0, null),
             Category(2, "Electronics", null, 0, null),
         ),
+        private val subcategoriesByCategory: Map<Int, List<Category>> = emptyMap(),
         private val filtersByCategory: Map<Int, List<FilterDefinition>> = emptyMap(),
     ) : CategoriesRepository {
         override suspend fun getRootCategories(limit: Int): List<Category> = categories.take(limit)
+
+        override suspend fun getSubcategories(
+            categoryId: Int,
+            limit: Int,
+            forceRefresh: Boolean,
+        ): List<Category> = subcategoriesByCategory[categoryId].orEmpty().take(limit)
 
         override suspend fun getCategoryFilters(
             categoryId: Int,

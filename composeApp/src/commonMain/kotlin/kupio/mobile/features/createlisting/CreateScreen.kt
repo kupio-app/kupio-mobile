@@ -81,6 +81,7 @@ import kupio.mobile.core.designsystem.KupioTopBarBackAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.createlisting.domain.model.SelectedListingImage
+import kupio.mobile.features.listings.domain.model.Category
 import kupio.mobile.features.listings.domain.model.Currency
 import kupio.mobile.features.listings.domain.model.FilterDefinition
 import kupio.mobile.features.listings.domain.model.FilterType
@@ -589,6 +590,16 @@ private fun CategorySelector(
     state: CreateState,
     onIntent: (CreateIntent) -> Unit,
 ) {
+    var showCategoryPicker by remember { mutableStateOf(false) }
+
+    if (showCategoryPicker) {
+        CategoryPickerSheet(
+            state = state,
+            onIntent = onIntent,
+            onDismiss = { showCategoryPicker = false },
+        )
+    }
+
     FieldLabel(
         label = "Category",
         required = true,
@@ -601,21 +612,315 @@ private fun CategorySelector(
         )
 
         else -> {
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                state.categories.forEach { category ->
-                    ChoiceChip(
-                        selected = state.selectedCategoryId == category.id,
-                        onClick = { onIntent(CreateIntent.CategorySelected(category.id)) },
-                        text = category.name,
-                    )
-                }
-            }
+            CategoryField(
+                state = state,
+                onClick = { showCategoryPicker = true },
+            )
         }
     }
     state.fieldErrors[CreateField.CATEGORY]?.let { ErrorText(it) }
+}
+
+@Composable
+private fun CategoryField(
+    state: CreateState,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = state.categoryDisplayText(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (state.selectedCategoryId == null) {
+                        MaterialTheme.colorScheme.outline
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    },
+                    fontWeight = FontWeight.Medium,
+                )
+                if (state.selectedCategoryId != null) {
+                    Text(
+                        text = "Tap to change",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline,
+                    )
+                }
+            }
+            Icon(
+                imageVector = Icons.Outlined.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@Composable
+private fun CategoryPickerSheet(
+    state: CreateState,
+    onIntent: (CreateIntent) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.background,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = "Choose category",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Medium,
+            )
+
+            CategoryBreadcrumb(
+                path = state.categoryPath,
+                onRootClick = { onIntent(CreateIntent.CategoryPickerReset) },
+                onCategoryClick = { onIntent(CreateIntent.CategorySelected(it.id)) },
+            )
+
+            if (state.categoryPath.isNotEmpty()) {
+                CategoryBackRow(
+                    path = state.categoryPath,
+                    onClick = { onIntent(CreateIntent.CategoryPickerBack) },
+                )
+            }
+
+            state.selectedCategoryName?.let { categoryName ->
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.onSurface,
+                        contentColor = MaterialTheme.colorScheme.surface,
+                    ),
+                ) {
+                    Text("Use $categoryName")
+                }
+            }
+
+            val categories = if (state.categoryPath.isEmpty()) {
+                state.categories
+            } else {
+                state.visibleSubcategories
+            }
+
+            if (state.categoryPath.isEmpty() || categories.isNotEmpty() || state.isLoadingSubcategories || state.subcategoriesError != null) {
+                CategoryGroupLabel(
+                    if (state.categoryPath.isEmpty()) {
+                        "Categories"
+                    } else {
+                        "Subcategories"
+                    },
+                )
+            }
+
+            when {
+                categories.isNotEmpty() -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    categories.forEach { category ->
+                        CategoryPickerRow(
+                            category = category,
+                            selected = state.categoryPath.isNotEmpty() && state.selectedCategoryId == category.id,
+                            onClick = { onIntent(CreateIntent.CategorySelected(category.id)) },
+                        )
+                    }
+                }
+                state.isLoadingSubcategories -> LoadingRow()
+                state.subcategoriesError != null -> RetryRow(
+                    message = "Could not load subcategories.",
+                    onRetry = { onIntent(CreateIntent.RetrySubcategories) },
+                )
+            }
+
+            if (state.isLoadingSubcategories && categories.isNotEmpty()) {
+                LoadingRow()
+            }
+
+            Spacer(Modifier.height(20.dp))
+        }
+    }
+}
+
+@Composable
+private fun CategoryBackRow(
+    path: List<Category>,
+    onClick: () -> Unit,
+) {
+    val previousLayer = path.dropLast(1).lastOrNull()?.name ?: "All categories"
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.ChevronLeft,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = previousLayer,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Medium,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CategoryBreadcrumb(
+    path: List<Category>,
+    onRootClick: () -> Unit,
+    onCategoryClick: (Category) -> Unit,
+) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        CategoryBreadcrumbItem(
+            text = "All categories",
+            onClick = onRootClick,
+        )
+        path.forEach { category ->
+            Text(
+                text = "/",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.outline,
+                modifier = Modifier.padding(top = 7.dp),
+            )
+            CategoryBreadcrumbItem(
+                text = category.name,
+                onClick = { onCategoryClick(category) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun CategoryBreadcrumbItem(
+    text: String,
+    onClick: () -> Unit,
+) {
+    Text(
+        text = text,
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 4.dp, vertical = 4.dp),
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        fontWeight = FontWeight.Medium,
+    )
+}
+
+@Composable
+private fun CategoryGroupLabel(text: String) {
+    Text(
+        text = text.uppercase(),
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.outline,
+        fontWeight = FontWeight.SemiBold,
+    )
+}
+
+@Composable
+private fun CategoryPickerRow(
+    category: Category,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(12.dp),
+        color = if (selected) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surface
+        },
+        border = BorderStroke(
+            1.dp,
+            if (selected) {
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.28f)
+            } else {
+                MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)
+            },
+        ),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(22.dp)
+                    .clip(RoundedCornerShape(99.dp))
+                    .background(
+                        if (selected) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            Color.Transparent
+                        },
+                    )
+                    .border(
+                        BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
+                        RoundedCornerShape(99.dp),
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (selected) {
+                    Icon(
+                        imageVector = Icons.Outlined.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = MaterialTheme.colorScheme.surface,
+                    )
+                }
+            }
+            Text(
+                text = category.name,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Icon(
+                imageVector = Icons.Outlined.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.outline,
+            )
+        }
+    }
 }
 
 @Composable
@@ -1262,6 +1567,13 @@ private fun FilterDefinition.numberPlaceholder(): String {
         else -> label
     }
 }
+
+private fun CreateState.categoryDisplayText(): String =
+    when {
+        categoryPath.isNotEmpty() -> categoryPath.joinToString(" / ") { it.name }
+        selectedCategoryName != null -> selectedCategoryName
+        else -> "Choose category"
+    }
 
 private fun Double.formatForDisplay(): String =
     if (this % 1.0 == 0.0) toInt().toString() else toString()

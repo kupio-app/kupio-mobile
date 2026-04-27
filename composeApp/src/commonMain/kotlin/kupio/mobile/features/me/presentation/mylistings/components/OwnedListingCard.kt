@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChatBubbleOutline
-import androidx.compose.material.icons.filled.Downloading
 import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material.icons.outlined.Edit
@@ -59,10 +58,10 @@ internal fun OwnedListingCard(
     onEdit: () -> Unit,
     onBumpUp: () -> Unit,
     onPromote: () -> Unit,
-    onToggleActive: (deactivate: Boolean) -> Unit,
+    onToggleStatus: () -> Unit,
+    isStatusActionEnabled: Boolean,
 ) {
     val spacing = KupioThemeDefaults.spacing
-    val isActive = listing.status == OwnedListingStatus.ACTIVE
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -127,11 +126,12 @@ internal fun OwnedListingCard(
             HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
 
             ListingActionButtons(
-                isActive = isActive,
+                status = listing.status,
                 isPromoted = listing.isPromoted,
                 onBumpUp = onBumpUp,
                 onPromote = onPromote,
-                onToggleActive = { onToggleActive(isActive) },
+                onToggleStatus = onToggleStatus,
+                isStatusActionEnabled = isStatusActionEnabled,
             )
         }
     }
@@ -222,13 +222,22 @@ private fun PromotionBanner(listing: OwnedListing) {
 
 @Composable
 private fun ListingActionButtons(
-    isActive: Boolean,
+    status: OwnedListingStatus,
     isPromoted: Boolean,
     onBumpUp: () -> Unit,
     onPromote: () -> Unit,
-    onToggleActive: () -> Unit,
+    onToggleStatus: () -> Unit,
+    isStatusActionEnabled: Boolean,
 ) {
     val dividerColor = KupioThemeDefaults.softDividerColor
+    val statusLabel = when (status) {
+        OwnedListingStatus.ACTIVE -> stringResource(Res.string.my_listings_deactivate)
+        OwnedListingStatus.INACTIVE,
+        OwnedListingStatus.DRAFT,
+        OwnedListingStatus.PLANNED,
+        OwnedListingStatus.SOLD,
+        -> stringResource(Res.string.my_listings_activate)
+    }
     Row(modifier = Modifier.fillMaxWidth()) {
         ActionButton(
             modifier = Modifier.weight(1f),
@@ -255,16 +264,18 @@ private fun ListingActionButtons(
         )
         ActionButton(
             modifier = Modifier.weight(1f),
-            label = if (isActive)
-                stringResource(Res.string.my_listings_deactivate)
-            else
-                stringResource(Res.string.my_listings_activate),
+            label = statusLabel,
             subtitle = null,
-            color = MaterialTheme.colorScheme.onSurface,
-            onClick = onToggleActive,
+            color = if (isStatusActionEnabled) {
+                MaterialTheme.colorScheme.onSurface
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            onClick = onToggleStatus,
             showDividerAfter = false,
             dividerColor = dividerColor,
-            icon = Icons.Outlined.Circle
+            icon = Icons.Outlined.Circle,
+            enabled = isStatusActionEnabled,
         )
     }
 }
@@ -278,14 +289,20 @@ private fun ActionButton(
     icon: ImageVector,
     showDividerAfter: Boolean,
     dividerColor: Color,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     val spacing = KupioThemeDefaults.spacing
+    val interactionModifier = if (enabled) {
+        Modifier.bouncingClickable(onClick = onClick)
+    } else {
+        Modifier
+    }
     Row(modifier = modifier) {
         Column(
             modifier = Modifier
                 .weight(1f)
-                .bouncingClickable(onClick = onClick)
+                .then(interactionModifier)
                 .padding(vertical = spacing.sm),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(2.dp),

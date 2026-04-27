@@ -36,6 +36,8 @@ class CreateViewModel(
 
     private var filtersJob: Job? = null
     private var subcategoriesJob: Job? = null
+    private var pendingCreatedListingId: String? = null
+    private var uploadedImagesListingId: String? = null
 
     init {
         loadCategories()
@@ -47,18 +49,24 @@ class CreateViewModel(
                 it.copy(imageWarning = "You can add up to $MaxListingImages photos.")
             }
             is CreateIntent.ImagesSelected -> addImages(intent.images)
-            is CreateIntent.RemoveImage -> _state.update {
-                it.copy(
-                    images = it.images.filterNot { image -> image.id == intent.id },
-                    imageWarning = null,
-                )
+            is CreateIntent.RemoveImage -> {
+                resetPendingSubmission()
+                _state.update {
+                    it.copy(
+                        images = it.images.filterNot { image -> image.id == intent.id },
+                        imageWarning = null,
+                    )
+                }
             }
             is CreateIntent.TitleChanged -> updateField(CreateField.TITLE) { it.copy(title = intent.value) }
             is CreateIntent.DescriptionChanged -> updateField(CreateField.DESCRIPTION) {
                 it.copy(description = intent.value)
             }
             is CreateIntent.PriceChanged -> updateField(CreateField.PRICE) { it.copy(price = intent.value) }
-            is CreateIntent.CurrencyChanged -> _state.update { it.copy(currency = intent.value) }
+            is CreateIntent.CurrencyChanged -> {
+                resetPendingSubmission()
+                _state.update { it.copy(currency = intent.value) }
+            }
             is CreateIntent.CategorySelected -> selectCategory(intent.id)
             CreateIntent.CategoryPickerReset -> resetCategoryPicker()
             CreateIntent.CategoryPickerBack -> navigateCategoryPickerBack()
@@ -67,14 +75,20 @@ class CreateViewModel(
             }
             is CreateIntent.FilterTextChanged -> updateFilterText(intent.slug, intent.value)
             is CreateIntent.FilterBooleanChanged -> updateFilterBoolean(intent.slug, intent.value)
-            CreateIntent.ToggleFree -> _state.update {
-                it.copy(
-                    isFree = !it.isFree,
-                    price = if (!it.isFree) "0" else it.price,
-                    fieldErrors = it.fieldErrors - CreateField.PRICE,
-                )
+            CreateIntent.ToggleFree -> {
+                resetPendingSubmission()
+                _state.update {
+                    it.copy(
+                        isFree = !it.isFree,
+                        price = if (!it.isFree) "0" else it.price,
+                        fieldErrors = it.fieldErrors - CreateField.PRICE,
+                    )
+                }
             }
-            CreateIntent.ToggleTradable -> _state.update { it.copy(isTradable = !it.isTradable) }
+            CreateIntent.ToggleTradable -> {
+                resetPendingSubmission()
+                _state.update { it.copy(isTradable = !it.isTradable) }
+            }
             CreateIntent.RetryCategories -> loadCategories()
             CreateIntent.RetryFilters -> _state.value.selectedCategoryId?.let { loadFilters(it, forceRefresh = true) }
             CreateIntent.SaveDraft -> submit(activate = false)
@@ -85,6 +99,7 @@ class CreateViewModel(
 
     private fun addImages(images: List<SelectedListingImage>) {
         if (images.isEmpty()) return
+        resetPendingSubmission()
         _state.update { state ->
             val existingIds = state.images.map { it.id }.toSet()
             val supportedImages = images.filter { isSupportedListingImageMimeType(it.mimeType) }
@@ -108,6 +123,7 @@ class CreateViewModel(
         field: CreateField,
         transform: (CreateState) -> CreateState,
     ) {
+        resetPendingSubmission()
         _state.update { state ->
             transform(state).copy(
                 fieldErrors = state.fieldErrors - field,
@@ -117,6 +133,7 @@ class CreateViewModel(
     }
 
     private fun updateFilterText(slug: String, value: String) {
+        resetPendingSubmission()
         _state.update { state ->
             state.copy(
                 filterValues = state.filterValues + (slug to CreateFilterInput.Text(value)),
@@ -127,6 +144,7 @@ class CreateViewModel(
     }
 
     private fun updateFilterBoolean(slug: String, value: Boolean?) {
+        resetPendingSubmission()
         _state.update { state ->
             state.copy(
                 filterValues = state.filterValues + (slug to CreateFilterInput.BooleanValue(value)),
@@ -137,6 +155,7 @@ class CreateViewModel(
     }
 
     private fun selectCategory(categoryId: Int) {
+        resetPendingSubmission()
         val state = _state.value
         val category = state.findKnownCategory(categoryId)
         val categoryPath = category?.let { state.pathTo(it) } ?: emptyList()
@@ -329,18 +348,23 @@ class CreateViewModel(
         }
         viewModelScope.launch {
             runCatching {
-                val created = listingsRepository.createListing(listing)
-                listingsRepository.uploadListingImages(
-                    listingId = created.id,
-                    images = images.map { it.toUpload() },
-                )
+                val listingId = pendingCreatedListingId
+                    ?: listingsRepository.createListing(listing).id.also { pendingCreatedListingId = it }
+                if (uploadedImagesListingId != listingId) {
+                    listingsRepository.uploadListingImages(
+                        listingId = listingId,
+                        images = images.map { it.toUpload() },
+                    )
+                    uploadedImagesListingId = listingId
+                }
                 if (activate) {
                     listingsRepository.updateListingStatus(
-                        listingId = created.id,
+                        listingId = listingId,
                         status = ListingStatus.ACTIVE,
                     )
                 }
             }.onSuccess {
+                resetPendingSubmission()
                 _state.update {
                     CreateState(
                         categories = it.categories,
@@ -360,6 +384,11 @@ class CreateViewModel(
                 }
             }
         }
+    }
+
+    private fun resetPendingSubmission() {
+        pendingCreatedListingId = null
+        uploadedImagesListingId = null
     }
 }
 

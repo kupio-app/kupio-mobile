@@ -267,6 +267,85 @@ class CreateViewModelTest {
     }
 
     @Test
+    fun `retry after image upload failure reuses created listing`() = runTest(dispatcher) {
+        val listings = FakeListingsRepository().apply {
+            failNextUpload = true
+        }
+        val viewModel = CreateViewModel(
+            listingsRepository = listings,
+            categoriesRepository = FakeCategoriesRepository(),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(CreateIntent.TitleChanged("Vintage oak desk"))
+        viewModel.onIntent(CreateIntent.DescriptionChanged("Solid oak writing desk in good condition with small signs of normal use."))
+        viewModel.onIntent(CreateIntent.PriceChanged("180"))
+        viewModel.onIntent(CreateIntent.CategorySelected(1))
+        viewModel.onIntent(
+            CreateIntent.ImagesSelected(
+                listOf(
+                    SelectedListingImage(
+                        id = "local-1",
+                        fileName = "desk.jpg",
+                        mimeType = "image/jpeg",
+                        bytes = byteArrayOf(1, 2, 3),
+                    ),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(CreateIntent.Publish)
+        advanceUntilIdle()
+        viewModel.onIntent(CreateIntent.Publish)
+        advanceUntilIdle()
+
+        assertEquals(1, listings.createCalls)
+        assertEquals(2, listings.uploadCalls)
+        assertEquals("created-listing" to ListingStatus.ACTIVE, listings.statusUpdates.single())
+    }
+
+    @Test
+    fun `retry after status failure skips successful image upload`() = runTest(dispatcher) {
+        val listings = FakeListingsRepository().apply {
+            failNextStatusUpdate = true
+        }
+        val viewModel = CreateViewModel(
+            listingsRepository = listings,
+            categoriesRepository = FakeCategoriesRepository(),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(CreateIntent.TitleChanged("Vintage oak desk"))
+        viewModel.onIntent(CreateIntent.DescriptionChanged("Solid oak writing desk in good condition with small signs of normal use."))
+        viewModel.onIntent(CreateIntent.PriceChanged("180"))
+        viewModel.onIntent(CreateIntent.CategorySelected(1))
+        viewModel.onIntent(
+            CreateIntent.ImagesSelected(
+                listOf(
+                    SelectedListingImage(
+                        id = "local-1",
+                        fileName = "desk.jpg",
+                        mimeType = "image/jpeg",
+                        bytes = byteArrayOf(1, 2, 3),
+                    ),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(CreateIntent.Publish)
+        advanceUntilIdle()
+        viewModel.onIntent(CreateIntent.Publish)
+        advanceUntilIdle()
+
+        assertEquals(1, listings.createCalls)
+        assertEquals(1, listings.uploadCalls)
+        assertEquals(2, listings.statusUpdateCalls)
+        assertEquals("created-listing" to ListingStatus.ACTIVE, listings.statusUpdates.single())
+    }
+
+    @Test
     fun `invalid publish keeps user on screen with validation errors`() = runTest(dispatcher) {
         val listings = FakeListingsRepository()
         val viewModel = CreateViewModel(
@@ -359,6 +438,10 @@ class CreateViewModelTest {
 
     private class FakeListingsRepository : ListingsRepository {
         var createCalls = 0
+        var uploadCalls = 0
+        var statusUpdateCalls = 0
+        var failNextUpload = false
+        var failNextStatusUpdate = false
         var createdListing: CreateListing? = null
         var uploadedListingId: String? = null
         var uploadedImages: List<ListingImageUpload> = emptyList()
@@ -383,6 +466,11 @@ class CreateViewModelTest {
             listingId: String,
             status: ListingStatus,
         ): Listing {
+            statusUpdateCalls += 1
+            if (failNextStatusUpdate) {
+                failNextStatusUpdate = false
+                error("Status update failed")
+            }
             statusUpdates += listingId to status
             return listing(listingId)
         }
@@ -391,6 +479,11 @@ class CreateViewModelTest {
             listingId: String,
             images: List<ListingImageUpload>,
         ) {
+            uploadCalls += 1
+            if (failNextUpload) {
+                failNextUpload = false
+                error("Upload failed")
+            }
             uploadedListingId = listingId
             uploadedImages = images
         }

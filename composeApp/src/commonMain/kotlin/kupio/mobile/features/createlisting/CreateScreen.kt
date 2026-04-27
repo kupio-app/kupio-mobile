@@ -1078,8 +1078,15 @@ private fun ChoiceChip(
             .height(34.dp)
             .bouncingDimClickable(shape = RoundedCornerShape(99.dp), onClick = onClick),
         shape = RoundedCornerShape(99.dp),
-        color = if (selected) MaterialTheme.colorScheme.onSurface else Color.Transparent,
-        border = if (selected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
+        color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surface,
+        border = BorderStroke(
+            1.dp,
+            if (selected) {
+                MaterialTheme.colorScheme.onSurface
+            } else {
+                MaterialTheme.colorScheme.outline.copy(alpha = 0.22f)
+            },
+        ),
     ) {
         Box(
             modifier = Modifier.padding(horizontal = 13.dp),
@@ -1262,8 +1269,15 @@ private fun ToggleRow(
             .fillMaxWidth()
             .height(96.dp)
             .bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onClick),
-        color = Color.Transparent,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
+        color = if (checked) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+        border = BorderStroke(
+            1.dp,
+            if (checked) {
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.28f)
+            } else {
+                MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)
+            },
+        ),
         shape = RoundedCornerShape(12.dp),
     ) {
         Row(

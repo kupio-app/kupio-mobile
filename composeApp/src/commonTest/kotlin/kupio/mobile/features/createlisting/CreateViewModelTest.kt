@@ -154,6 +154,32 @@ class CreateViewModelTest {
         assertEquals("You can add up to 8 photos.", state.imageWarning)
     }
 
+    @Test
+    fun `adding unsupported images rejects them with warning`() = runTest(dispatcher) {
+        val viewModel = CreateViewModel(
+            listingsRepository = FakeListingsRepository(),
+            categoriesRepository = FakeCategoriesRepository(),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(
+            CreateIntent.ImagesSelected(
+                listOf(
+                    SelectedListingImage(
+                        id = "heic-photo",
+                        fileName = "photo.heic",
+                        mimeType = "image/heic",
+                        bytes = byteArrayOf(1, 2, 3),
+                    ),
+                ),
+            ),
+        )
+
+        val state = viewModel.state.value
+        assertTrue(state.images.isEmpty())
+        assertEquals(UnsupportedListingImageMessage, state.imageWarning)
+    }
+
     private class FakeCategoriesRepository(
         private val categories: List<Category> = listOf(
             Category(1, "Furniture", null, 0, null),
@@ -163,7 +189,10 @@ class CreateViewModelTest {
     ) : CategoriesRepository {
         override suspend fun getRootCategories(limit: Int): List<Category> = categories.take(limit)
 
-        override suspend fun getCategoryFilters(categoryId: Int): List<FilterDefinition> =
+        override suspend fun getCategoryFilters(
+            categoryId: Int,
+            forceRefresh: Boolean,
+        ): List<FilterDefinition> =
             filtersByCategory[categoryId].orEmpty()
     }
 

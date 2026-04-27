@@ -76,7 +76,6 @@ import io.github.ismoy.imagepickerkmp.domain.models.PhotoResult
 import io.github.ismoy.imagepickerkmp.features.imagepicker.model.ImagePickerResult
 import io.github.ismoy.imagepickerkmp.features.imagepicker.ui.rememberImagePickerKMP
 import kotlin.random.Random
-import kupio.mobile.core.designsystem.KupioPrimaryButton
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.KupioTopBarBackAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
@@ -146,7 +145,6 @@ private fun CreateContent(
                     MimeType.IMAGE_JPEG,
                     MimeType.IMAGE_PNG,
                     MimeType.IMAGE_WEBP,
-                    MimeType.IMAGE_HEIC,
                 ),
             )
         }
@@ -1045,13 +1043,30 @@ private fun PublishBar(
             ) {
                 Text("Cancel")
             }
-            KupioPrimaryButton(
-                text = "Publish listing",
+            Button(
                 onClick = onPublish,
-                modifier = Modifier.weight(1f),
-                enabled = state.canSubmit,
-                loading = state.isSubmitting,
-            )
+                enabled = state.canSubmit && !state.isSubmitting,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(48.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.onSurface,
+                    contentColor = MaterialTheme.colorScheme.surface,
+                    disabledContainerColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.24f),
+                    disabledContentColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
+                ),
+            ) {
+                if (state.isSubmitting) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = MaterialTheme.colorScheme.surface,
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text("Publish listing")
+                }
+            }
         }
     }
 }
@@ -1206,14 +1221,30 @@ private fun List<PhotoResult>.toSelectedImages(): List<SelectedListingImage> =
     mapNotNull { photo ->
         val bytes = photo.loadBytes()
         if (bytes.isEmpty()) return@mapNotNull null
+        val fileName = photo.fileName ?: "listing-photo-${Random.nextLong().toString().takeLast(6)}.jpg"
+        val mimeType = photo.mimeType ?: photo.fileName.inferListingImageMimeType()
+        val normalizedImage = normalizeListingImage(
+            fileName = fileName,
+            mimeType = mimeType,
+            bytes = bytes,
+        )
         SelectedListingImage(
             id = photo.uri.ifBlank { Random.nextLong().toString() },
-            fileName = photo.fileName ?: "listing-photo-${Random.nextLong().toString().takeLast(6)}.jpg",
-            mimeType = photo.mimeType ?: "image/jpeg",
-            bytes = bytes,
+            fileName = normalizedImage.fileName,
+            mimeType = normalizedImage.mimeType,
+            bytes = normalizedImage.bytes,
             previewBitmap = photo.loadImageBitmap(),
         )
     }
+
+private fun String?.inferListingImageMimeType(): String = when (this?.substringAfterLast('.', missingDelimiterValue = "")
+    ?.lowercase()) {
+    "jpg", "jpeg" -> "image/jpeg"
+    "png" -> "image/png"
+    "webp" -> "image/webp"
+    "heic", "heif" -> "image/heic"
+    else -> "application/octet-stream"
+}
 
 private fun String.digitsOnly(): String = filter { it.isDigit() }
 

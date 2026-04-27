@@ -77,13 +77,19 @@ class CreateViewModel(
         if (images.isEmpty()) return
         _state.update { state ->
             val existingIds = state.images.map { it.id }.toSet()
-            val newImages = images.filterNot { it.id in existingIds }
+            val supportedImages = images.filter { isSupportedListingImageMimeType(it.mimeType) }
+            val newImages = supportedImages.filterNot { it.id in existingIds }
             val remainingSlots = MaxListingImages - state.images.size
             val merged = state.images + newImages.take(remainingSlots.coerceAtLeast(0))
             val hitLimit = remainingSlots <= 0 || newImages.size > remainingSlots
+            val hasUnsupportedImages = supportedImages.size != images.size
             state.copy(
                 images = merged,
-                imageWarning = if (hitLimit) "You can add up to $MaxListingImages photos." else null,
+                imageWarning = when {
+                    hasUnsupportedImages -> UnsupportedListingImageMessage
+                    hitLimit -> "You can add up to $MaxListingImages photos."
+                    else -> null
+                },
             )
         }
     }
@@ -192,6 +198,16 @@ class CreateViewModel(
     }
 
     private fun publish() {
+        if (_state.value.images.any { !isSupportedListingImageMimeType(it.mimeType) }) {
+            _state.update {
+                it.copy(
+                    imageWarning = UnsupportedListingImageMessage,
+                    submitError = UnsupportedListingImageMessage,
+                )
+            }
+            return
+        }
+
         val validation = validateCreateListing(_state.value)
         if (!validation.isValid) {
             _state.update {

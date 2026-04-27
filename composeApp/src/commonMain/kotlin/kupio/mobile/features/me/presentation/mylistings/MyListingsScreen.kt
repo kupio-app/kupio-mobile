@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,7 +34,10 @@ import kupio.mobile.features.me.presentation.mylistings.components.FilterChipsRo
 import kupio.mobile.features.me.presentation.mylistings.components.OwnedListingCard
 import kupio.mobile.features.me.presentation.mylistings.components.StatusChangeDialog
 import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.my_listings_empty
+import mobile.composeapp.generated.resources.my_listings_load_error
 import mobile.composeapp.generated.resources.my_listings_search
+import mobile.composeapp.generated.resources.retry
 import mobile.composeapp.generated.resources.my_listings_subtitle
 import mobile.composeapp.generated.resources.my_listings_title
 import mobile.composeapp.generated.resources.my_listings_confirm_activate_title
@@ -104,10 +109,29 @@ private fun MyListingsRoute(state: MyListingsState, onIntent: (MyListingsIntent)
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
+                state.errorMessage != null && state.visibleListings.isEmpty() -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(KupioThemeDefaults.spacing.lg),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.my_listings_load_error),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(Modifier.height(KupioThemeDefaults.spacing.sm))
+                        Button(onClick = { onIntent(MyListingsIntent.RetryLoad) }) {
+                            Text(stringResource(Res.string.retry))
+                        }
+                    }
+                }
                 state.visibleListings.isEmpty() -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
-                            text = "No listings",
+                            text = stringResource(Res.string.my_listings_empty),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

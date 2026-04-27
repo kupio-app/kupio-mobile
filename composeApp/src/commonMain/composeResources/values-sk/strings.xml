@@ -172,4 +172,6 @@
     <string name="my_listings_promoted_label">Propagované · končí za %1$d dní</string>
     <string name="my_listings_boost">%1$dx boost</string>
     <string name="my_listings_stats_icon_desc">Počítadlo štatistík</string>
+    <string name="my_listings_empty">Žiadne inzeráty</string>
+    <string name="my_listings_load_error">Nepodarilo sa načítať inzeráty</string>
 </resources>

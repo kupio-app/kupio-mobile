@@ -173,4 +173,6 @@
     <string name="my_listings_promoted_label">Promoted · ends in %1$d days</string>
     <string name="my_listings_boost">%1$dx boost</string>
     <string name="my_listings_stats_icon_desc">Stats counter</string>
+    <string name="my_listings_empty">No listings</string>
+    <string name="my_listings_load_error">Failed to load listings</string>
 </resources>

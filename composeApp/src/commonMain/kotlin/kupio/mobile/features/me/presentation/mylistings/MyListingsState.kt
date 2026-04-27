@@ -41,6 +41,7 @@ sealed interface MyListingsIntent : UiAction {
     data object ConfirmStatusChange : MyListingsIntent
     data object DismissStatusChange : MyListingsIntent
     data object BackClicked : MyListingsIntent
+    data object RetryLoad : MyListingsIntent
 }
 
 sealed interface MyListingsEffect : UiEffect {

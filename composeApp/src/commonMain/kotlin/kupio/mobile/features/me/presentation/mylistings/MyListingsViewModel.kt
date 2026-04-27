@@ -41,6 +41,7 @@ class MyListingsViewModel(
             is MyListingsIntent.ToggleActiveClicked -> prepareStatusChange(intent.id)
             MyListingsIntent.ConfirmStatusChange -> confirmStatusChange()
             MyListingsIntent.DismissStatusChange -> _state.update { it.copy(statusChangeConfirmation = null) }
+            MyListingsIntent.RetryLoad -> loadListings()
         }
     }
 

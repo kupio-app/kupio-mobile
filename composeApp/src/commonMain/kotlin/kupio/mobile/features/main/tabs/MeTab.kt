@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
-import kupio.mobile.features.me.MeScreen
+import kupio.mobile.features.me.presentation.profile.MeScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.nav_me
 import org.jetbrains.compose.resources.stringResource

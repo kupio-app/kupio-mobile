@@ -24,11 +24,17 @@ internal actual fun normalizeListingImage(
             bytes = bytes,
         )
 
-    val output = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, output)
-    return NormalizedListingImage(
-        fileName = fileName.withJpegExtension(),
-        mimeType = "image/jpeg",
-        bytes = output.toByteArray(),
-    )
+    return try {
+        val output = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, output)
+        NormalizedListingImage(
+            fileName = fileName.withJpegExtension(),
+            mimeType = "image/jpeg",
+            bytes = output.toByteArray(),
+        )
+    } finally {
+        if (!bitmap.isRecycled) {
+            bitmap.recycle()
+        }
+    }
 }

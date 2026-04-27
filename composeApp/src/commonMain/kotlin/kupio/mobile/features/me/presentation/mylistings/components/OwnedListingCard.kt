@@ -45,6 +45,8 @@ import mobile.composeapp.generated.resources.my_listings_bump_up
 import mobile.composeapp.generated.resources.my_listings_deactivate
 import mobile.composeapp.generated.resources.my_listings_edit
 import mobile.composeapp.generated.resources.my_listings_filter_active
+import mobile.composeapp.generated.resources.my_listings_filter_draft
+import mobile.composeapp.generated.resources.my_listings_filter_inactive
 import mobile.composeapp.generated.resources.my_listings_extend
 import mobile.composeapp.generated.resources.my_listings_in_n_days
 import mobile.composeapp.generated.resources.my_listings_promote
@@ -98,6 +100,7 @@ internal fun OwnedListingCard(
                         seenCount = listing.seenCount,
                         favouritesCount = listing.favouritesCount,
                         chatsCount = listing.chatsCount,
+                        status = listing.status,
                     )
                 }
                 Spacer(modifier = Modifier.width(spacing.xs))
@@ -154,14 +157,60 @@ private fun ListingImagePlaceholder(listingId: String) {
 }
 
 @Composable
-private fun ListingStatsRow(seenCount: Int, favouritesCount: Int, chatsCount: Int) {
+private fun ListingStatsRow(
+    seenCount: Int,
+    favouritesCount: Int,
+    chatsCount: Int,
+    status: OwnedListingStatus,
+) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        StatItem(icon = Icons.Outlined.Visibility, count = seenCount)
-        StatItem(icon = Icons.Outlined.FavoriteBorder, count = favouritesCount)
-        StatItem(icon = Icons.Default.ChatBubbleOutline, count = chatsCount)
+        Row(horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md)) {
+            StatItem(icon = Icons.Outlined.Visibility, count = seenCount)
+            StatItem(icon = Icons.Outlined.FavoriteBorder, count = favouritesCount)
+            StatItem(icon = Icons.Default.ChatBubbleOutline, count = chatsCount)
+        }
+        ListingStatusBadge(status = status)
+    }
+}
+
+@Composable
+private fun ListingStatusBadge(status: OwnedListingStatus) {
+    val label = when (status) {
+        OwnedListingStatus.ACTIVE -> stringResource(Res.string.my_listings_filter_active)
+        OwnedListingStatus.INACTIVE -> stringResource(Res.string.my_listings_filter_inactive)
+        OwnedListingStatus.DRAFT -> stringResource(Res.string.my_listings_filter_draft)
+        OwnedListingStatus.PLANNED -> "Planned"
+        OwnedListingStatus.SOLD -> "Sold"
+    }
+    val containerColor = when (status) {
+        OwnedListingStatus.ACTIVE -> MaterialTheme.colorScheme.primaryContainer
+        OwnedListingStatus.INACTIVE -> MaterialTheme.colorScheme.surfaceVariant
+        OwnedListingStatus.DRAFT -> MaterialTheme.colorScheme.tertiaryContainer
+        OwnedListingStatus.PLANNED -> MaterialTheme.colorScheme.secondaryContainer
+        OwnedListingStatus.SOLD -> MaterialTheme.colorScheme.errorContainer
+    }
+    val contentColor = when (status) {
+        OwnedListingStatus.ACTIVE -> MaterialTheme.colorScheme.primary
+        OwnedListingStatus.INACTIVE -> MaterialTheme.colorScheme.onSurfaceVariant
+        OwnedListingStatus.DRAFT -> MaterialTheme.colorScheme.tertiary
+        OwnedListingStatus.PLANNED -> MaterialTheme.colorScheme.secondary
+        OwnedListingStatus.SOLD -> MaterialTheme.colorScheme.error
+    }
+
+    Surface(
+        shape = RoundedCornerShape(999.dp),
+        color = containerColor,
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.padding(horizontal = KupioThemeDefaults.spacing.sm, vertical = 2.dp),
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+            color = contentColor,
+        )
     }
 }
 

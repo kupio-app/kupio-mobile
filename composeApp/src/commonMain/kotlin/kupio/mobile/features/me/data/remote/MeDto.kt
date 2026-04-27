@@ -46,6 +46,11 @@ data class ListOwnerListingsResponseDto(
     @SerialName("next_cursor") val nextCursor: String? = null,
 )
 
+@Serializable
+data class UpdateListingStatusRequestDto(
+    val status: ListingStatusDto,
+)
+
 fun UserListingStatsDto.toDomain() = UserListingStats(
     activeCount = activeCount,
     inactiveCount = inactiveCount,
@@ -75,3 +80,12 @@ fun ListingStatusDto.toOwnedDomain(): OwnedListingStatus = when (this) {
     ListingStatusDto.PLANNED -> OwnedListingStatus.PLANNED
     ListingStatusDto.SOLD -> OwnedListingStatus.SOLD
 }
+
+fun OwnedListingStatus.toDto(): ListingStatusDto = when (this) {
+    OwnedListingStatus.ACTIVE -> ListingStatusDto.ACTIVE
+    OwnedListingStatus.INACTIVE -> ListingStatusDto.INACTIVE
+    OwnedListingStatus.DRAFT -> ListingStatusDto.DRAFT
+    OwnedListingStatus.PLANNED -> ListingStatusDto.PLANNED
+    OwnedListingStatus.SOLD -> ListingStatusDto.SOLD
+}
+

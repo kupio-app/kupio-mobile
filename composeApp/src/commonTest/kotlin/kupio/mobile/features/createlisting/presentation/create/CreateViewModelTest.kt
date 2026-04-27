@@ -231,6 +231,32 @@ class CreateViewModelTest {
     }
 
     @Test
+    fun `field edits are ignored while submitting`() = runTest(dispatcher) {
+        val viewModel = CreateViewModel(
+            listingsRepository = FakeListingsRepository(),
+            categoriesRepository = FakeCategoriesRepository(),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(CreateIntent.TitleChanged("Vintage oak desk"))
+        viewModel.onIntent(CreateIntent.DescriptionChanged("Solid oak writing desk in good condition with small signs of normal use."))
+        viewModel.onIntent(CreateIntent.PriceChanged("180"))
+        viewModel.onIntent(CreateIntent.CategorySelected(1))
+        advanceUntilIdle()
+
+        viewModel.onIntent(CreateIntent.Publish)
+        viewModel.onIntent(CreateIntent.TitleChanged("Changed while submitting"))
+        viewModel.onIntent(CreateIntent.PriceChanged("999"))
+        viewModel.onIntent(CreateIntent.ToggleFree)
+
+        val state = viewModel.state.value
+        assertTrue(state.isSubmitting)
+        assertEquals("Vintage oak desk", state.title)
+        assertEquals("180", state.price)
+        assertFalse(state.isFree)
+    }
+
+    @Test
     fun `save draft creates listing and uploads images without activating`() = runTest(dispatcher) {
         val listings = FakeListingsRepository()
         val viewModel = CreateViewModel(

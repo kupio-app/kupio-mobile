@@ -44,6 +44,8 @@ class CreateViewModel(
     }
 
     fun onIntent(intent: CreateIntent) {
+        if (_state.value.isSubmitting && intent != CreateIntent.Back) return
+
         when (intent) {
             CreateIntent.ImageLimitReached -> _state.update {
                 it.copy(imageWarning = "You can add up to $MaxListingImages photos.")

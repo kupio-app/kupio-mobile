@@ -27,12 +27,20 @@ import kupio.mobile.core.designsystem.KupioTopBarBackAction
 import kupio.mobile.core.designsystem.KupioTopBarIconAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
 import kupio.mobile.core.presentation.CollectEffect
+import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.presentation.mylistings.components.FilterChipsRow
 import kupio.mobile.features.me.presentation.mylistings.components.OwnedListingCard
+import kupio.mobile.features.me.presentation.mylistings.components.StatusChangeDialog
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.my_listings_search
 import mobile.composeapp.generated.resources.my_listings_subtitle
 import mobile.composeapp.generated.resources.my_listings_title
+import mobile.composeapp.generated.resources.my_listings_confirm_activate_title
+import mobile.composeapp.generated.resources.my_listings_confirm_activate_body
+import mobile.composeapp.generated.resources.my_listings_confirm_deactivate_title
+import mobile.composeapp.generated.resources.my_listings_confirm_deactivate_body
+import mobile.composeapp.generated.resources.my_listings_confirm_action
+import mobile.composeapp.generated.resources.my_listings_cancel_action
 import mobile.composeapp.generated.resources.topbar_back
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -116,9 +124,9 @@ private fun MyListingsRoute(state: MyListingsState, onIntent: (MyListingsIntent)
                                 onEdit = { onIntent(MyListingsIntent.EditListing(listing.id)) },
                                 onBumpUp = { onIntent(MyListingsIntent.BumpUp(listing.id)) },
                                 onPromote = { onIntent(MyListingsIntent.Promote(listing.id)) },
-                                onToggleActive = { deactivate ->
-                                    onIntent(MyListingsIntent.ToggleActive(listing.id, deactivate))
-                                },
+                                onToggleStatus = { onIntent(MyListingsIntent.ToggleActiveClicked(listing.id)) },
+                                isStatusActionEnabled =
+                                    state.updatingListingId == null && listing.status.canToggleStatus(),
                             )
                         }
                         item { Spacer(modifier = Modifier.height(KupioThemeDefaults.spacing.xl)) }
@@ -126,5 +134,40 @@ private fun MyListingsRoute(state: MyListingsState, onIntent: (MyListingsIntent)
                 }
             }
         }
+
+        val confirmation = state.statusChangeConfirmation
+        if (confirmation != null) {
+            val isActivation = confirmation.targetStatus == OwnedListingStatus.ACTIVE
+            StatusChangeDialog(
+                title = stringResource(
+                    if (isActivation) {
+                        Res.string.my_listings_confirm_activate_title
+                    } else {
+                        Res.string.my_listings_confirm_deactivate_title
+                    },
+                ),
+                message = stringResource(
+                    if (isActivation) {
+                        Res.string.my_listings_confirm_activate_body
+                    } else {
+                        Res.string.my_listings_confirm_deactivate_body
+                    },
+                ),
+                confirmLabel = stringResource(Res.string.my_listings_confirm_action),
+                dismissLabel = stringResource(Res.string.my_listings_cancel_action),
+                onConfirm = { onIntent(MyListingsIntent.ConfirmStatusChange) },
+                onDismiss = { onIntent(MyListingsIntent.DismissStatusChange) },
+            )
+        }
     }
+}
+
+private fun OwnedListingStatus.canToggleStatus(): Boolean = when (this) {
+    OwnedListingStatus.ACTIVE,
+    OwnedListingStatus.INACTIVE,
+    OwnedListingStatus.DRAFT,
+    -> true
+    OwnedListingStatus.PLANNED,
+    OwnedListingStatus.SOLD,
+    -> false
 }

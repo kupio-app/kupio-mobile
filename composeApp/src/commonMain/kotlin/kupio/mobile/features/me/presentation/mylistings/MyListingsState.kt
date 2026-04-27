@@ -13,6 +13,8 @@ data class MyListingsState(
     val errorMessage: String? = null,
     val activeCount: Int = 0,
     val inactiveCount: Int = 0,
+    val statusChangeConfirmation: StatusChangeConfirmation? = null,
+    val updatingListingId: String? = null,
 ) : UiState {
     val visibleListings: List<OwnedListing>
         get() = when (filter) {
@@ -23,6 +25,11 @@ data class MyListingsState(
         }
 }
 
+data class StatusChangeConfirmation(
+    val listingId: String,
+    val targetStatus: OwnedListingStatus,
+)
+
 enum class MyListingsFilter { ACTIVE, INACTIVE, DRAFT, ALL }
 
 sealed interface MyListingsIntent : UiAction {
@@ -30,7 +37,9 @@ sealed interface MyListingsIntent : UiAction {
     data class EditListing(val id: String) : MyListingsIntent
     data class BumpUp(val id: String) : MyListingsIntent
     data class Promote(val id: String) : MyListingsIntent
-    data class ToggleActive(val id: String, val deactivate: Boolean) : MyListingsIntent
+    data class ToggleActiveClicked(val id: String) : MyListingsIntent
+    data object ConfirmStatusChange : MyListingsIntent
+    data object DismissStatusChange : MyListingsIntent
     data object BackClicked : MyListingsIntent
 }
 

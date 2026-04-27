@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -40,11 +39,9 @@ import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.KupioTopBarBackAction
 import kupio.mobile.core.designsystem.KupioTopBarIconAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
-import kupio.mobile.core.designsystem.borderBottom
 import kupio.mobile.core.datetime.monthName
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.chats.domain.model.ChatSummary
-import kupio.mobile.features.chats.domain.model.MessageItem
 import kupio.mobile.features.chats.presentation.components.ListingPrice
 import kupio.mobile.features.chats.presentation.components.ListingStrip
 import kupio.mobile.features.chats.presentation.components.MessageBubble

@@ -48,6 +48,8 @@ import mobile.composeapp.generated.resources.my_listings_filter_active
 import mobile.composeapp.generated.resources.my_listings_filter_draft
 import mobile.composeapp.generated.resources.my_listings_filter_inactive
 import mobile.composeapp.generated.resources.my_listings_extend
+import mobile.composeapp.generated.resources.my_listings_filter_planned
+import mobile.composeapp.generated.resources.my_listings_filter_sold
 import mobile.composeapp.generated.resources.my_listings_in_n_days
 import mobile.composeapp.generated.resources.my_listings_promote
 import mobile.composeapp.generated.resources.my_listings_promoted_label
@@ -183,8 +185,8 @@ private fun ListingStatusBadge(status: OwnedListingStatus) {
         OwnedListingStatus.ACTIVE -> stringResource(Res.string.my_listings_filter_active)
         OwnedListingStatus.INACTIVE -> stringResource(Res.string.my_listings_filter_inactive)
         OwnedListingStatus.DRAFT -> stringResource(Res.string.my_listings_filter_draft)
-        OwnedListingStatus.PLANNED -> "Planned"
-        OwnedListingStatus.SOLD -> "Sold"
+        OwnedListingStatus.PLANNED -> stringResource(Res.string.my_listings_filter_planned)
+        OwnedListingStatus.SOLD -> stringResource(Res.string.my_listings_filter_sold)
     }
     val containerColor = when (status) {
         OwnedListingStatus.ACTIVE -> MaterialTheme.colorScheme.primaryContainer

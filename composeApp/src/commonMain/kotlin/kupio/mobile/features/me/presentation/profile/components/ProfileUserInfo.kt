@@ -23,6 +23,7 @@ import kupio.mobile.core.datetime.toLocalDate
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.profile_hello
 import mobile.composeapp.generated.resources.profile_member_since
 import org.jetbrains.compose.resources.stringResource
 
@@ -37,7 +38,7 @@ internal fun UserInfoSection(user: AuthenticatedUser?) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             val name = user?.displayName ?: user?.username ?: "—"
             Text(
-                text = "Hello, $name.",
+                text = stringResource(Res.string.profile_hello, name),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.Bold,

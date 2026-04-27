@@ -160,6 +160,12 @@
     <string name="my_listings_promote">Propagovať</string>
     <string name="my_listings_deactivate">Deaktivovať</string>
     <string name="my_listings_activate">Aktivovať</string>
+    <string name="my_listings_confirm_action">Potvrdit</string>
+    <string name="my_listings_cancel_action">Zrusit</string>
+    <string name="my_listings_confirm_activate_title">Aktivovat inzerat?</string>
+    <string name="my_listings_confirm_activate_body">Inzerat bude znova viditelny pre kupujucich.</string>
+    <string name="my_listings_confirm_deactivate_title">Deaktivovat inzerat?</string>
+    <string name="my_listings_confirm_deactivate_body">Inzerat bude skryty, kym ho znovu neaktivujete.</string>
     <string name="my_listings_edit">Upraviť</string>
     <string name="my_listings_promoted_label">Propagované · končí za %1$d dní</string>
     <string name="my_listings_boost">%1$dx boost</string>

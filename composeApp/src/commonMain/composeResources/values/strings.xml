@@ -160,6 +160,12 @@
     <string name="my_listings_promote">Promote</string>
     <string name="my_listings_deactivate">Deactivate</string>
     <string name="my_listings_activate">Activate</string>
+    <string name="my_listings_confirm_action">Confirm</string>
+    <string name="my_listings_cancel_action">Cancel</string>
+    <string name="my_listings_confirm_activate_title">Activate listing?</string>
+    <string name="my_listings_confirm_activate_body">Your listing will become visible to buyers.</string>
+    <string name="my_listings_confirm_deactivate_title">Deactivate listing?</string>
+    <string name="my_listings_confirm_deactivate_body">Your listing will be hidden until you activate it again.</string>
     <string name="my_listings_edit">Edit</string>
     <string name="my_listings_promoted_label">Promoted · ends in %1$d days</string>
     <string name="my_listings_boost">%1$dx boost</string>

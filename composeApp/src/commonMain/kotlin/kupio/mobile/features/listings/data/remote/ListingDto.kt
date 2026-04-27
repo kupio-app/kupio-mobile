@@ -11,6 +11,7 @@ import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.CustomFilterPayloadValue
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.ListingFeed
+import kupio.mobile.features.listings.domain.model.ListingStatus
 
 @Serializable
 data class ListListingsResponseDto(
@@ -60,6 +61,11 @@ data class ListingRequestDto(
 )
 
 @Serializable
+data class ListingStatusUpdateRequestDto(
+    val status: ListingStatusDto,
+)
+
+@Serializable
 enum class CurrencyDto {
     @SerialName("usd") USD,
     @SerialName("eur") EUR,
@@ -88,6 +94,14 @@ fun Currency.toDto(): CurrencyDto = when (this) {
     Currency.EUR -> CurrencyDto.EUR
     Currency.CZK -> CurrencyDto.CZK
     Currency.UAH -> CurrencyDto.UAH
+}
+
+fun ListingStatus.toDto(): ListingStatusDto = when (this) {
+    ListingStatus.DRAFT -> ListingStatusDto.DRAFT
+    ListingStatus.PLANNED -> ListingStatusDto.PLANNED
+    ListingStatus.ACTIVE -> ListingStatusDto.ACTIVE
+    ListingStatus.INACTIVE -> ListingStatusDto.INACTIVE
+    ListingStatus.SOLD -> ListingStatusDto.SOLD
 }
 
 fun ListingResponseDto.toDomain(): Listing = Listing(

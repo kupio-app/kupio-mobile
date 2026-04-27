@@ -17,6 +17,14 @@ data class ListingFeed(
     val nextCursor: String?,
 )
 
+enum class ListingStatus {
+    DRAFT,
+    PLANNED,
+    ACTIVE,
+    INACTIVE,
+    SOLD,
+}
+
 data class CreateListing(
     val title: String,
     val description: String,

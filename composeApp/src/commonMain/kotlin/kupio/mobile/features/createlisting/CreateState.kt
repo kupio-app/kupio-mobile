@@ -76,6 +76,7 @@ sealed interface CreateIntent : UiAction {
     data object ToggleTradable : CreateIntent
     data object RetryCategories : CreateIntent
     data object RetryFilters : CreateIntent
+    data object SaveDraft : CreateIntent
     data object Publish : CreateIntent
     data object Back : CreateIntent
 }

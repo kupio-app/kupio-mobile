@@ -197,7 +197,7 @@ private fun CreateContent(
         bottomBar = {
             PublishBar(
                 state = state,
-                onSaveDraft = { onIntent(CreateIntent.Back) },
+                onSaveDraft = { onIntent(CreateIntent.SaveDraft) },
                 onPublish = { onIntent(CreateIntent.Publish) },
             )
         },
@@ -1346,7 +1346,7 @@ private fun PublishBar(
                 ),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
             ) {
-                Text("Cancel")
+                Text("Save draft")
             }
             Button(
                 onClick = onPublish,

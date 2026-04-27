@@ -24,6 +24,7 @@ import kupio.mobile.features.listings.domain.model.FilterType
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.ListingFeed
 import kupio.mobile.features.listings.domain.model.ListingImageUpload
+import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 
@@ -202,6 +203,43 @@ class CreateViewModelTest {
         assertEquals("created-listing", listings.uploadedListingId)
         assertEquals(1, listings.uploadedImages.size)
         assertEquals("desk.jpg", listings.uploadedImages.first().fileName)
+        assertEquals("created-listing" to ListingStatus.ACTIVE, listings.statusUpdates.single())
+        assertEquals(CreateEffect.NavigateBack, viewModel.effects.first())
+    }
+
+    @Test
+    fun `save draft creates listing and uploads images without activating`() = runTest(dispatcher) {
+        val listings = FakeListingsRepository()
+        val viewModel = CreateViewModel(
+            listingsRepository = listings,
+            categoriesRepository = FakeCategoriesRepository(),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(CreateIntent.TitleChanged("Vintage oak desk"))
+        viewModel.onIntent(CreateIntent.DescriptionChanged("Solid oak writing desk in good condition with small signs of normal use."))
+        viewModel.onIntent(CreateIntent.PriceChanged("180"))
+        viewModel.onIntent(CreateIntent.CategorySelected(1))
+        advanceUntilIdle()
+        viewModel.onIntent(
+            CreateIntent.ImagesSelected(
+                listOf(
+                    SelectedListingImage(
+                        id = "local-1",
+                        fileName = "desk.jpg",
+                        mimeType = "image/jpeg",
+                        bytes = byteArrayOf(1, 2, 3),
+                    ),
+                ),
+            ),
+        )
+
+        viewModel.onIntent(CreateIntent.SaveDraft)
+        advanceUntilIdle()
+
+        assertEquals("Vintage oak desk", listings.createdListing?.title)
+        assertEquals("created-listing", listings.uploadedListingId)
+        assertTrue(listings.statusUpdates.isEmpty())
         assertEquals(CreateEffect.NavigateBack, viewModel.effects.first())
     }
 
@@ -300,6 +338,7 @@ class CreateViewModelTest {
         var createdListing: CreateListing? = null
         var uploadedListingId: String? = null
         var uploadedImages: List<ListingImageUpload> = emptyList()
+        val statusUpdates = mutableListOf<Pair<String, ListingStatus>>()
 
         override suspend fun getFeed(
             limit: Int,
@@ -313,6 +352,14 @@ class CreateViewModelTest {
         override suspend fun createListing(listing: CreateListing): Listing {
             createdListing = listing
             return listing("created-listing")
+        }
+
+        override suspend fun updateListingStatus(
+            listingId: String,
+            status: ListingStatus,
+        ): Listing {
+            statusUpdates += listingId to status
+            return listing(listingId)
         }
 
         override suspend fun uploadListingImages(

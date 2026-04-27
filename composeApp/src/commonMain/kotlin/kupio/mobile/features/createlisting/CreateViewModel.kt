@@ -16,6 +16,7 @@ import kupio.mobile.core.network.ApiException
 import kupio.mobile.features.createlisting.domain.model.SelectedListingImage
 import kupio.mobile.features.listings.domain.model.Category
 import kupio.mobile.features.listings.domain.model.ListingImageUpload
+import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 
@@ -75,7 +76,8 @@ class CreateViewModel(
             CreateIntent.ToggleTradable -> _state.update { it.copy(isTradable = !it.isTradable) }
             CreateIntent.RetryCategories -> loadCategories()
             CreateIntent.RetryFilters -> _state.value.selectedCategoryId?.let { loadFilters(it, forceRefresh = true) }
-            CreateIntent.Publish -> publish()
+            CreateIntent.SaveDraft -> submit(activate = false)
+            CreateIntent.Publish -> submit(activate = true)
             CreateIntent.Back -> viewModelScope.launch { effectChannel.send(CreateEffect.NavigateBack) }
         }
     }
@@ -289,7 +291,7 @@ class CreateViewModel(
         }
     }
 
-    private fun publish() {
+    private fun submit(activate: Boolean) {
         if (_state.value.images.any { !isSupportedListingImageMimeType(it.mimeType) }) {
             _state.update {
                 it.copy(
@@ -329,8 +331,20 @@ class CreateViewModel(
                     listingId = created.id,
                     images = images.map { it.toUpload() },
                 )
+                if (activate) {
+                    listingsRepository.updateListingStatus(
+                        listingId = created.id,
+                        status = ListingStatus.ACTIVE,
+                    )
+                }
             }.onSuccess {
-                _state.update { it.copy(isSubmitting = false) }
+                _state.update {
+                    CreateState(
+                        categories = it.categories,
+                        isLoadingCategories = it.isLoadingCategories,
+                        categoriesError = it.categoriesError,
+                    )
+                }
                 effectChannel.send(CreateEffect.NavigateBack)
             }.onFailure { throwable ->
                 if (throwable is CancellationException) throw throwable

@@ -72,7 +72,7 @@ class ListingsApi(private val httpClient: HttpClient) {
                             headers = Headers.build {
                                 append(
                                     HttpHeaders.ContentDisposition,
-                                    "form-data; name=\"files\"; filename=\"${image.fileName}\"",
+                                    "form-data; name=\"files\"; filename=\"${image.fileName.safeMultipartFileName()}\"",
                                 )
                                 append(HttpHeaders.ContentType, image.mimeType)
                             },
@@ -82,4 +82,16 @@ class ListingsApi(private val httpClient: HttpClient) {
             ),
         )
     }.bodyOrThrow()
+}
+
+private fun String.safeMultipartFileName(): String {
+    val sanitized = map { character ->
+        when {
+            character == '"' || character == '\\' || character == '/' -> '_'
+            character.code < 0x20 || character.code == 0x7F -> '_'
+            else -> character
+        }
+    }.joinToString("").trim()
+
+    return sanitized.ifEmpty { "image" }
 }

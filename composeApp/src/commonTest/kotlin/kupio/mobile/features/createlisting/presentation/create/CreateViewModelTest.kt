@@ -209,6 +209,28 @@ class CreateViewModelTest {
     }
 
     @Test
+    fun `double publish while submitting creates listing once`() = runTest(dispatcher) {
+        val listings = FakeListingsRepository()
+        val viewModel = CreateViewModel(
+            listingsRepository = listings,
+            categoriesRepository = FakeCategoriesRepository(),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(CreateIntent.TitleChanged("Vintage oak desk"))
+        viewModel.onIntent(CreateIntent.DescriptionChanged("Solid oak writing desk in good condition with small signs of normal use."))
+        viewModel.onIntent(CreateIntent.PriceChanged("180"))
+        viewModel.onIntent(CreateIntent.CategorySelected(1))
+        advanceUntilIdle()
+
+        viewModel.onIntent(CreateIntent.Publish)
+        viewModel.onIntent(CreateIntent.Publish)
+        advanceUntilIdle()
+
+        assertEquals(1, listings.createCalls)
+    }
+
+    @Test
     fun `save draft creates listing and uploads images without activating`() = runTest(dispatcher) {
         val listings = FakeListingsRepository()
         val viewModel = CreateViewModel(
@@ -336,6 +358,7 @@ class CreateViewModelTest {
     }
 
     private class FakeListingsRepository : ListingsRepository {
+        var createCalls = 0
         var createdListing: CreateListing? = null
         var uploadedListingId: String? = null
         var uploadedImages: List<ListingImageUpload> = emptyList()
@@ -351,6 +374,7 @@ class CreateViewModelTest {
         override suspend fun getListing(id: String): Listing = listing(id)
 
         override suspend fun createListing(listing: CreateListing): Listing {
+            createCalls += 1
             createdListing = listing
             return listing("created-listing")
         }

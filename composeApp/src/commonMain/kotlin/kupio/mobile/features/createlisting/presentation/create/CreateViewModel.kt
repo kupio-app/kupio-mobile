@@ -293,6 +293,8 @@ class CreateViewModel(
     }
 
     private fun submit(activate: Boolean) {
+        if (_state.value.isSubmitting) return
+
         if (_state.value.images.any { !isSupportedListingImageMimeType(it.mimeType) }) {
             _state.update {
                 it.copy(

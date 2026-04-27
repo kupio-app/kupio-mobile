@@ -18,6 +18,7 @@ import kupio.mobile.features.me.presentation.mylistings.MyListingsFilter
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.my_listings_filter_active
 import mobile.composeapp.generated.resources.my_listings_filter_all
+import mobile.composeapp.generated.resources.my_listings_filter_draft
 import mobile.composeapp.generated.resources.my_listings_filter_inactive
 import org.jetbrains.compose.resources.stringResource
 
@@ -28,10 +29,12 @@ internal fun FilterChipsRow(
 ) {
     val activeLabel = stringResource(Res.string.my_listings_filter_active)
     val inactiveLabel = stringResource(Res.string.my_listings_filter_inactive)
+    val draftLabel = stringResource(Res.string.my_listings_filter_draft)
     val allLabel = stringResource(Res.string.my_listings_filter_all)
     val filters = listOf(
         MyListingsFilter.ACTIVE to activeLabel,
         MyListingsFilter.INACTIVE to inactiveLabel,
+        MyListingsFilter.DRAFT to draftLabel,
         MyListingsFilter.ALL to allLabel,
     )
     LazyRow(horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm)) {

@@ -152,6 +152,7 @@
     <string name="my_listings_search">Hľadať inzeráty</string>
     <string name="my_listings_filter_active">Aktívne</string>
     <string name="my_listings_filter_inactive">Neaktívne</string>
+    <string name="my_listings_filter_draft">Šablony</string>
     <string name="my_listings_filter_all">Všetky</string>
     <string name="my_listings_bump_up">Vyzdvihnúť</string>
     <string name="my_listings_in_n_days">za %1$d dní</string>

@@ -18,11 +18,12 @@ data class MyListingsState(
         get() = when (filter) {
             MyListingsFilter.ACTIVE -> listings.filter { it.status == OwnedListingStatus.ACTIVE }
             MyListingsFilter.INACTIVE -> listings.filter { it.status == OwnedListingStatus.INACTIVE }
+            MyListingsFilter.DRAFT -> listings.filter { it.status == OwnedListingStatus.DRAFT }
             MyListingsFilter.ALL -> listings
         }
 }
 
-enum class MyListingsFilter { ACTIVE, INACTIVE, ALL }
+enum class MyListingsFilter { ACTIVE, INACTIVE, DRAFT, ALL }
 
 sealed interface MyListingsIntent : UiAction {
     data class FilterSelected(val filter: MyListingsFilter) : MyListingsIntent

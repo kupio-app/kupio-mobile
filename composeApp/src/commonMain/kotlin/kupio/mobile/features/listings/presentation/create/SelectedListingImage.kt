@@ -1,4 +1,4 @@
-package kupio.mobile.features.createlisting.domain.model
+package kupio.mobile.features.listings.presentation.create
 
 import androidx.compose.ui.graphics.ImageBitmap
 

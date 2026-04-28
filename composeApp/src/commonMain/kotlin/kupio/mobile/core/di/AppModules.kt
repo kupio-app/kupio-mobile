@@ -31,7 +31,7 @@ import kupio.mobile.features.chats.domain.repository.ChatsRepository
 import kupio.mobile.features.chats.domain.repository.MessagesRepository
 import kupio.mobile.features.chats.presentation.list.ChatsListViewModel
 import kupio.mobile.features.chats.presentation.thread.ChatThreadViewModel
-import kupio.mobile.features.createlisting.presentation.create.CreateViewModel
+import kupio.mobile.features.listings.presentation.create.CreateViewModel
 import kupio.mobile.features.listings.data.remote.CategoriesApi
 import kupio.mobile.features.listings.data.remote.ListingsApi
 import kupio.mobile.features.listings.data.repository.CategoriesRepositoryImpl

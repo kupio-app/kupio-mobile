@@ -1,4 +1,4 @@
-package kupio.mobile.features.createlisting
+package kupio.mobile.features.listings.data.image
 
 internal const val MaxListingImages = 8
 

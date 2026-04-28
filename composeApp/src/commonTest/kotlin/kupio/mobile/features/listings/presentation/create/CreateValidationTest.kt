@@ -1,4 +1,4 @@
-package kupio.mobile.features.createlisting.presentation.create
+package kupio.mobile.features.listings.presentation.create
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -9,6 +9,10 @@ import kupio.mobile.features.listings.domain.model.CustomFilterPayloadValue
 import kupio.mobile.features.listings.domain.model.FilterDefinition
 import kupio.mobile.features.listings.domain.model.FilterOptions
 import kupio.mobile.features.listings.domain.model.FilterType
+import kupio.mobile.features.listings.presentation.create.CreateFilterInput
+import kupio.mobile.features.listings.presentation.create.CreateState
+import kupio.mobile.features.listings.presentation.create.CreateText
+import kupio.mobile.features.listings.presentation.create.validateCreateListing
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.create_error_filter_number_max
 import mobile.composeapp.generated.resources.create_error_required

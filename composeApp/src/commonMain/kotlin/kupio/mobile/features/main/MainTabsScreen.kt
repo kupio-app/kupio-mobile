@@ -21,7 +21,7 @@ import cafe.adriel.voyager.navigator.tab.TabNavigator
 import kupio.mobile.core.designsystem.KupioBottomNav
 import kupio.mobile.core.designsystem.KupioBottomNavItem
 import kupio.mobile.features.chats.data.ConversationsStore
-import kupio.mobile.features.createlisting.presentation.create.CreateScreen
+import kupio.mobile.features.listings.presentation.create.CreateScreen
 import kupio.mobile.features.main.tabs.ChatsTab
 import kupio.mobile.features.main.tabs.HomeTab
 import kupio.mobile.features.main.tabs.MeTab

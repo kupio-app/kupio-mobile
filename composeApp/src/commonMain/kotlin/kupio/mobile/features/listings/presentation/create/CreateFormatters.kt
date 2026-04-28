@@ -1,4 +1,4 @@
-package kupio.mobile.features.createlisting.presentation.create
+package kupio.mobile.features.listings.presentation.create
 
 internal fun String.digitsOnly(): String = filter { it.isDigit() }
 

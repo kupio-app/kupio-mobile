@@ -1,4 +1,4 @@
-package kupio.mobile.features.createlisting.presentation.create
+package kupio.mobile.features.listings.presentation.create
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,14 +32,14 @@ import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.KupioTopBarBackAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
 import kupio.mobile.core.presentation.CollectEffect
-import kupio.mobile.features.createlisting.MaxListingImages
-import kupio.mobile.features.createlisting.presentation.create.components.DetailsSection
-import kupio.mobile.features.createlisting.presentation.create.components.ErrorText
-import kupio.mobile.features.createlisting.presentation.create.components.FiltersSection
-import kupio.mobile.features.createlisting.presentation.create.components.ImageSourceSheet
-import kupio.mobile.features.createlisting.presentation.create.components.PhotosSection
-import kupio.mobile.features.createlisting.presentation.create.components.PriceSection
-import kupio.mobile.features.createlisting.presentation.create.components.PublishBar
+import kupio.mobile.features.listings.data.image.MaxListingImages
+import kupio.mobile.features.listings.presentation.create.components.DetailsSection
+import kupio.mobile.features.listings.presentation.create.components.ErrorText
+import kupio.mobile.features.listings.presentation.create.components.FiltersSection
+import kupio.mobile.features.listings.presentation.create.components.ImageSourceSheet
+import kupio.mobile.features.listings.presentation.create.components.PhotosSection
+import kupio.mobile.features.listings.presentation.create.components.PriceSection
+import kupio.mobile.features.listings.presentation.create.components.PublishBar
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.create_topbar_subtitle
 import mobile.composeapp.generated.resources.topbar_back

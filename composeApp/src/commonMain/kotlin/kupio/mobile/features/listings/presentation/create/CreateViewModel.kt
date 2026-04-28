@@ -1,4 +1,4 @@
-package kupio.mobile.features.createlisting.presentation.create
+package kupio.mobile.features.listings.presentation.create
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,9 +13,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kupio.mobile.core.network.ApiException
-import kupio.mobile.features.createlisting.MaxListingImages
-import kupio.mobile.features.createlisting.domain.model.SelectedListingImage
-import kupio.mobile.features.createlisting.isSupportedListingImageMimeType
+import kupio.mobile.features.listings.data.image.MaxListingImages
+import kupio.mobile.features.listings.data.image.isSupportedListingImageMimeType
 import kupio.mobile.features.listings.domain.model.Category
 import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.model.ListingStatus

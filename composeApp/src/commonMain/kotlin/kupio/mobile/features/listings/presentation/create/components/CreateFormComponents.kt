@@ -1,4 +1,4 @@
-package kupio.mobile.features.createlisting.presentation.create.components
+package kupio.mobile.features.listings.presentation.create.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,14 +19,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kupio.mobile.core.designsystem.KupioThemeDefaults
-import kupio.mobile.features.createlisting.presentation.create.CreateText
-import kupio.mobile.features.createlisting.presentation.create.asString
+import kupio.mobile.features.listings.presentation.create.CreateText
+import kupio.mobile.features.listings.presentation.create.asString
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.retry
 import org.jetbrains.compose.resources.stringResource

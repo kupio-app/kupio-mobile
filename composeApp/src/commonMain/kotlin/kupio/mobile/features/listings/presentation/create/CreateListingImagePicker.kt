@@ -1,11 +1,10 @@
-package kupio.mobile.features.createlisting.presentation.create
+package kupio.mobile.features.listings.presentation.create
 
 import io.github.ismoy.imagepickerkmp.domain.extensions.loadBytes
 import io.github.ismoy.imagepickerkmp.domain.extensions.loadImageBitmap
 import io.github.ismoy.imagepickerkmp.domain.models.PhotoResult
+import kupio.mobile.features.listings.data.image.normalizeListingImage
 import kotlin.random.Random
-import kupio.mobile.features.createlisting.domain.model.SelectedListingImage
-import kupio.mobile.features.createlisting.normalizeListingImage
 
 internal fun List<PhotoResult>.toSelectedImages(): List<SelectedListingImage> =
     mapNotNull { photo ->

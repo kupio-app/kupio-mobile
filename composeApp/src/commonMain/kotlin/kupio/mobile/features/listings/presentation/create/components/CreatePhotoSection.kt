@@ -1,4 +1,4 @@
-package kupio.mobile.features.createlisting.presentation.create.components
+package kupio.mobile.features.listings.presentation.create.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image as ComposeImage
@@ -47,8 +47,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
-import kupio.mobile.features.createlisting.presentation.create.CreateText
-import kupio.mobile.features.createlisting.domain.model.SelectedListingImage
+import kupio.mobile.features.listings.presentation.create.CreateText
+import kupio.mobile.features.listings.presentation.create.SelectedListingImage
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.create_photo_add
 import mobile.composeapp.generated.resources.create_photo_choose_gallery

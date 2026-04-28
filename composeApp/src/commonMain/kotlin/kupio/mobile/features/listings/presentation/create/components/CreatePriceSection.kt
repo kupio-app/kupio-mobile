@@ -1,4 +1,4 @@
-package kupio.mobile.features.createlisting.presentation.create.components
+package kupio.mobile.features.listings.presentation.create.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -41,11 +41,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
-import kupio.mobile.features.createlisting.presentation.create.CreateField
-import kupio.mobile.features.createlisting.presentation.create.CreateIntent
-import kupio.mobile.features.createlisting.presentation.create.CreateState
-import kupio.mobile.features.createlisting.presentation.create.CreateText
-import kupio.mobile.features.createlisting.presentation.create.digitsOnly
+import kupio.mobile.features.listings.presentation.create.CreateField
+import kupio.mobile.features.listings.presentation.create.CreateIntent
+import kupio.mobile.features.listings.presentation.create.CreateState
+import kupio.mobile.features.listings.presentation.create.CreateText
+import kupio.mobile.features.listings.presentation.create.digitsOnly
 import kupio.mobile.features.listings.domain.model.Currency
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.create_free_subtitle

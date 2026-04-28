@@ -1,11 +1,5 @@
-package kupio.mobile.features.createlisting.presentation.create
+package kupio.mobile.features.listings.presentation.create
 
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -14,9 +8,9 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kupio.mobile.features.createlisting.domain.model.SelectedListingImage
 import kupio.mobile.features.listings.domain.model.Category
 import kupio.mobile.features.listings.domain.model.CreateListing
+import kupio.mobile.features.listings.domain.model.Currency
 import kupio.mobile.features.listings.domain.model.CustomFilterPayloadValue
 import kupio.mobile.features.listings.domain.model.FilterDefinition
 import kupio.mobile.features.listings.domain.model.FilterOptions
@@ -27,10 +21,22 @@ import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
+import kupio.mobile.features.listings.presentation.create.CreateEffect
+import kupio.mobile.features.listings.presentation.create.CreateFilterInput
+import kupio.mobile.features.listings.presentation.create.CreateIntent
+import kupio.mobile.features.listings.presentation.create.CreateText
+import kupio.mobile.features.listings.presentation.create.CreateViewModel
+import kupio.mobile.features.listings.presentation.create.SelectedListingImage
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.create_error_image_limit
 import mobile.composeapp.generated.resources.create_error_unsupported_image
 import org.jetbrains.compose.resources.StringResource
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CreateViewModelTest {
@@ -172,7 +178,13 @@ class CreateViewModelTest {
             listingsRepository = listings,
             categoriesRepository = FakeCategoriesRepository(
                 filtersByCategory = mapOf(
-                    1 to listOf(filter(slug = "ram", type = FilterType.SELECT, options = FilterOptions(values = listOf("16 GB")))),
+                    1 to listOf(
+                        filter(
+                            slug = "ram",
+                            type = FilterType.SELECT,
+                            options = FilterOptions(values = listOf("16 GB"))
+                        )
+                    ),
                 ),
             ),
         )
@@ -553,7 +565,7 @@ class CreateViewModelTest {
             title = "Vintage oak desk",
             description = "Solid oak writing desk in good condition with small signs of normal use.",
             price = 180,
-            currency = kupio.mobile.features.listings.domain.model.Currency.EUR,
+            currency = Currency.EUR,
             primaryImageUrl = null,
             createdAt = "2026-04-26T00:00:00Z",
             categoryId = 1,

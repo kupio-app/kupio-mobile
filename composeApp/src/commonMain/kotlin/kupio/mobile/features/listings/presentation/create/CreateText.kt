@@ -1,4 +1,4 @@
-package kupio.mobile.features.createlisting.presentation.create
+package kupio.mobile.features.listings.presentation.create
 
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.resources.StringResource

@@ -1,4 +1,4 @@
-package kupio.mobile.features.createlisting.presentation.create.components
+package kupio.mobile.features.listings.presentation.create.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,10 +23,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
-import kupio.mobile.features.createlisting.presentation.create.CreateField
-import kupio.mobile.features.createlisting.presentation.create.CreateIntent
-import kupio.mobile.features.createlisting.presentation.create.CreateState
-import kupio.mobile.features.createlisting.presentation.create.createText
+import kupio.mobile.features.listings.presentation.create.CreateField
+import kupio.mobile.features.listings.presentation.create.CreateIntent
+import kupio.mobile.features.listings.presentation.create.CreateState
+import kupio.mobile.features.listings.presentation.create.createText
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.create_category
 import mobile.composeapp.generated.resources.create_category_placeholder

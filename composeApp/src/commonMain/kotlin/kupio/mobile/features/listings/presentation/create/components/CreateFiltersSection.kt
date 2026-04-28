@@ -1,4 +1,4 @@
-package kupio.mobile.features.createlisting.presentation.create.components
+package kupio.mobile.features.listings.presentation.create.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -20,13 +20,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
-import kupio.mobile.features.createlisting.presentation.create.CreateFilterInput
-import kupio.mobile.features.createlisting.presentation.create.CreateIntent
-import kupio.mobile.features.createlisting.presentation.create.CreateState
-import kupio.mobile.features.createlisting.presentation.create.CreateText
-import kupio.mobile.features.createlisting.presentation.create.createText
-import kupio.mobile.features.createlisting.presentation.create.formatForDisplay
-import kupio.mobile.features.createlisting.presentation.create.numericText
+import kupio.mobile.features.listings.presentation.create.CreateFilterInput
+import kupio.mobile.features.listings.presentation.create.CreateIntent
+import kupio.mobile.features.listings.presentation.create.CreateState
+import kupio.mobile.features.listings.presentation.create.CreateText
+import kupio.mobile.features.listings.presentation.create.createText
+import kupio.mobile.features.listings.presentation.create.formatForDisplay
+import kupio.mobile.features.listings.presentation.create.numericText
 import kupio.mobile.features.listings.domain.model.FilterDefinition
 import kupio.mobile.features.listings.domain.model.FilterType
 import mobile.composeapp.generated.resources.Res

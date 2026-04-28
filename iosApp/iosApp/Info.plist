@@ -21,6 +21,10 @@
         <string>$(KUPIO_BACKEND_BASE_URL)</string>
         <key>KupioDebugEnabled</key>
         <string>$(KUPIO_DEBUG_ENABLED)</string>
+        <key>NSCameraUsageDescription</key>
+        <string>Camera access is needed to take listing photos.</string>
+        <key>NSPhotoLibraryUsageDescription</key>
+        <string>Photo library access is needed to select listing images.</string>
         <key>NSAppTransportSecurity</key>
         <dict>
             <key>NSAllowsLocalNetworking</key>

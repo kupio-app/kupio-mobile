@@ -16,4 +16,20 @@ class CategoriesApi(private val httpClient: HttpClient) {
             parameters.append("offset", offset.toString())
         }
     }.bodyOrThrow()
+
+    suspend fun getCategoryFilters(
+        categoryId: Int,
+    ): List<FilterDefinitionResponseDto> =
+        httpClient.get("/api/categories/$categoryId/filters").bodyOrThrow()
+
+    suspend fun getSubcategories(
+        categoryId: Int,
+        limit: Int = 20,
+        offset: Int = 0,
+    ): List<CategoryResponseDto> = httpClient.get("/api/categories/$categoryId/subcategories") {
+        url {
+            parameters.append("limit", limit.toString())
+            parameters.append("offset", offset.toString())
+        }
+    }.bodyOrThrow()
 }

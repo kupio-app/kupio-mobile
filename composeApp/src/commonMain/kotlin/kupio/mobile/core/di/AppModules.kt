@@ -21,7 +21,6 @@ import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.auth.AuthViewModel
 import kupio.mobile.features.auth.presentation.username.UsernameViewModel
-import kupio.mobile.core.di.SessionCleaner
 import kupio.mobile.features.chats.data.ChatWebSocket
 import kupio.mobile.features.chats.data.ConversationsStore
 import kupio.mobile.features.chats.data.remote.ChatApi
@@ -32,6 +31,7 @@ import kupio.mobile.features.chats.domain.repository.ChatsRepository
 import kupio.mobile.features.chats.domain.repository.MessagesRepository
 import kupio.mobile.features.chats.presentation.list.ChatsListViewModel
 import kupio.mobile.features.chats.presentation.thread.ChatThreadViewModel
+import kupio.mobile.features.listings.presentation.create.CreateViewModel
 import kupio.mobile.features.listings.data.remote.CategoriesApi
 import kupio.mobile.features.listings.data.remote.ListingsApi
 import kupio.mobile.features.listings.data.repository.CategoriesRepositoryImpl
@@ -102,6 +102,7 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::RootNavigationViewModel)
         viewModelOf(::AuthViewModel)
         viewModelOf(::FeedViewModel)
+        viewModelOf(::CreateViewModel)
         viewModelOf(::MeViewModel)
         viewModelOf(::MyListingsViewModel)
         viewModelOf(::SettingsViewModel)

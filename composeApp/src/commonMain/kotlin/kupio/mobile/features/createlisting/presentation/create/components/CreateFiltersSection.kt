@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.createlisting.presentation.create.CreateFilterInput
 import kupio.mobile.features.createlisting.presentation.create.CreateIntent
@@ -196,14 +197,14 @@ private fun ChoiceChip(
             .bouncingDimClickable(shape = RoundedCornerShape(99.dp), onClick = onClick),
         shape = RoundedCornerShape(99.dp),
         color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surface,
-        border = BorderStroke(
-            1.dp,
-            if (selected) {
-                MaterialTheme.colorScheme.onSurface
-            } else {
-                MaterialTheme.colorScheme.outline.copy(alpha = 0.22f)
-            },
-        ),
+        border = if (selected) {
+            BorderStroke(
+                width = KupioThemeDefaults.borderWidths.regular,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        } else {
+            KupioThemeDefaults.strongBorder
+        },
     ) {
         Box(
             modifier = Modifier.padding(horizontal = 13.dp),

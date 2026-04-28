@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.createlisting.presentation.create.CreateIntent
 import kupio.mobile.features.createlisting.presentation.create.CreateState
@@ -153,7 +154,7 @@ private fun CategoryBackRow(
             .bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
+        border = KupioThemeDefaults.strongBorder,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -248,14 +249,14 @@ private fun CategoryPickerRow(
         } else {
             MaterialTheme.colorScheme.surface
         },
-        border = BorderStroke(
-            1.dp,
-            if (selected) {
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.28f)
-            } else {
-                MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)
-            },
-        ),
+        border = if (selected) {
+            BorderStroke(
+                width = KupioThemeDefaults.borderWidths.regular,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.28f),
+            )
+        } else {
+            KupioThemeDefaults.strongBorder
+        },
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -274,7 +275,7 @@ private fun CategoryPickerRow(
                         },
                     )
                     .border(
-                        BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
+                        KupioThemeDefaults.strongBorder,
                         RoundedCornerShape(99.dp),
                     ),
                 contentAlignment = Alignment.Center,

@@ -45,6 +45,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.createlisting.presentation.create.CreateText
 import kupio.mobile.features.createlisting.domain.model.SelectedListingImage
@@ -85,7 +86,7 @@ internal fun PhotosSection(
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .border(
-                    BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
+                    KupioThemeDefaults.strongBorder,
                     RoundedCornerShape(16.dp)
                 )
                 .bouncingDimClickable(shape = RoundedCornerShape(16.dp), onClick = onAdd),
@@ -292,14 +293,11 @@ private fun ImageTile(
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .border(
-                BorderStroke(
-                    width = if (selected) 2.dp else 1.dp,
-                    color = if (selected) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)
-                    },
-                ),
+                if (selected) {
+                    BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+                } else {
+                    KupioThemeDefaults.strongBorder
+                },
                 RoundedCornerShape(10.dp)
             )
             .bouncingDimClickable(shape = RoundedCornerShape(10.dp), onClick = onClick),
@@ -345,7 +343,7 @@ private fun AddImageTile(onClick: () -> Unit) {
             .bouncingDimClickable(shape = RoundedCornerShape(10.dp), onClick = onClick),
         shape = RoundedCornerShape(10.dp),
         color = Color.Transparent,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
+        border = KupioThemeDefaults.strongBorder,
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(

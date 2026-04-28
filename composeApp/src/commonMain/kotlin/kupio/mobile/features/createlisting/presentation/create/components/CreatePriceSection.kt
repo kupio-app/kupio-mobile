@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.createlisting.presentation.create.CreateField
 import kupio.mobile.features.createlisting.presentation.create.CreateIntent
@@ -106,10 +107,14 @@ private fun CreatePriceField(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(
-            1.dp,
-            if (error == null) MaterialTheme.colorScheme.outline.copy(alpha = 0.16f) else MaterialTheme.colorScheme.error
-        ),
+        border = if (error == null) {
+            KupioThemeDefaults.strongBorder
+        } else {
+            BorderStroke(
+                width = KupioThemeDefaults.borderWidths.regular,
+                color = MaterialTheme.colorScheme.error,
+            )
+        },
     ) {
         Row(
             modifier = Modifier.padding(start = 16.dp, top = 10.dp, end = 10.dp, bottom = 10.dp),
@@ -174,7 +179,7 @@ private fun CurrencyMenu(
                 .bouncingDimClickable(shape = RoundedCornerShape(12.dp)) { expanded = true },
             shape = RoundedCornerShape(12.dp),
             color = MaterialTheme.colorScheme.surfaceVariant,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
+            border = KupioThemeDefaults.strongBorder,
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Text(
@@ -224,14 +229,14 @@ private fun ToggleRow(
             .height(96.dp)
             .bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onClick),
         color = if (checked) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
-        border = BorderStroke(
-            1.dp,
-            if (checked) {
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.28f)
-            } else {
-                MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)
-            },
-        ),
+        border = if (checked) {
+            BorderStroke(
+                width = KupioThemeDefaults.borderWidths.regular,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.28f),
+            )
+        } else {
+            KupioThemeDefaults.strongBorder
+        },
         shape = RoundedCornerShape(12.dp),
     ) {
         Row(
@@ -244,12 +249,14 @@ private fun ToggleRow(
                     .size(20.dp)
                     .clip(RoundedCornerShape(6.dp))
                     .border(
-                        BorderStroke(
-                            1.dp,
-                            if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(
-                                alpha = 0.35f
+                        if (checked) {
+                            BorderStroke(
+                                width = KupioThemeDefaults.borderWidths.regular,
+                                color = MaterialTheme.colorScheme.primary,
                             )
-                        ),
+                        } else {
+                            KupioThemeDefaults.strongBorder
+                        },
                         RoundedCornerShape(6.dp),
                     )
                     .background(
@@ -291,7 +298,7 @@ internal fun PublishBar(
 ) {
     Surface(
         color = MaterialTheme.colorScheme.background,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.16f)),
+        border = KupioThemeDefaults.strongBorder,
         shadowElevation = 0.dp,
     ) {
         Row(
@@ -312,7 +319,7 @@ internal fun PublishBar(
                     disabledContainerColor = Color.Transparent,
                     disabledContentColor = MaterialTheme.colorScheme.outline,
                 ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
+                border = KupioThemeDefaults.strongBorder,
             ) {
                 Text(stringResource(Res.string.create_save_draft))
             }

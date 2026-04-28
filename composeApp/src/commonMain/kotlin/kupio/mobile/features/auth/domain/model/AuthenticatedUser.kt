@@ -9,4 +9,5 @@ data class AuthenticatedUser(
     val needsUsername: Boolean,
     val balance: Int,
     val avatarUrl: String?,
+    val createdAt: String? = null,
 )

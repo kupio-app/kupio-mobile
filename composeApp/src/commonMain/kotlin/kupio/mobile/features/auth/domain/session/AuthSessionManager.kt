@@ -70,6 +70,9 @@ class AuthSessionManager(
         }
     }
 
+    internal fun currentUserId() =
+        (sessionState.value as? SessionState.SignedIn)?.user?.id.orEmpty()
+
     private suspend fun establishSessionLocked(session: AuthSession) {
         secureSessionStore.writeSession(session)
         val user = runCatching {

@@ -38,7 +38,6 @@ import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.listings.presentation.create.CreateIntent
 import kupio.mobile.features.listings.presentation.create.CreateState
-import kupio.mobile.features.listings.presentation.create.createText
 import kupio.mobile.features.listings.domain.model.Category
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.create_all_categories
@@ -128,7 +127,7 @@ internal fun CategoryPickerSheet(
                 }
                 state.isLoadingSubcategories -> LoadingRow()
                 state.subcategoriesError != null -> RetryRow(
-                    message = createText(Res.string.create_error_load_subcategories),
+                    message = stringResource(Res.string.create_error_load_subcategories),
                     onRetry = { onIntent(CreateIntent.RetrySubcategories) },
                 )
             }

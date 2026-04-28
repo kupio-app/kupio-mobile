@@ -41,11 +41,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
+import kupio.mobile.features.listings.presentation.create.CreateError
 import kupio.mobile.features.listings.presentation.create.CreateField
 import kupio.mobile.features.listings.presentation.create.CreateIntent
 import kupio.mobile.features.listings.presentation.create.CreateState
-import kupio.mobile.features.listings.presentation.create.CreateText
 import kupio.mobile.features.listings.presentation.create.digitsOnly
+import kupio.mobile.features.listings.presentation.create.toErrorMessage
 import kupio.mobile.features.listings.domain.model.Currency
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.create_free_subtitle
@@ -98,7 +99,7 @@ internal fun PriceSection(
 private fun CreatePriceField(
     price: String,
     currency: Currency,
-    error: CreateText?,
+    error: CreateError?,
     enabled: Boolean,
     onPriceChange: (String) -> Unit,
     onCurrencySelect: (Currency) -> Unit,
@@ -144,7 +145,7 @@ private fun CreatePriceField(
             )
         }
     }
-    error?.let { ErrorText(it) }
+    error?.let { ErrorText(it.toErrorMessage()) }
 }
 
 @Composable

@@ -47,8 +47,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
-import kupio.mobile.features.listings.presentation.create.CreateText
+import kupio.mobile.features.listings.presentation.create.CreateError
 import kupio.mobile.features.listings.presentation.create.SelectedListingImage
+import kupio.mobile.features.listings.presentation.create.toErrorMessage
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.create_photo_add
 import mobile.composeapp.generated.resources.create_photo_choose_gallery
@@ -68,7 +69,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun PhotosSection(
     images: List<SelectedListingImage>,
-    imageWarning: CreateText?,
+    imageWarning: CreateError?,
     onAdd: () -> Unit,
     onRemove: (String) -> Unit,
 ) {
@@ -154,7 +155,7 @@ internal fun PhotosSection(
                 AddImageTile(onClick = onAdd)
             }
         }
-        imageWarning?.let { ErrorText(it) }
+        imageWarning?.let { ErrorText(it.toErrorMessage()) }
     }
 }
 

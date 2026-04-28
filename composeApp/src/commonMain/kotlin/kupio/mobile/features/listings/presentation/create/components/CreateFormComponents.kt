@@ -24,8 +24,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kupio.mobile.core.designsystem.KupioThemeDefaults
-import kupio.mobile.features.listings.presentation.create.CreateText
-import kupio.mobile.features.listings.presentation.create.asString
+import kupio.mobile.features.listings.presentation.create.CreateError
+import kupio.mobile.features.listings.presentation.create.toErrorMessage
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.retry
 import org.jetbrains.compose.resources.stringResource
@@ -66,7 +66,7 @@ internal fun CreateTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    error: CreateText?,
+    error: CreateError?,
     modifier: Modifier = Modifier,
     required: Boolean = true,
     characterCount: String? = null,
@@ -88,7 +88,7 @@ internal fun CreateTextField(
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         singleLine = singleLine,
         minLines = minLines,
-        supportingText = { error?.let { Text(it.asString()) } },
+        supportingText = { error?.let { Text(it.toErrorMessage()) } },
         colors = createTextFieldColors(),
         shape = RoundedCornerShape(12.dp),
     )
@@ -154,7 +154,7 @@ internal fun LoadingRow() {
 
 @Composable
 internal fun RetryRow(
-    message: CreateText,
+    message: String,
     onRetry: () -> Unit,
 ) {
     Column(
@@ -168,9 +168,9 @@ internal fun RetryRow(
 }
 
 @Composable
-internal fun ErrorText(text: CreateText) {
+internal fun ErrorText(text: String) {
     Text(
-        text = text.asString(),
+        text = text,
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.error,
     )

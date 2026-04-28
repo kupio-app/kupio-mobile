@@ -20,10 +20,6 @@ import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
-import mobile.composeapp.generated.resources.Res
-import mobile.composeapp.generated.resources.create_error_generic
-import mobile.composeapp.generated.resources.create_error_image_limit
-import mobile.composeapp.generated.resources.create_error_unsupported_image
 
 class CreateViewModel(
     private val listingsRepository: ListingsRepository,
@@ -50,7 +46,7 @@ class CreateViewModel(
 
         when (intent) {
             CreateIntent.ImageLimitReached -> _state.update {
-                it.copy(imageWarning = createText(Res.string.create_error_image_limit, MaxListingImages))
+                it.copy(imageWarning = CreateError.ImageLimitReached(MaxListingImages))
             }
             is CreateIntent.ImagesSelected -> addImages(intent.images)
             is CreateIntent.RemoveImage -> {
@@ -115,8 +111,8 @@ class CreateViewModel(
             state.copy(
                 images = merged,
                 imageWarning = when {
-                    hasUnsupportedImages -> createText(Res.string.create_error_unsupported_image)
-                    hitLimit -> createText(Res.string.create_error_image_limit, MaxListingImages)
+                    hasUnsupportedImages -> CreateError.UnsupportedImage
+                    hitLimit -> CreateError.ImageLimitReached(MaxListingImages)
                     else -> null
                 },
             )
@@ -321,8 +317,8 @@ class CreateViewModel(
         if (_state.value.images.any { !isSupportedListingImageMimeType(it.mimeType) }) {
             _state.update {
                 it.copy(
-                    imageWarning = createText(Res.string.create_error_unsupported_image),
-                    submitError = createText(Res.string.create_error_unsupported_image),
+                    imageWarning = CreateError.UnsupportedImage,
+                    submitError = CreateError.UnsupportedImage,
                 )
             }
             return
@@ -418,7 +414,7 @@ private fun SelectedListingImage.toUpload(): ListingImageUpload = ListingImageUp
     bytes = bytes,
 )
 
-private fun Throwable.fieldErrors(): Map<CreateField, CreateText> {
+private fun Throwable.fieldErrors(): Map<CreateField, CreateError> {
     val apiException = this as? ApiException ?: return emptyMap()
     return apiException.fieldErrors.mapNotNull { error ->
         val field = when (error.field) {
@@ -429,11 +425,11 @@ private fun Throwable.fieldErrors(): Map<CreateField, CreateText> {
             "custom_filters" -> CreateField.CUSTOM_FILTERS
             else -> null
         }
-        field?.let { it to CreateText.Dynamic(error.message) }
+        field?.let { it to CreateError.ServerMessage(error.message) }
     }.toMap()
 }
 
-private fun String?.orGenericError(): CreateText =
+private fun String?.orGenericError(): CreateError =
     takeUnless { it.isNullOrBlank() }
-        ?.let { CreateText.Dynamic(it) }
-        ?: createText(Res.string.create_error_generic)
+        ?.let { CreateError.ServerMessage(it) }
+        ?: CreateError.Generic

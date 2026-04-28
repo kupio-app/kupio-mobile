@@ -204,7 +204,7 @@ private fun CreateContent(
                 }
                 state.submitError?.let { error ->
                     item(key = "submit_error") {
-                        ErrorText(text = error)
+                        ErrorText(text = error.toErrorMessage())
                     }
                 }
             }

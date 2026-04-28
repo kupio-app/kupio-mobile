@@ -26,7 +26,7 @@ import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.listings.presentation.create.CreateField
 import kupio.mobile.features.listings.presentation.create.CreateIntent
 import kupio.mobile.features.listings.presentation.create.CreateState
-import kupio.mobile.features.listings.presentation.create.createText
+import kupio.mobile.features.listings.presentation.create.toErrorMessage
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.create_category
 import mobile.composeapp.generated.resources.create_category_placeholder
@@ -92,7 +92,7 @@ private fun CategorySelector(
     when {
         state.isLoadingCategories -> LoadingRow()
         state.categoriesError != null -> RetryRow(
-            message = createText(Res.string.create_error_load_categories),
+            message = stringResource(Res.string.create_error_load_categories),
             onRetry = { onIntent(CreateIntent.RetryCategories) },
         )
 
@@ -103,7 +103,7 @@ private fun CategorySelector(
             )
         }
     }
-    state.fieldErrors[CreateField.CATEGORY]?.let { ErrorText(it) }
+    state.fieldErrors[CreateField.CATEGORY]?.let { ErrorText(it.toErrorMessage()) }
 }
 
 @Composable

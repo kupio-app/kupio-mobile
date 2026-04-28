@@ -236,4 +236,12 @@ fun KupioCenteredContent(
     }
 }
 
-// TODO: Expand the starter design-system primitives into reusable app components as real features appear.
+@Composable
+fun KupioLoadingScreen(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+    }
+}

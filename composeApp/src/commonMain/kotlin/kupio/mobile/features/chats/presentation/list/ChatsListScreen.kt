@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -39,10 +38,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kupio.mobile.core.designsystem.KupioLoadingScreen
 import kupio.mobile.core.designsystem.KupioScaffold
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.KupioTopBarIconAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
+import kupio.mobile.core.designsystem.KupioUserAvatar
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.chats.domain.model.ChatSummary
@@ -50,7 +51,6 @@ import kupio.mobile.features.chats.presentation.components.ChatsFilterChips
 import kupio.mobile.features.chats.presentation.components.ListingPrice
 import kupio.mobile.features.chats.presentation.components.ListingStrip
 import kupio.mobile.features.chats.presentation.components.RoleChip
-import kupio.mobile.features.chats.presentation.components.UserAvatar
 import kupio.mobile.features.chats.presentation.thread.ChatThreadScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.chats_empty_body
@@ -128,12 +128,7 @@ private fun ChatsListContent(
                 )
 
                 when {
-                    state.isLoading && state.chats.isEmpty() -> Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                    }
+                    state.isLoading && state.chats.isEmpty() -> KupioLoadingScreen()
 
                     state.errorMessage != null && state.chats.isEmpty() -> Column(
                         modifier = Modifier
@@ -211,7 +206,7 @@ private fun ChatCard(
             .padding(vertical = spacing.md),
         verticalAlignment = Alignment.Top,
     ) {
-        UserAvatar(
+        KupioUserAvatar(
             initials = chat.participantInitials,
             size = 48.dp,
         )

@@ -1,4 +1,4 @@
-package kupio.mobile.features.chats.presentation.components
+package kupio.mobile.core.designsystem
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +25,7 @@ private val avatarPalette = listOf(
 )
 
 @Composable
-fun UserAvatar(
+fun KupioUserAvatar(
     initials: String,
     modifier: Modifier = Modifier,
     size: Dp = 44.dp,

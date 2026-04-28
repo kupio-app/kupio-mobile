@@ -25,6 +25,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kupio.mobile.core.designsystem.KupioThemeDefaults
+import kupio.mobile.features.createlisting.presentation.create.CreateText
+import kupio.mobile.features.createlisting.presentation.create.asString
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.retry
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun FormSection(
@@ -62,7 +67,7 @@ internal fun CreateTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    error: String?,
+    error: CreateText?,
     modifier: Modifier = Modifier,
     required: Boolean = true,
     characterCount: String? = null,
@@ -84,7 +89,7 @@ internal fun CreateTextField(
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         singleLine = singleLine,
         minLines = minLines,
-        supportingText = { error?.let { Text(it) } },
+        supportingText = { error?.let { Text(it.asString()) } },
         colors = createTextFieldColors(),
         shape = RoundedCornerShape(12.dp),
     )
@@ -150,7 +155,7 @@ internal fun LoadingRow() {
 
 @Composable
 internal fun RetryRow(
-    message: String,
+    message: CreateText,
     onRetry: () -> Unit,
 ) {
     Column(
@@ -159,14 +164,14 @@ internal fun RetryRow(
         verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
     ) {
         ErrorText(message)
-        Button(onClick = onRetry) { Text("Retry") }
+        Button(onClick = onRetry) { Text(stringResource(Res.string.retry)) }
     }
 }
 
 @Composable
-internal fun ErrorText(text: String) {
+internal fun ErrorText(text: CreateText) {
     Text(
-        text = text,
+        text = text.asString(),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.error,
     )

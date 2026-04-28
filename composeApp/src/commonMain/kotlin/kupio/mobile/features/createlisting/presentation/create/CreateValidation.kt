@@ -4,6 +4,20 @@ import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.CustomFilterPayloadValue
 import kupio.mobile.features.listings.domain.model.FilterDefinition
 import kupio.mobile.features.listings.domain.model.FilterType
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.create_error_category_required
+import mobile.composeapp.generated.resources.create_error_description_too_long
+import mobile.composeapp.generated.resources.create_error_description_too_short
+import mobile.composeapp.generated.resources.create_error_filter_invalid_option
+import mobile.composeapp.generated.resources.create_error_filter_number
+import mobile.composeapp.generated.resources.create_error_filter_number_max
+import mobile.composeapp.generated.resources.create_error_filter_number_min
+import mobile.composeapp.generated.resources.create_error_price_negative
+import mobile.composeapp.generated.resources.create_error_price_not_number
+import mobile.composeapp.generated.resources.create_error_price_too_high
+import mobile.composeapp.generated.resources.create_error_required
+import mobile.composeapp.generated.resources.create_error_title_too_long
+import mobile.composeapp.generated.resources.create_error_title_too_short
 
 private const val TitleMinLength = 8
 private const val TitleMaxLength = 255
@@ -13,35 +27,35 @@ private const val MaxPriceExclusive = 10_000_000
 
 data class CreateValidationResult(
     val listing: CreateListing?,
-    val fieldErrors: Map<CreateField, String>,
-    val filterErrors: Map<String, String>,
+    val fieldErrors: Map<CreateField, CreateText>,
+    val filterErrors: Map<String, CreateText>,
 ) {
     val isValid: Boolean = listing != null
 }
 
 fun validateCreateListing(state: CreateState): CreateValidationResult {
-    val fieldErrors = mutableMapOf<CreateField, String>()
-    val filterErrors = mutableMapOf<String, String>()
+    val fieldErrors = mutableMapOf<CreateField, CreateText>()
+    val filterErrors = mutableMapOf<String, CreateText>()
 
     val title = state.title.trim()
     if (title.length < TitleMinLength) {
-        fieldErrors[CreateField.TITLE] = "Title must have at least $TitleMinLength characters."
+        fieldErrors[CreateField.TITLE] = createText(Res.string.create_error_title_too_short, TitleMinLength)
     } else if (title.length > TitleMaxLength) {
-        fieldErrors[CreateField.TITLE] = "Title must have at most $TitleMaxLength characters."
+        fieldErrors[CreateField.TITLE] = createText(Res.string.create_error_title_too_long, TitleMaxLength)
     }
 
     val description = state.description.trim()
     if (description.length < DescriptionMinLength) {
         fieldErrors[CreateField.DESCRIPTION] =
-            "Description must have at least $DescriptionMinLength characters."
+            createText(Res.string.create_error_description_too_short, DescriptionMinLength)
     } else if (description.length > DescriptionMaxLength) {
         fieldErrors[CreateField.DESCRIPTION] =
-            "Description must have at most $DescriptionMaxLength characters."
+            createText(Res.string.create_error_description_too_long, DescriptionMaxLength)
     }
 
     val categoryId = state.selectedCategoryId
     if (categoryId == null) {
-        fieldErrors[CreateField.CATEGORY] = "Choose a category."
+        fieldErrors[CreateField.CATEGORY] = createText(Res.string.create_error_category_required)
     }
 
     val price = if (state.isFree) {
@@ -50,11 +64,11 @@ fun validateCreateListing(state: CreateState): CreateValidationResult {
         state.price.trim().toIntOrNull()
     }
     if (price == null) {
-        fieldErrors[CreateField.PRICE] = "Enter a whole-number price."
+        fieldErrors[CreateField.PRICE] = createText(Res.string.create_error_price_not_number)
     } else if (price < 0) {
-        fieldErrors[CreateField.PRICE] = "Price cannot be negative."
+        fieldErrors[CreateField.PRICE] = createText(Res.string.create_error_price_negative)
     } else if (price >= MaxPriceExclusive) {
-        fieldErrors[CreateField.PRICE] = "Price must be less than $MaxPriceExclusive."
+        fieldErrors[CreateField.PRICE] = createText(Res.string.create_error_price_too_high, MaxPriceExclusive)
     }
 
     val customFilters = buildCustomFilterPayload(
@@ -90,7 +104,7 @@ fun validateCreateListing(state: CreateState): CreateValidationResult {
 private fun buildCustomFilterPayload(
     definitions: List<FilterDefinition>,
     values: Map<String, CreateFilterInput>,
-    errors: MutableMap<String, String>,
+    errors: MutableMap<String, CreateText>,
 ): Map<String, CustomFilterPayloadValue> {
     return definitions.mapNotNull { definition ->
         when (definition.type) {
@@ -104,11 +118,11 @@ private fun buildCustomFilterPayload(
 
 private fun FilterDefinition.readText(
     values: Map<String, CreateFilterInput>,
-    errors: MutableMap<String, String>,
+    errors: MutableMap<String, CreateText>,
 ): Pair<String, CustomFilterPayloadValue>? {
     val value = values[slug].asText().trim()
     if (value.isBlank()) {
-        if (isRequired) errors[slug] = "Required."
+        if (isRequired) errors[slug] = createText(Res.string.create_error_required)
         return null
     }
     return slug to CustomFilterPayloadValue.Text(value)
@@ -116,27 +130,27 @@ private fun FilterDefinition.readText(
 
 private fun FilterDefinition.readNumber(
     values: Map<String, CreateFilterInput>,
-    errors: MutableMap<String, String>,
+    errors: MutableMap<String, CreateText>,
 ): Pair<String, CustomFilterPayloadValue>? {
     val raw = values[slug].asText().trim()
     if (raw.isBlank()) {
-        if (isRequired) errors[slug] = "Required."
+        if (isRequired) errors[slug] = createText(Res.string.create_error_required)
         return null
     }
     val number = raw.toDoubleOrNull()
     if (number == null) {
-        errors[slug] = "Enter a number."
+        errors[slug] = createText(Res.string.create_error_filter_number)
         return null
     }
     options.min?.let { min ->
         if (number < min) {
-            errors[slug] = "Must be at least ${min.formatForDisplay()}."
+            errors[slug] = createText(Res.string.create_error_filter_number_min, min.formatForDisplay())
             return null
         }
     }
     options.max?.let { max ->
         if (number > max) {
-            errors[slug] = "Must be at most ${max.formatForDisplay()}."
+            errors[slug] = createText(Res.string.create_error_filter_number_max, max.formatForDisplay())
             return null
         }
     }
@@ -145,11 +159,11 @@ private fun FilterDefinition.readNumber(
 
 private fun FilterDefinition.readBoolean(
     values: Map<String, CreateFilterInput>,
-    errors: MutableMap<String, String>,
+    errors: MutableMap<String, CreateText>,
 ): Pair<String, CustomFilterPayloadValue>? {
     val value = (values[slug] as? CreateFilterInput.BooleanValue)?.value
     if (value == null) {
-        if (isRequired) errors[slug] = "Required."
+        if (isRequired) errors[slug] = createText(Res.string.create_error_required)
         return null
     }
     return slug to CustomFilterPayloadValue.BooleanValue(value)
@@ -157,15 +171,15 @@ private fun FilterDefinition.readBoolean(
 
 private fun FilterDefinition.readSelect(
     values: Map<String, CreateFilterInput>,
-    errors: MutableMap<String, String>,
+    errors: MutableMap<String, CreateText>,
 ): Pair<String, CustomFilterPayloadValue>? {
     val value = values[slug].asText().trim()
     if (value.isBlank()) {
-        if (isRequired) errors[slug] = "Required."
+        if (isRequired) errors[slug] = createText(Res.string.create_error_required)
         return null
     }
     if (options.values.isNotEmpty() && value !in options.values) {
-        errors[slug] = "Choose one of the available options."
+        errors[slug] = createText(Res.string.create_error_filter_invalid_option)
         return null
     }
     return slug to CustomFilterPayloadValue.Text(value)

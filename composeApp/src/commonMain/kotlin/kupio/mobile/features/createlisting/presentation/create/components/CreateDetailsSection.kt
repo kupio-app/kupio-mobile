@@ -26,28 +26,39 @@ import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.createlisting.presentation.create.CreateField
 import kupio.mobile.features.createlisting.presentation.create.CreateIntent
 import kupio.mobile.features.createlisting.presentation.create.CreateState
-import kupio.mobile.features.createlisting.presentation.create.categoryDisplayText
+import kupio.mobile.features.createlisting.presentation.create.createText
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.create_category
+import mobile.composeapp.generated.resources.create_category_placeholder
+import mobile.composeapp.generated.resources.create_category_tap_to_change
+import mobile.composeapp.generated.resources.create_description
+import mobile.composeapp.generated.resources.create_description_placeholder
+import mobile.composeapp.generated.resources.create_details
+import mobile.composeapp.generated.resources.create_error_load_categories
+import mobile.composeapp.generated.resources.create_title
+import mobile.composeapp.generated.resources.create_title_placeholder
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun DetailsSection(
     state: CreateState,
     onIntent: (CreateIntent) -> Unit,
 ) {
-    FormSection(title = "Details") {
+    FormSection(title = stringResource(Res.string.create_details)) {
         CreateTextField(
-            label = "Title",
+            label = stringResource(Res.string.create_title),
             value = state.title,
             onValueChange = { onIntent(CreateIntent.TitleChanged(it)) },
-            placeholder = "What are you selling?",
+            placeholder = stringResource(Res.string.create_title_placeholder),
             error = state.fieldErrors[CreateField.TITLE],
             characterCount = "${state.title.length}/255",
             singleLine = true,
         )
         CreateTextField(
-            label = "Description",
+            label = stringResource(Res.string.create_description),
             value = state.description,
             onValueChange = { onIntent(CreateIntent.DescriptionChanged(it)) },
-            placeholder = "Condition, dimensions, reason for selling...",
+            placeholder = stringResource(Res.string.create_description_placeholder),
             error = state.fieldErrors[CreateField.DESCRIPTION],
             characterCount = "${state.description.length}/5000",
             minLines = 4,
@@ -75,13 +86,13 @@ private fun CategorySelector(
     }
 
     FieldLabel(
-        label = "Category",
+        label = stringResource(Res.string.create_category),
         required = true,
     )
     when {
         state.isLoadingCategories -> LoadingRow()
         state.categoriesError != null -> RetryRow(
-            message = "Could not load categories.",
+            message = createText(Res.string.create_error_load_categories),
             onRetry = { onIntent(CreateIntent.RetryCategories) },
         )
 
@@ -126,7 +137,7 @@ private fun CategoryField(
                 )
                 if (state.selectedCategoryId != null) {
                     Text(
-                        text = "Tap to change",
+                        text = stringResource(Res.string.create_category_tap_to_change),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.outline,
                     )
@@ -140,3 +151,11 @@ private fun CategoryField(
         }
     }
 }
+
+@Composable
+private fun CreateState.categoryDisplayText(): String =
+    when {
+        categoryPath.isNotEmpty() -> categoryPath.joinToString(" / ") { it.name }
+        selectedCategoryName != null -> selectedCategoryName
+        else -> stringResource(Res.string.create_category_placeholder)
+    }

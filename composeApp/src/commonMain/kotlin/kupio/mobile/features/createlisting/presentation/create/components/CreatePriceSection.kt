@@ -43,15 +43,25 @@ import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.createlisting.presentation.create.CreateField
 import kupio.mobile.features.createlisting.presentation.create.CreateIntent
 import kupio.mobile.features.createlisting.presentation.create.CreateState
+import kupio.mobile.features.createlisting.presentation.create.CreateText
 import kupio.mobile.features.createlisting.presentation.create.digitsOnly
 import kupio.mobile.features.listings.domain.model.Currency
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.create_free_subtitle
+import mobile.composeapp.generated.resources.create_free_title
+import mobile.composeapp.generated.resources.create_open_trades_subtitle
+import mobile.composeapp.generated.resources.create_open_trades_title
+import mobile.composeapp.generated.resources.create_price
+import mobile.composeapp.generated.resources.create_publish
+import mobile.composeapp.generated.resources.create_save_draft
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun PriceSection(
     state: CreateState,
     onIntent: (CreateIntent) -> Unit,
 ) {
-    FormSection(title = "Price") {
+    FormSection(title = stringResource(Res.string.create_price)) {
         CreatePriceField(
             price = state.price,
             currency = state.currency,
@@ -67,15 +77,15 @@ internal fun PriceSection(
         ) {
             ToggleRow(
                 checked = state.isFree,
-                title = "Give away for free",
-                subtitle = "Listed as free",
+                title = stringResource(Res.string.create_free_title),
+                subtitle = stringResource(Res.string.create_free_subtitle),
                 onClick = { onIntent(CreateIntent.ToggleFree) },
                 modifier = Modifier.weight(1f),
             )
             ToggleRow(
                 checked = state.isTradable,
-                title = "Open to trades",
-                subtitle = "Accept swap offers",
+                title = stringResource(Res.string.create_open_trades_title),
+                subtitle = stringResource(Res.string.create_open_trades_subtitle),
                 onClick = { onIntent(CreateIntent.ToggleTradable) },
                 modifier = Modifier.weight(1f),
             )
@@ -87,7 +97,7 @@ internal fun PriceSection(
 private fun CreatePriceField(
     price: String,
     currency: Currency,
-    error: String?,
+    error: CreateText?,
     enabled: Boolean,
     onPriceChange: (String) -> Unit,
     onCurrencySelect: (Currency) -> Unit,
@@ -304,7 +314,7 @@ internal fun PublishBar(
                 ),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
             ) {
-                Text("Save draft")
+                Text(stringResource(Res.string.create_save_draft))
             }
             Button(
                 onClick = onPublish,
@@ -327,7 +337,7 @@ internal fun PublishBar(
                         strokeWidth = 2.dp,
                     )
                 } else {
-                    Text("Publish listing")
+                    Text(stringResource(Res.string.create_publish))
                 }
             }
         }

@@ -41,6 +41,7 @@ import kupio.mobile.features.createlisting.presentation.create.components.Photos
 import kupio.mobile.features.createlisting.presentation.create.components.PriceSection
 import kupio.mobile.features.createlisting.presentation.create.components.PublishBar
 import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.create_topbar_subtitle
 import mobile.composeapp.generated.resources.topbar_back
 import mobile.composeapp.generated.resources.topbar_new_listing_title
 import org.jetbrains.compose.resources.stringResource
@@ -140,7 +141,7 @@ private fun CreateContent(
             Surface(color = MaterialTheme.colorScheme.background) {
                 KupioTopNavbar(
                     title = stringResource(Res.string.topbar_new_listing_title),
-                    subtitle = "Create and publish your item",
+                    subtitle = stringResource(Res.string.create_topbar_subtitle),
                     leadingContent = {
                         KupioTopBarBackAction(
                             contentDescription = stringResource(Res.string.topbar_back),

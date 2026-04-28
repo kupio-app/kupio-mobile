@@ -9,6 +9,10 @@ import kupio.mobile.features.listings.domain.model.CustomFilterPayloadValue
 import kupio.mobile.features.listings.domain.model.FilterDefinition
 import kupio.mobile.features.listings.domain.model.FilterOptions
 import kupio.mobile.features.listings.domain.model.FilterType
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.create_error_filter_number_max
+import mobile.composeapp.generated.resources.create_error_required
+import org.jetbrains.compose.resources.StringResource
 
 class CreateValidationTest {
 
@@ -50,7 +54,7 @@ class CreateValidationTest {
         )
 
         assertFalse(result.isValid)
-        assertEquals("Required.", result.filterErrors["ram"])
+        assertResource(Res.string.create_error_required, result.filterErrors["ram"])
     }
 
     @Test
@@ -69,7 +73,11 @@ class CreateValidationTest {
         )
 
         assertFalse(result.isValid)
-        assertEquals("Must be at most 14.", result.filterErrors["screen_size"])
+        assertResource(
+            expected = Res.string.create_error_filter_number_max,
+            actual = result.filterErrors["screen_size"],
+            args = listOf("14"),
+        )
     }
 
     @Test
@@ -94,6 +102,16 @@ class CreateValidationTest {
         categories = listOf(Category(1, "Furniture", null, 0, null)),
         isLoadingCategories = false,
     )
+
+    private fun assertResource(
+        expected: StringResource,
+        actual: CreateText?,
+        args: List<Any> = emptyList(),
+    ) {
+        val resource = actual as? CreateText.Resource
+        assertEquals(expected, resource?.resource)
+        assertEquals(args, resource?.args)
+    }
 
     private fun filter(
         slug: String,

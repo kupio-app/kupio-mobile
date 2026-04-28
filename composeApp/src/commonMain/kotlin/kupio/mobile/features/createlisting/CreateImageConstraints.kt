@@ -8,8 +8,6 @@ internal val AllowedListingImageMimeTypes = setOf(
     "image/webp",
 )
 
-internal const val UnsupportedListingImageMessage = "Only JPG, PNG, or WEBP photos can be uploaded."
-
 internal fun isSupportedListingImageMimeType(mimeType: String): Boolean =
     mimeType.lowercase() in AllowedListingImageMimeTypes
 

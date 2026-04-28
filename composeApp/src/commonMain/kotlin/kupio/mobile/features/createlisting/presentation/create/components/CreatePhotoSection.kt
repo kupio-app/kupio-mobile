@@ -46,12 +46,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kupio.mobile.core.designsystem.bouncingDimClickable
+import kupio.mobile.features.createlisting.presentation.create.CreateText
 import kupio.mobile.features.createlisting.domain.model.SelectedListingImage
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.create_photo_add
+import mobile.composeapp.generated.resources.create_photo_choose_gallery
+import mobile.composeapp.generated.resources.create_photo_choose_gallery_supporting
+import mobile.composeapp.generated.resources.create_photo_cover
+import mobile.composeapp.generated.resources.create_photo_next
+import mobile.composeapp.generated.resources.create_photo_placeholder_subtitle
+import mobile.composeapp.generated.resources.create_photo_placeholder_title
+import mobile.composeapp.generated.resources.create_photo_previous
+import mobile.composeapp.generated.resources.create_photo_remove
+import mobile.composeapp.generated.resources.create_photo_selected_count
+import mobile.composeapp.generated.resources.create_photo_take
+import mobile.composeapp.generated.resources.create_photo_take_supporting
+import mobile.composeapp.generated.resources.create_photos
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun PhotosSection(
     images: List<SelectedListingImage>,
-    imageWarning: String?,
+    imageWarning: CreateText?,
     onAdd: () -> Unit,
     onRemove: (String) -> Unit,
 ) {
@@ -60,7 +76,7 @@ internal fun PhotosSection(
     val selectedImage = images.getOrNull(safeSelectedIndex)
 
     FormSection(
-        title = "Photos",
+        title = stringResource(Res.string.create_photos),
     ) {
         Box(
             modifier = Modifier
@@ -89,15 +105,19 @@ internal fun PhotosSection(
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                 )
                 PhotoPlaceholder(
-                    title = selectedImage?.fileName ?: "Tap to add a photo",
-                    subtitle = if (selectedImage == null) "JPG, PNG or WEBP" else "${images.size} selected",
+                    title = selectedImage?.fileName ?: stringResource(Res.string.create_photo_placeholder_title),
+                    subtitle = if (selectedImage == null) {
+                        stringResource(Res.string.create_photo_placeholder_subtitle)
+                    } else {
+                        stringResource(Res.string.create_photo_selected_count, images.size)
+                    },
                     icon = if (selectedImage == null) Icons.Outlined.PhotoCamera else Icons.Outlined.ImageIcon,
                 )
             }
             if (images.size > 1) {
                 PreviewArrow(
                     icon = Icons.Outlined.ChevronLeft,
-                    contentDescription = "Previous photo",
+                    contentDescription = stringResource(Res.string.create_photo_previous),
                     modifier = Modifier.align(Alignment.CenterStart).padding(start = 8.dp),
                     onClick = {
                         selectedImageIndex = if (selectedImageIndex <= 0) images.lastIndex else selectedImageIndex - 1
@@ -105,7 +125,7 @@ internal fun PhotosSection(
                 )
                 PreviewArrow(
                     icon = Icons.Outlined.ChevronRight,
-                    contentDescription = "Next photo",
+                    contentDescription = stringResource(Res.string.create_photo_next),
                     modifier = Modifier.align(Alignment.CenterEnd).padding(end = 8.dp),
                     onClick = {
                         selectedImageIndex = if (selectedImageIndex >= images.lastIndex) 0 else selectedImageIndex + 1
@@ -146,15 +166,15 @@ internal fun ImageSourceSheet(
 ) {
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Text(
-            text = "Add photo",
+            text = stringResource(Res.string.create_photo_add),
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Medium,
         )
         ListItem(
-            headlineContent = { Text("Take photo") },
-            supportingContent = { Text("Use camera") },
+            headlineContent = { Text(stringResource(Res.string.create_photo_take)) },
+            supportingContent = { Text(stringResource(Res.string.create_photo_take_supporting)) },
             leadingContent = {
                 Icon(
                     imageVector = Icons.Outlined.PhotoCamera,
@@ -164,8 +184,8 @@ internal fun ImageSourceSheet(
             modifier = Modifier.bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onTakePhoto),
         )
         ListItem(
-            headlineContent = { Text("Choose from gallery") },
-            supportingContent = { Text("Select existing images") },
+            headlineContent = { Text(stringResource(Res.string.create_photo_choose_gallery)) },
+            supportingContent = { Text(stringResource(Res.string.create_photo_choose_gallery_supporting)) },
             leadingContent = {
                 Icon(
                     imageVector = Icons.Outlined.ImageIcon,
@@ -250,7 +270,7 @@ private fun CoverBadge(modifier: Modifier = Modifier) {
         shape = RoundedCornerShape(4.dp),
     ) {
         Text(
-            text = "COVER",
+            text = stringResource(Res.string.create_photo_cover),
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.surface,
@@ -309,7 +329,7 @@ private fun ImageTile(
         ) {
             Icon(
                 imageVector = Icons.Outlined.Close,
-                contentDescription = "Remove ${image.fileName}",
+                contentDescription = stringResource(Res.string.create_photo_remove, image.fileName),
                 modifier = Modifier.size(16.dp),
                 tint = MaterialTheme.colorScheme.onSurface,
             )
@@ -330,7 +350,7 @@ private fun AddImageTile(onClick: () -> Unit) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = Icons.Outlined.Add,
-                contentDescription = "Add photo",
+                contentDescription = stringResource(Res.string.create_photo_add),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }

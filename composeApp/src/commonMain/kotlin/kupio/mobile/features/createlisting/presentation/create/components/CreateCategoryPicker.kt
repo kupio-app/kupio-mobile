@@ -37,7 +37,16 @@ import androidx.compose.ui.unit.dp
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.createlisting.presentation.create.CreateIntent
 import kupio.mobile.features.createlisting.presentation.create.CreateState
+import kupio.mobile.features.createlisting.presentation.create.createText
 import kupio.mobile.features.listings.domain.model.Category
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.create_all_categories
+import mobile.composeapp.generated.resources.create_categories
+import mobile.composeapp.generated.resources.create_category_choose
+import mobile.composeapp.generated.resources.create_category_use
+import mobile.composeapp.generated.resources.create_error_load_subcategories
+import mobile.composeapp.generated.resources.create_subcategories
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -57,7 +66,7 @@ internal fun CategoryPickerSheet(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
-                text = "Choose category",
+                text = stringResource(Res.string.create_category_choose),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium,
@@ -86,7 +95,7 @@ internal fun CategoryPickerSheet(
                         contentColor = MaterialTheme.colorScheme.surface,
                     ),
                 ) {
-                    Text("Use $categoryName")
+                    Text(stringResource(Res.string.create_category_use, categoryName))
                 }
             }
 
@@ -99,9 +108,9 @@ internal fun CategoryPickerSheet(
             if (state.categoryPath.isEmpty() || categories.isNotEmpty() || state.isLoadingSubcategories || state.subcategoriesError != null) {
                 CategoryGroupLabel(
                     if (state.categoryPath.isEmpty()) {
-                        "Categories"
+                        stringResource(Res.string.create_categories)
                     } else {
-                        "Subcategories"
+                        stringResource(Res.string.create_subcategories)
                     },
                 )
             }
@@ -118,7 +127,7 @@ internal fun CategoryPickerSheet(
                 }
                 state.isLoadingSubcategories -> LoadingRow()
                 state.subcategoriesError != null -> RetryRow(
-                    message = "Could not load subcategories.",
+                    message = createText(Res.string.create_error_load_subcategories),
                     onRetry = { onIntent(CreateIntent.RetrySubcategories) },
                 )
             }
@@ -137,7 +146,7 @@ private fun CategoryBackRow(
     path: List<Category>,
     onClick: () -> Unit,
 ) {
-    val previousLayer = path.dropLast(1).lastOrNull()?.name ?: "All categories"
+    val previousLayer = path.dropLast(1).lastOrNull()?.name ?: stringResource(Res.string.create_all_categories)
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -178,7 +187,7 @@ private fun CategoryBreadcrumb(
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         CategoryBreadcrumbItem(
-            text = "All categories",
+            text = stringResource(Res.string.create_all_categories),
             onClick = onRootClick,
         )
         path.forEach { category ->

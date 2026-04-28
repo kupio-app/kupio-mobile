@@ -22,32 +22,46 @@ import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.createlisting.presentation.create.CreateFilterInput
 import kupio.mobile.features.createlisting.presentation.create.CreateIntent
 import kupio.mobile.features.createlisting.presentation.create.CreateState
-import kupio.mobile.features.createlisting.presentation.create.numberPlaceholder
+import kupio.mobile.features.createlisting.presentation.create.CreateText
+import kupio.mobile.features.createlisting.presentation.create.createText
+import kupio.mobile.features.createlisting.presentation.create.formatForDisplay
 import kupio.mobile.features.createlisting.presentation.create.numericText
 import kupio.mobile.features.listings.domain.model.FilterDefinition
 import kupio.mobile.features.listings.domain.model.FilterType
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.create_error_load_filters
+import mobile.composeapp.generated.resources.create_filter_boolean_no
+import mobile.composeapp.generated.resources.create_filter_boolean_unset
+import mobile.composeapp.generated.resources.create_filter_boolean_yes
+import mobile.composeapp.generated.resources.create_filter_number_at_least
+import mobile.composeapp.generated.resources.create_filter_number_range
+import mobile.composeapp.generated.resources.create_filter_number_up_to
+import mobile.composeapp.generated.resources.create_filters
+import mobile.composeapp.generated.resources.create_filters_empty
+import mobile.composeapp.generated.resources.create_filters_select_category
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun FiltersSection(
     state: CreateState,
     onIntent: (CreateIntent) -> Unit,
 ) {
-    FormSection(title = "Category filters") {
+    FormSection(title = stringResource(Res.string.create_filters)) {
         when {
             state.selectedCategoryId == null -> Text(
-                text = "Select a category to see available filters.",
+                text = stringResource(Res.string.create_filters_select_category),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             state.isLoadingFilters -> LoadingRow()
             state.filtersError != null -> RetryRow(
-                message = "Could not load category filters.",
+                message = createText(Res.string.create_error_load_filters),
                 onRetry = { onIntent(CreateIntent.RetryFilters) },
             )
 
             state.filters.isEmpty() -> Text(
-                text = "No extra details needed for this category.",
+                text = stringResource(Res.string.create_filters_empty),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -68,7 +82,7 @@ internal fun FiltersSection(
 private fun FilterInput(
     filter: FilterDefinition,
     value: CreateFilterInput?,
-    error: String?,
+    error: CreateText?,
     onIntent: (CreateIntent) -> Unit,
 ) {
     when (filter.type) {
@@ -114,7 +128,7 @@ private fun FilterInput(
 private fun SelectFilter(
     filter: FilterDefinition,
     value: String,
-    error: String?,
+    error: CreateText?,
     onChange: (String) -> Unit,
 ) {
     FieldLabel(
@@ -140,7 +154,7 @@ private fun SelectFilter(
 private fun BooleanFilter(
     filter: FilterDefinition,
     value: Boolean?,
-    error: String?,
+    error: CreateText?,
     onChange: (Boolean?) -> Unit,
 ) {
     FieldLabel(
@@ -152,18 +166,18 @@ private fun BooleanFilter(
             ChoiceChip(
                 selected = value == null,
                 onClick = { onChange(null) },
-                text = "Unset",
+                text = stringResource(Res.string.create_filter_boolean_unset),
             )
         }
         ChoiceChip(
             selected = value == true,
             onClick = { onChange(true) },
-            text = "Yes",
+            text = stringResource(Res.string.create_filter_boolean_yes),
         )
         ChoiceChip(
             selected = value == false,
             onClick = { onChange(false) },
-            text = "No",
+            text = stringResource(Res.string.create_filter_boolean_no),
         )
     }
     error?.let { ErrorText(it) }
@@ -202,5 +216,17 @@ private fun ChoiceChip(
                 fontWeight = FontWeight.Medium,
             )
         }
+    }
+}
+
+@Composable
+private fun FilterDefinition.numberPlaceholder(): String {
+    val min = options.min?.formatForDisplay()
+    val max = options.max?.formatForDisplay()
+    return when {
+        min != null && max != null -> stringResource(Res.string.create_filter_number_range, min, max)
+        min != null -> stringResource(Res.string.create_filter_number_at_least, min)
+        max != null -> stringResource(Res.string.create_filter_number_up_to, max)
+        else -> label
     }
 }

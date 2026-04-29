@@ -162,7 +162,12 @@ private fun FeedContent(
                         )
                     }
 
-                    else -> recommendedGrid(state.listings) { id -> onIntent(FeedIntent.OpenListing(id)) }
+                    else -> recommendedGrid(
+                        listings = state.listings,
+                        favouritedIds = state.favouritedIds,
+                        onOpen = { id -> onIntent(FeedIntent.OpenListing(id)) },
+                        onToggleFavourite = { id -> onIntent(FeedIntent.ToggleFavourite(id)) },
+                    )
                 }
             }
         }
@@ -171,7 +176,9 @@ private fun FeedContent(
 
 private fun LazyListScope.recommendedGrid(
     listings: List<Listing>,
+    favouritedIds: Set<String>,
     onOpen: (String) -> Unit,
+    onToggleFavourite: (String) -> Unit,
 ) {
     items(listings.chunked(2), key = { row -> row.first().id }) { row ->
         val spacing = KupioThemeDefaults.spacing
@@ -184,6 +191,8 @@ private fun LazyListScope.recommendedGrid(
                     listing = listing,
                     modifier = Modifier.weight(1f),
                     onClick = { onOpen(listing.id) },
+                    isFavourited = listing.id in favouritedIds,
+                    onFavouriteClick = { onToggleFavourite(listing.id) },
                 )
             }
             if (row.size < 2) {

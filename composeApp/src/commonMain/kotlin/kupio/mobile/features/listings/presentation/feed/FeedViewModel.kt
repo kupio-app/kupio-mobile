@@ -19,10 +19,12 @@ import kupio.mobile.features.listings.domain.model.ListingFeed
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.listings.presentation.feed.FeedEffect.*
+import kupio.mobile.features.saved.domain.repository.FavouritesRepository
 
 class FeedViewModel(
     private val listingsRepository: ListingsRepository,
     private val categoriesRepository: CategoriesRepository,
+    private val favouritesRepository: FavouritesRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(FeedState())
@@ -36,6 +38,7 @@ class FeedViewModel(
     init {
         loadCategories()
         loadRecommended()
+        loadFavouriteIds()
     }
 
     fun onIntent(intent: FeedIntent) {
@@ -60,6 +63,7 @@ class FeedViewModel(
             FeedIntent.OpenFilters -> {}
             FeedIntent.OpenNotifications -> {}
             FeedIntent.SelectDelivery -> {}
+            is FeedIntent.ToggleFavourite -> toggleFavourite(intent.listingId)
         }
     }
 
@@ -87,6 +91,37 @@ class FeedViewModel(
                 .onFailure { t ->
                     _state.update { it.copy(isLoadingCategories = false, categoriesError = t.message.orEmpty()) }
                 }
+        }
+    }
+
+    private fun loadFavouriteIds() {
+        viewModelScope.launch {
+            runCatching { favouritesRepository.getFavouriteIds() }
+                .onSuccess { ids -> _state.update { it.copy(favouritedIds = ids) } }
+        }
+    }
+
+    private fun toggleFavourite(listingId: String) {
+        val currentlyFavourited = listingId in _state.value.favouritedIds
+        _state.update {
+            it.copy(
+                favouritedIds = if (currentlyFavourited) it.favouritedIds - listingId else it.favouritedIds + listingId,
+                togglingFavouriteIds = it.togglingFavouriteIds + listingId,
+            )
+        }
+        viewModelScope.launch {
+            runCatching {
+                if (currentlyFavourited) favouritesRepository.removeFavourite(listingId)
+                else favouritesRepository.addFavourite(listingId)
+            }.onFailure { t ->
+                if (t is CancellationException) throw t
+                _state.update {
+                    it.copy(
+                        favouritedIds = if (currentlyFavourited) it.favouritedIds + listingId else it.favouritedIds - listingId,
+                    )
+                }
+            }
+            _state.update { it.copy(togglingFavouriteIds = it.togglingFavouriteIds - listingId) }
         }
     }
 

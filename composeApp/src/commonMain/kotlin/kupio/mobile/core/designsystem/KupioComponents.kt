@@ -22,11 +22,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.retry
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun KupioScaffold(
@@ -242,5 +245,65 @@ fun KupioLoadingScreen(modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+    }
+}
+
+@Composable
+fun KupioFilterChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    count: Int? = null,
+) {
+    val colors = MaterialTheme.colorScheme
+    val spacing = KupioThemeDefaults.spacing
+    Surface(
+        modifier = modifier.bouncingClickable(onClick),
+        shape = KupioShapes.Full,
+        color = if (selected) colors.onSurface else colors.surface,
+        border = if (selected) null else KupioThemeDefaults.strongBorder,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = spacing.md, vertical = spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(spacing.xs),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                color = if (selected) colors.surface else colors.onSurface,
+            )
+            if (count != null) {
+                Text(
+                    text = count.toString(),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (selected) colors.surface.copy(alpha = 0.7f) else colors.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun KupioErrorRetryRow(
+    message: String,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
+    ) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Button(onClick = onRetry) {
+            Text(stringResource(Res.string.retry))
+        }
     }
 }

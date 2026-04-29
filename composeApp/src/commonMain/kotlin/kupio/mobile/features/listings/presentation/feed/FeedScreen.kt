@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kupio.mobile.core.designsystem.KupioErrorRetryRow
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.listings.domain.model.Listing
@@ -44,7 +44,6 @@ import mobile.composeapp.generated.resources.home_category_all
 import mobile.composeapp.generated.resources.home_recommended_count
 import mobile.composeapp.generated.resources.home_recommended_error
 import mobile.composeapp.generated.resources.home_recommended_title
-import mobile.composeapp.generated.resources.retry
 import mobile.composeapp.generated.resources.screen_home_body
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -147,9 +146,10 @@ private fun FeedContent(
                     }
 
                     state.listingsError != null -> item(key = "listings_error") {
-                        ListingsErrorRow(
-                            error = stringResource(Res.string.home_recommended_error),
+                        KupioErrorRetryRow(
+                            message = stringResource(Res.string.home_recommended_error),
                             onRetry = { onIntent(FeedIntent.RetryLoadListings) },
+                            modifier = Modifier.padding(vertical = spacing.md),
                         )
                     }
 
@@ -192,26 +192,3 @@ private fun LazyListScope.recommendedGrid(
     }
 }
 
-@Composable
-private fun ListingsErrorRow(
-    error: String,
-    onRetry: () -> Unit,
-) {
-    val spacing = KupioThemeDefaults.spacing
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = spacing.md),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(spacing.sm),
-    ) {
-        Text(
-            text = error,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Button(onClick = onRetry) {
-            Text(text = stringResource(Res.string.retry))
-        }
-    }
-}

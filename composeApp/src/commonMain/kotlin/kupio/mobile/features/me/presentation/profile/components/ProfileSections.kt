@@ -3,6 +3,7 @@
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,6 +56,18 @@ import mobile.composeapp.generated.resources.profile_settings
 import mobile.composeapp.generated.resources.profile_topup_balance
 import org.jetbrains.compose.resources.stringResource
 import kupio.mobile.core.designsystem.KupioShapes
+
+@Composable
+private fun MenuGroup(content: @Composable ColumnScope.() -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = KupioShapes.Large,
+        color = MaterialTheme.colorScheme.surface,
+        border = KupioThemeDefaults.defaultBorder,
+    ) {
+        Column(content = content)
+    }
+}
 
 @Composable
 internal fun MyListingsSection(stats: UserListingStats?, onManageClick: () -> Unit) {
@@ -172,27 +185,20 @@ internal fun ActivitySection(
     val spacing = KupioThemeDefaults.spacing
     Column(verticalArrangement = Arrangement.spacedBy(spacing.sm)) {
         SectionLabel(text = stringResource(Res.string.profile_activity))
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = KupioShapes.Large,
-            color = MaterialTheme.colorScheme.surface,
-            border = KupioThemeDefaults.defaultBorder,
-        ) {
-            Column {
-                ActivityRow(
-                    icon = Icons.AutoMirrored.Outlined.Message,
-                    label = stringResource(Res.string.profile_chats),
-                    count = stats?.chatsCount,
-                    onClick = onChatsClick,
-                )
-                HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
-                ActivityRow(
-                    icon = Icons.Outlined.FavoriteBorder,
-                    label = stringResource(Res.string.profile_favourites),
-                    count = stats?.favouritesCount,
-                    onClick = onFavouritesClick,
-                )
-            }
+        MenuGroup {
+            ActivityRow(
+                icon = Icons.AutoMirrored.Outlined.Message,
+                label = stringResource(Res.string.profile_chats),
+                count = stats?.chatsCount,
+                onClick = onChatsClick,
+            )
+            HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
+            ActivityRow(
+                icon = Icons.Outlined.FavoriteBorder,
+                label = stringResource(Res.string.profile_favourites),
+                count = stats?.favouritesCount,
+                onClick = onFavouritesClick,
+            )
         }
     }
 }
@@ -206,31 +212,24 @@ internal fun PaymentsSection(
     val spacing = KupioThemeDefaults.spacing
     Column(verticalArrangement = Arrangement.spacedBy(spacing.sm)) {
         SectionLabel(text = stringResource(Res.string.profile_payments))
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = KupioShapes.Large,
-            color = MaterialTheme.colorScheme.surface,
-            border = KupioThemeDefaults.defaultBorder,
-        ) {
-            Column {
-                MenuRow(
-                    icon = Icons.Outlined.AccountBalanceWallet,
-                    label = stringResource(Res.string.profile_topup_balance),
-                    onClick = onTopUpClick,
-                )
-                HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
-                MenuRow(
-                    icon = Icons.Outlined.Payments,
-                    label = stringResource(Res.string.profile_payments_history),
-                    onClick = onPaymentsHistoryClick,
-                )
-                HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
-                MenuRow(
-                    icon = Icons.Outlined.Bolt,
-                    label = stringResource(Res.string.profile_promotions_packages),
-                    onClick = onPromotionsClick,
-                )
-            }
+        MenuGroup {
+            MenuRow(
+                icon = Icons.Outlined.AccountBalanceWallet,
+                label = stringResource(Res.string.profile_topup_balance),
+                onClick = onTopUpClick,
+            )
+            HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
+            MenuRow(
+                icon = Icons.Outlined.Payments,
+                label = stringResource(Res.string.profile_payments_history),
+                onClick = onPaymentsHistoryClick,
+            )
+            HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
+            MenuRow(
+                icon = Icons.Outlined.Bolt,
+                label = stringResource(Res.string.profile_promotions_packages),
+                onClick = onPromotionsClick,
+            )
         }
     }
 }
@@ -243,25 +242,18 @@ internal fun ProfileSection(
     val spacing = KupioThemeDefaults.spacing
     Column(verticalArrangement = Arrangement.spacedBy(spacing.sm)) {
         SectionLabel(text = stringResource(Res.string.profile_section))
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = KupioShapes.Large,
-            color = MaterialTheme.colorScheme.surface,
-            border = KupioThemeDefaults.defaultBorder,
-        ) {
-            Column {
-                MenuRow(
-                    icon = Icons.Outlined.Edit,
-                    label = stringResource(Res.string.profile_edit),
-                    onClick = onEditProfileClick,
-                )
-                HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
-                MenuRow(
-                    icon = Icons.Outlined.Settings,
-                    label = stringResource(Res.string.profile_settings),
-                    onClick = onSettingsClick,
-                )
-            }
+        MenuGroup {
+            MenuRow(
+                icon = Icons.Outlined.Edit,
+                label = stringResource(Res.string.profile_edit),
+                onClick = onEditProfileClick,
+            )
+            HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
+            MenuRow(
+                icon = Icons.Outlined.Settings,
+                label = stringResource(Res.string.profile_settings),
+                onClick = onSettingsClick,
+            )
         }
     }
 }

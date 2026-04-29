@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +21,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kupio.mobile.core.designsystem.KupioErrorRetryRow
 import kupio.mobile.core.designsystem.KupioLoadingScreen
 import kupio.mobile.core.designsystem.KupioScaffold
 import kupio.mobile.core.designsystem.KupioThemeDefaults
@@ -37,7 +37,6 @@ import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.my_listings_empty
 import mobile.composeapp.generated.resources.my_listings_load_error
 import mobile.composeapp.generated.resources.my_listings_search
-import mobile.composeapp.generated.resources.retry
 import mobile.composeapp.generated.resources.my_listings_subtitle
 import mobile.composeapp.generated.resources.my_listings_title
 import mobile.composeapp.generated.resources.my_listings_confirm_activate_title
@@ -106,22 +105,11 @@ private fun MyListingsRoute(state: MyListingsState, onIntent: (MyListingsIntent)
             when {
                 state.isLoading -> KupioLoadingScreen()
                 state.errorMessage != null && state.visibleListings.isEmpty() -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(KupioThemeDefaults.spacing.lg),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.my_listings_load_error),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        KupioErrorRetryRow(
+                            message = stringResource(Res.string.my_listings_load_error),
+                            onRetry = { onIntent(MyListingsIntent.RetryLoad) },
                         )
-                        Spacer(Modifier.height(KupioThemeDefaults.spacing.sm))
-                        Button(onClick = { onIntent(MyListingsIntent.RetryLoad) }) {
-                            Text(stringResource(Res.string.retry))
-                        }
                     }
                 }
                 state.visibleListings.isEmpty() -> {

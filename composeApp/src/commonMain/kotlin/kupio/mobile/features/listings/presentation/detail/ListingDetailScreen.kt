@@ -1,12 +1,10 @@
 package kupio.mobile.features.listings.presentation.detail
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +16,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kupio.mobile.core.designsystem.KupioErrorRetryRow
 import kupio.mobile.core.designsystem.KupioLoadingScreen
 import kupio.mobile.core.designsystem.KupioScaffold
 import kupio.mobile.core.designsystem.KupioThemeDefaults
@@ -29,7 +28,6 @@ import kupio.mobile.features.listings.domain.model.formatPrice
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.back
 import mobile.composeapp.generated.resources.listing_detail_title
-import mobile.composeapp.generated.resources.retry
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -70,21 +68,14 @@ private fun ListingDetailContent(
         when {
             state.isLoading -> KupioLoadingScreen()
 
-            state.errorMessage != null -> Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(KupioThemeDefaults.spacing.lg),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md, Alignment.CenterVertically),
+            state.errorMessage != null -> Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = state.errorMessage,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                KupioErrorRetryRow(
+                    message = state.errorMessage,
+                    onRetry = { onIntent(ListingDetailIntent.Retry) },
                 )
-                Button(onClick = { onIntent(ListingDetailIntent.Retry) }) {
-                    Text(text = stringResource(Res.string.retry))
-                }
             }
 
             state.listing != null -> ListingDetailBody(listing = state.listing)

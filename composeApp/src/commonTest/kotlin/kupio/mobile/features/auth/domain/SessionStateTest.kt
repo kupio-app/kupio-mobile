@@ -4,6 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.model.SessionState
+import kupio.mobile.features.auth.domain.model.UserRole
 import kupio.mobile.features.auth.domain.model.toSessionState
 
 class SessionStateTest {
@@ -26,7 +27,7 @@ class SessionStateTest {
         username = if (needsUsername) null else "kupio_user",
         displayName = "Kupio User",
         email = "hello@kupio.dev",
-        role = "user",
+        role = UserRole.USER,
         needsUsername = needsUsername,
         balance = 0,
         avatarUrl = null,

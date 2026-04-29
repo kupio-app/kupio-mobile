@@ -1,11 +1,10 @@
-package kupio.mobile.features.listings.presentation.create.components
+﻿package kupio.mobile.features.listings.presentation.create.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.Icon
@@ -21,12 +20,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.KupioFieldLabel
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.listings.presentation.create.CreateField
 import kupio.mobile.features.listings.presentation.create.CreateIntent
 import kupio.mobile.features.listings.presentation.create.CreateState
-import kupio.mobile.features.listings.presentation.create.createText
+import kupio.mobile.features.listings.presentation.create.toErrorMessage
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.create_category
 import mobile.composeapp.generated.resources.create_category_placeholder
@@ -85,14 +86,14 @@ private fun CategorySelector(
         )
     }
 
-    FieldLabel(
+    KupioFieldLabel(
         label = stringResource(Res.string.create_category),
         required = true,
     )
     when {
         state.isLoadingCategories -> LoadingRow()
         state.categoriesError != null -> RetryRow(
-            message = createText(Res.string.create_error_load_categories),
+            message = stringResource(Res.string.create_error_load_categories),
             onRetry = { onIntent(CreateIntent.RetryCategories) },
         )
 
@@ -103,7 +104,7 @@ private fun CategorySelector(
             )
         }
     }
-    state.fieldErrors[CreateField.CATEGORY]?.let { ErrorText(it) }
+    state.fieldErrors[CreateField.CATEGORY]?.let { ErrorText(it.toErrorMessage()) }
 }
 
 @Composable
@@ -114,8 +115,8 @@ private fun CategoryField(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
+            .bouncingDimClickable(shape = KupioShapes.Medium, onClick = onClick),
+        shape = KupioShapes.Medium,
         color = MaterialTheme.colorScheme.surface,
         border = KupioThemeDefaults.strongBorder,
     ) {

@@ -1,8 +1,9 @@
-package kupio.mobile.features.me.presentation.profile.components
+﻿package kupio.mobile.features.me.presentation.profile.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Message
 import androidx.compose.material.icons.filled.ChevronRight
@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.bouncingDimClickable
@@ -55,6 +56,18 @@ import mobile.composeapp.generated.resources.profile_section
 import mobile.composeapp.generated.resources.profile_settings
 import mobile.composeapp.generated.resources.profile_topup_balance
 import org.jetbrains.compose.resources.stringResource
+
+@Composable
+private fun MenuGroup(content: @Composable ColumnScope.() -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = KupioShapes.Large,
+        color = MaterialTheme.colorScheme.surface,
+        border = KupioThemeDefaults.defaultBorder,
+    ) {
+        Column(content = content)
+    }
+}
 
 @Composable
 internal fun MyListingsSection(stats: UserListingStats?, onManageClick: () -> Unit) {
@@ -128,7 +141,7 @@ private fun ListingStatCard(
     val spacing = KupioThemeDefaults.spacing
     Surface(
         modifier = modifier.bouncingDimClickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
+        shape = KupioShapes.Large,
         color = MaterialTheme.colorScheme.surface,
         border = KupioThemeDefaults.defaultBorder,
     ) {
@@ -172,27 +185,20 @@ internal fun ActivitySection(
     val spacing = KupioThemeDefaults.spacing
     Column(verticalArrangement = Arrangement.spacedBy(spacing.sm)) {
         SectionLabel(text = stringResource(Res.string.profile_activity))
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surface,
-            border = KupioThemeDefaults.defaultBorder,
-        ) {
-            Column {
-                ActivityRow(
-                    icon = Icons.AutoMirrored.Outlined.Message,
-                    label = stringResource(Res.string.profile_chats),
-                    count = stats?.chatsCount,
-                    onClick = onChatsClick,
-                )
-                HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
-                ActivityRow(
-                    icon = Icons.Outlined.FavoriteBorder,
-                    label = stringResource(Res.string.profile_favourites),
-                    count = stats?.favouritesCount,
-                    onClick = onFavouritesClick,
-                )
-            }
+        MenuGroup {
+            ActivityRow(
+                icon = Icons.AutoMirrored.Outlined.Message,
+                label = stringResource(Res.string.profile_chats),
+                count = stats?.chatsCount,
+                onClick = onChatsClick,
+            )
+            HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
+            ActivityRow(
+                icon = Icons.Outlined.FavoriteBorder,
+                label = stringResource(Res.string.profile_favourites),
+                count = stats?.favouritesCount,
+                onClick = onFavouritesClick,
+            )
         }
     }
 }
@@ -206,31 +212,24 @@ internal fun PaymentsSection(
     val spacing = KupioThemeDefaults.spacing
     Column(verticalArrangement = Arrangement.spacedBy(spacing.sm)) {
         SectionLabel(text = stringResource(Res.string.profile_payments))
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surface,
-            border = KupioThemeDefaults.defaultBorder,
-        ) {
-            Column {
-                MenuRow(
-                    icon = Icons.Outlined.AccountBalanceWallet,
-                    label = stringResource(Res.string.profile_topup_balance),
-                    onClick = onTopUpClick,
-                )
-                HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
-                MenuRow(
-                    icon = Icons.Outlined.Payments,
-                    label = stringResource(Res.string.profile_payments_history),
-                    onClick = onPaymentsHistoryClick,
-                )
-                HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
-                MenuRow(
-                    icon = Icons.Outlined.Bolt,
-                    label = stringResource(Res.string.profile_promotions_packages),
-                    onClick = onPromotionsClick,
-                )
-            }
+        MenuGroup {
+            MenuRow(
+                icon = Icons.Outlined.AccountBalanceWallet,
+                label = stringResource(Res.string.profile_topup_balance),
+                onClick = onTopUpClick,
+            )
+            HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
+            MenuRow(
+                icon = Icons.Outlined.Payments,
+                label = stringResource(Res.string.profile_payments_history),
+                onClick = onPaymentsHistoryClick,
+            )
+            HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
+            MenuRow(
+                icon = Icons.Outlined.Bolt,
+                label = stringResource(Res.string.profile_promotions_packages),
+                onClick = onPromotionsClick,
+            )
         }
     }
 }
@@ -243,25 +242,18 @@ internal fun ProfileSection(
     val spacing = KupioThemeDefaults.spacing
     Column(verticalArrangement = Arrangement.spacedBy(spacing.sm)) {
         SectionLabel(text = stringResource(Res.string.profile_section))
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surface,
-            border = KupioThemeDefaults.defaultBorder,
-        ) {
-            Column {
-                MenuRow(
-                    icon = Icons.Outlined.Edit,
-                    label = stringResource(Res.string.profile_edit),
-                    onClick = onEditProfileClick,
-                )
-                HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
-                MenuRow(
-                    icon = Icons.Outlined.Settings,
-                    label = stringResource(Res.string.profile_settings),
-                    onClick = onSettingsClick,
-                )
-            }
+        MenuGroup {
+            MenuRow(
+                icon = Icons.Outlined.Edit,
+                label = stringResource(Res.string.profile_edit),
+                onClick = onEditProfileClick,
+            )
+            HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
+            MenuRow(
+                icon = Icons.Outlined.Settings,
+                label = stringResource(Res.string.profile_settings),
+                onClick = onSettingsClick,
+            )
         }
     }
 }
@@ -273,7 +265,7 @@ internal fun ReportsDashboardCard(openCount: Int, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .bouncingDimClickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
+        shape = KupioShapes.Large,
         color = MaterialTheme.colorScheme.primaryContainer,
         border = KupioThemeDefaults.defaultBorder,
     ) {
@@ -283,7 +275,7 @@ internal fun ReportsDashboardCard(openCount: Int, onClick: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(spacing.md),
         ) {
             Surface(
-                shape = RoundedCornerShape(10.dp),
+                shape = KupioShapes.Small,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                 modifier = Modifier.size(44.dp),
             ) {
@@ -313,7 +305,7 @@ internal fun ReportsDashboardCard(openCount: Int, onClick: () -> Unit) {
             }
             if (openCount > 0) {
                 Surface(
-                    shape = RoundedCornerShape(16.dp),
+                    shape = KupioShapes.Large,
                     color = MaterialTheme.colorScheme.primary,
                 ) {
                     Text(

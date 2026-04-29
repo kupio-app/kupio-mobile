@@ -7,6 +7,7 @@ import kupio.mobile.features.auth.domain.model.AuthSession
 import kupio.mobile.features.auth.domain.model.AuthSessionExpiredException
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.model.SessionState
+import kupio.mobile.features.auth.domain.model.UserRole
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
@@ -171,7 +172,7 @@ class AuthSessionManagerTest {
         username = if (needsUsername) null else "kupio_user",
         displayName = "Kupio User",
         email = "hello@kupio.dev",
-        role = "user",
+        role = UserRole.USER,
         needsUsername = needsUsername,
         balance = 0,
         avatarUrl = null,
@@ -203,7 +204,7 @@ class AuthSessionManagerTest {
             username = "kupio_user",
             displayName = "Kupio User",
             email = "hello@kupio.dev",
-            role = "user",
+            role = UserRole.USER,
             needsUsername = false,
             balance = 0,
             avatarUrl = null,

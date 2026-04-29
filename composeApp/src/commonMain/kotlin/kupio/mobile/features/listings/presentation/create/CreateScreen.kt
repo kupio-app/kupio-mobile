@@ -138,18 +138,16 @@ private fun CreateContent(
 
     Scaffold(
         topBar = {
-            Surface(color = MaterialTheme.colorScheme.background) {
-                KupioTopNavbar(
-                    title = stringResource(Res.string.topbar_new_listing_title),
-                    subtitle = stringResource(Res.string.create_topbar_subtitle),
-                    leadingContent = {
-                        KupioTopBarBackAction(
-                            contentDescription = stringResource(Res.string.topbar_back),
-                            onClick = { onIntent(CreateIntent.Back) },
-                        )
-                    },
-                )
-            }
+            KupioTopNavbar(
+                title = stringResource(Res.string.topbar_new_listing_title),
+                subtitle = stringResource(Res.string.create_topbar_subtitle),
+                leadingContent = {
+                    KupioTopBarBackAction(
+                        contentDescription = stringResource(Res.string.topbar_back),
+                        onClick = { onIntent(CreateIntent.Back) },
+                    )
+                },
+            )
         },
         bottomBar = {
             PublishBar(
@@ -204,7 +202,7 @@ private fun CreateContent(
                 }
                 state.submitError?.let { error ->
                     item(key = "submit_error") {
-                        ErrorText(text = error)
+                        ErrorText(text = error.toErrorMessage())
                     }
                 }
             }

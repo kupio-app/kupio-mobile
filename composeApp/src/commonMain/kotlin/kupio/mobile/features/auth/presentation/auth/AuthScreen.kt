@@ -5,46 +5,63 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import cafe.adriel.voyager.core.screen.Screen
-import kupio.mobile.core.designsystem.KupioLabeledDivider
-import kupio.mobile.core.designsystem.KupioOutlinedLoadingButton
-import kupio.mobile.core.designsystem.KupioOutlinedTextField
-import kupio.mobile.core.designsystem.KupioPrimaryButton
+import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.text.font.FontWeight
+import kupio.mobile.core.designsystem.KupioTextField
+import kupio.mobile.features.auth.presentation.auth.components.AuthPasswordField
 import kupio.mobile.core.presentation.CollectEffect
-import kupio.mobile.features.auth.presentation.auth.components.AuthCardHeader
+import kupio.mobile.features.auth.presentation.auth.components.AuthHero
+import kupio.mobile.features.auth.presentation.auth.components.AuthHeadlineText
 import kupio.mobile.features.auth.presentation.auth.components.AuthInlineError
-import kupio.mobile.features.auth.presentation.auth.components.AuthModeSelector
-import kupio.mobile.features.auth.presentation.auth.components.AuthShell
+import kupio.mobile.features.auth.presentation.auth.components.AuthDivider
+import kupio.mobile.features.auth.presentation.auth.components.AuthGoogleButton
+import kupio.mobile.features.auth.presentation.auth.components.AuthModeFooter
+import kupio.mobile.features.auth.presentation.auth.components.PasswordStrengthMeter
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ChevronLeft
+import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
+import org.koin.compose.viewmodel.koinViewModel
+import cafe.adriel.voyager.core.screen.Screen
+import kupio.mobile.core.designsystem.KupioScaffold
+import kupio.mobile.features.auth.presentation.auth.components.AuthActionButton
+import kupio.mobile.features.auth.presentation.auth.components.AuthTopNavbar
 import kupio.mobile.features.auth.presentation.auth.components.AuthViewport
 import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.auth_confirm_password
+import mobile.composeapp.generated.resources.auth_confirm_password_placeholder
 import mobile.composeapp.generated.resources.auth_continue
 import mobile.composeapp.generated.resources.auth_create_account
 import mobile.composeapp.generated.resources.auth_email
 import mobile.composeapp.generated.resources.auth_email_placeholder
-import mobile.composeapp.generated.resources.auth_confirm_password
-import mobile.composeapp.generated.resources.auth_confirm_password_placeholder
-import mobile.composeapp.generated.resources.auth_form_supporting
-import mobile.composeapp.generated.resources.auth_form_title
-import mobile.composeapp.generated.resources.auth_google
+import mobile.composeapp.generated.resources.auth_forgot_password
 import mobile.composeapp.generated.resources.auth_login
-import mobile.composeapp.generated.resources.auth_or
 import mobile.composeapp.generated.resources.auth_password
 import mobile.composeapp.generated.resources.auth_password_placeholder
-import mobile.composeapp.generated.resources.auth_register
 import mobile.composeapp.generated.resources.auth_username
 import mobile.composeapp.generated.resources.auth_username_placeholder
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 
 class AuthScreen : Screen {
     @Composable
@@ -87,95 +104,124 @@ private fun AuthContent(
     state: AuthState,
     onIntent: (AuthIntent) -> Unit,
 ) {
-    val submitLabel = when (state.mode) {
-        AuthMode.LOGIN -> stringResource(Res.string.auth_continue)
-        AuthMode.REGISTER -> stringResource(Res.string.auth_create_account)
-    }
+    Scaffold(
+        topBar = {
+            AuthTopNavbar(onBackClick = {})
+        },
+        bottomBar = {
+            AuthModeFooter(currentMode = state.mode, onSwitchMode = { onIntent(AuthIntent.ModeSelected(it)) })
+        }
+    ) { paddingValues ->
+        AuthViewport(modifier = Modifier.padding(paddingValues)) {
+            AuthHero()
 
-    AuthViewport { metrics ->
-        AuthShell(
-            metrics = metrics,
-        ) {
-            AuthModeSelector(
-                selectedMode = state.mode,
-                loginLabel = stringResource(Res.string.auth_login),
-                registerLabel = stringResource(Res.string.auth_register),
-                metrics = metrics,
-                onModeSelected = { onIntent(AuthIntent.ModeSelected(it)) },
-            )
-            AuthCardHeader(
-                title = stringResource(Res.string.auth_form_title),
-                supporting = stringResource(Res.string.auth_form_supporting),
-            )
-            AuthInlineError(message = state.formError.toErrorMessage())
-            KupioOutlinedTextField(
-                value = state.email,
-                onValueChange = { onIntent(AuthIntent.EmailChanged(it)) },
-                label = stringResource(Res.string.auth_email),
-                placeholder = stringResource(Res.string.auth_email_placeholder),
-                errorMessage = state.emailError.toErrorMessage(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next,
-                ),
-            )
-            KupioOutlinedTextField(
-                value = state.password,
-                onValueChange = { onIntent(AuthIntent.PasswordChanged(it)) },
-                label = stringResource(Res.string.auth_password),
-                placeholder = stringResource(Res.string.auth_password_placeholder),
-                errorMessage = state.passwordError.toErrorMessage(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = if (state.mode == AuthMode.LOGIN) ImeAction.Done else ImeAction.Next,
-                ),
-                visualTransformation = PasswordVisualTransformation(),
-            )
-            AnimatedVisibility(
-                visible = state.mode == AuthMode.REGISTER,
-                enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
-                exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(metrics.sectionSpacing),
+            Spacer(modifier = Modifier.height(18.dp))
+
+            if (state.mode == AuthMode.LOGIN) {
+                AuthHeadlineText(text = stringResource(Res.string.auth_login))
+            } else {
+                AuthHeadlineText(text = stringResource(Res.string.auth_create_account))
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            AuthInlineError(message = state.formError?.toErrorMessage())
+
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()) {
+                KupioTextField(
+                    value = state.email,
+                    onValueChange = { onIntent(AuthIntent.EmailChanged(it)) },
+                    label = stringResource(Res.string.auth_email),
+                    placeholder = stringResource(Res.string.auth_email_placeholder),
+                    error = state.emailError?.toErrorMessage(),
+                    required = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next,
+                    )
+                )
+
+                AuthPasswordField(
+                    value = state.password,
+                    onValueChange = { onIntent(AuthIntent.PasswordChanged(it)) },
+                    label = stringResource(Res.string.auth_password),
+                    placeholder = stringResource(Res.string.auth_password_placeholder),
+                    error = state.passwordError?.toErrorMessage(),
+                    required = true,
+                    trailingLabel = "8+ chars",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = if (state.mode == AuthMode.LOGIN) ImeAction.Done else ImeAction.Next,
+                    )
+                )
+
+                AnimatedVisibility(
+                    visible = state.mode == AuthMode.REGISTER,
+                    enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
+                    exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
                 ) {
-                    KupioOutlinedTextField(
-                        value = state.confirmPassword,
-                        onValueChange = { onIntent(AuthIntent.ConfirmPasswordChanged(it)) },
-                        label = stringResource(Res.string.auth_confirm_password),
-                        placeholder = stringResource(Res.string.auth_confirm_password_placeholder),
-                        errorMessage = state.confirmPasswordError.toErrorMessage(),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Next,
-                        ),
-                        visualTransformation = PasswordVisualTransformation(),
-                    )
-                    KupioOutlinedTextField(
-                        value = state.username,
-                        onValueChange = { onIntent(AuthIntent.UsernameChanged(it)) },
-                        label = stringResource(Res.string.auth_username),
-                        placeholder = stringResource(Res.string.auth_username_placeholder),
-                        errorMessage = state.usernameError.toErrorMessage(),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Done,
-                        ),
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        PasswordStrengthMeter(password = state.password)
+
+                        AuthPasswordField(
+                            value = state.confirmPassword,
+                            onValueChange = { onIntent(AuthIntent.ConfirmPasswordChanged(it)) },
+                            label = stringResource(Res.string.auth_confirm_password),
+                            placeholder = stringResource(Res.string.auth_confirm_password_placeholder),
+                            error = state.confirmPasswordError?.toErrorMessage(),
+                            required = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password,
+                                imeAction = ImeAction.Next,
+                            )
+                        )
+
+                        KupioTextField(
+                            value = state.username,
+                            onValueChange = { onIntent(AuthIntent.UsernameChanged(it)) },
+                            label = stringResource(Res.string.auth_username),
+                            placeholder = stringResource(Res.string.auth_username_placeholder),
+                            error = state.usernameError?.toErrorMessage(),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Done,
+                            )
+                        )
+                    }
+                }
+
+                if (state.mode == AuthMode.LOGIN) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(
+                            text = stringResource(Res.string.auth_forgot_password),
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.clickable { /* no op for now */ }
+                        )
+                    }
                 }
             }
-            KupioPrimaryButton(
-                text = submitLabel,
-                loading = state.isSubmitting,
-                enabled = !state.isBusy,
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            AuthActionButton(
+                text = if (state.mode == AuthMode.LOGIN) stringResource(Res.string.auth_login) else stringResource(Res.string.auth_continue),
                 onClick = { onIntent(AuthIntent.SubmitClicked) },
-            )
-            KupioLabeledDivider(text = stringResource(Res.string.auth_or))
-            KupioOutlinedLoadingButton(
-                text = stringResource(Res.string.auth_google),
-                loading = state.isGoogleSubmitting,
                 enabled = !state.isBusy,
-                onClick = { onIntent(AuthIntent.GoogleClicked) },
+                loading = state.isSubmitting,
+                trailingIcon = Icons.Outlined.ChevronRight,
+            )
+
+            AuthDivider()
+
+            AuthGoogleButton(
+                loading = state.isGoogleSubmitting,
+                onClick = { onIntent(AuthIntent.GoogleClicked) }
             )
         }
     }

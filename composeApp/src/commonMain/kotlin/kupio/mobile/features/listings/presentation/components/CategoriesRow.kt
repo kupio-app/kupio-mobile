@@ -1,4 +1,4 @@
-package kupio.mobile.features.listings.presentation.components
+﻿package kupio.mobile.features.listings.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -24,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.features.listings.presentation.feed.FeedCategoryItem
@@ -106,7 +106,7 @@ private fun CategoryChip(
     ) {
         Surface(
             modifier = Modifier.size(64.dp),
-            shape = RoundedCornerShape(20.dp),
+            shape = KupioShapes.ExtraLarge,
             color = if (isSelected) colors.onSurface else colors.surface,
             border = if (!isSelected) KupioThemeDefaults.strongBorder else null,
         ) {
@@ -146,7 +146,7 @@ private fun SkeletonCategoryChip() {
                 .size(64.dp)
                 .background(
                     color = colors.surfaceVariant.copy(alpha = 0.6f),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = KupioShapes.ExtraLarge,
                 ),
         )
         Box(
@@ -155,7 +155,7 @@ private fun SkeletonCategoryChip() {
                 .height(12.dp)
                 .background(
                     color = colors.surfaceVariant.copy(alpha = 0.6f),
-                    shape = RoundedCornerShape(6.dp),
+                    shape = KupioShapes.Micro,
                 ),
         )
     }

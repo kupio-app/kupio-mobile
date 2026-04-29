@@ -1,4 +1,4 @@
-package kupio.mobile.features.listings.presentation.create.components
+﻿package kupio.mobile.features.listings.presentation.create.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -18,15 +17,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.KupioFieldLabel
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
+import kupio.mobile.features.listings.presentation.create.CreateError
 import kupio.mobile.features.listings.presentation.create.CreateFilterInput
 import kupio.mobile.features.listings.presentation.create.CreateIntent
 import kupio.mobile.features.listings.presentation.create.CreateState
-import kupio.mobile.features.listings.presentation.create.CreateText
-import kupio.mobile.features.listings.presentation.create.createText
 import kupio.mobile.features.listings.presentation.create.formatForDisplay
 import kupio.mobile.features.listings.presentation.create.numericText
+import kupio.mobile.features.listings.presentation.create.toErrorMessage
 import kupio.mobile.features.listings.domain.model.FilterDefinition
 import kupio.mobile.features.listings.domain.model.FilterType
 import mobile.composeapp.generated.resources.Res
@@ -57,7 +58,7 @@ internal fun FiltersSection(
 
             state.isLoadingFilters -> LoadingRow()
             state.filtersError != null -> RetryRow(
-                message = createText(Res.string.create_error_load_filters),
+                message = stringResource(Res.string.create_error_load_filters),
                 onRetry = { onIntent(CreateIntent.RetryFilters) },
             )
 
@@ -83,7 +84,7 @@ internal fun FiltersSection(
 private fun FilterInput(
     filter: FilterDefinition,
     value: CreateFilterInput?,
-    error: CreateText?,
+    error: CreateError?,
     onIntent: (CreateIntent) -> Unit,
 ) {
     when (filter.type) {
@@ -129,10 +130,10 @@ private fun FilterInput(
 private fun SelectFilter(
     filter: FilterDefinition,
     value: String,
-    error: CreateText?,
+    error: CreateError?,
     onChange: (String) -> Unit,
 ) {
-    FieldLabel(
+    KupioFieldLabel(
         label = filter.label,
         required = filter.isRequired,
     )
@@ -148,17 +149,17 @@ private fun SelectFilter(
             )
         }
     }
-    error?.let { ErrorText(it) }
+    error?.let { ErrorText(it.toErrorMessage()) }
 }
 
 @Composable
 private fun BooleanFilter(
     filter: FilterDefinition,
     value: Boolean?,
-    error: CreateText?,
+    error: CreateError?,
     onChange: (Boolean?) -> Unit,
 ) {
-    FieldLabel(
+    KupioFieldLabel(
         label = filter.label,
         required = filter.isRequired,
     )
@@ -181,7 +182,7 @@ private fun BooleanFilter(
             text = stringResource(Res.string.create_filter_boolean_no),
         )
     }
-    error?.let { ErrorText(it) }
+    error?.let { ErrorText(it.toErrorMessage()) }
 }
 
 @Composable
@@ -194,8 +195,8 @@ private fun ChoiceChip(
     Surface(
         modifier = modifier
             .height(34.dp)
-            .bouncingDimClickable(shape = RoundedCornerShape(99.dp), onClick = onClick),
-        shape = RoundedCornerShape(99.dp),
+            .bouncingDimClickable(shape = KupioShapes.Full, onClick = onClick),
+        shape = KupioShapes.Full,
         color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surface,
         border = if (selected) {
             BorderStroke(

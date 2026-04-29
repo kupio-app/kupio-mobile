@@ -1,9 +1,8 @@
-package kupio.mobile.core.designsystem
+﻿package kupio.mobile.core.designsystem
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material3.Icon
@@ -26,7 +25,7 @@ fun KupioTopBarIconAction(
 ) {
     Icon(
         modifier = modifier
-            .size(24.dp)
+            .size(28.dp)
             .bouncingClickable(onClick = onClick),
         imageVector = imageVector,
         contentDescription = contentDescription,
@@ -57,7 +56,7 @@ fun KupioTopBarOutlinedTextAction(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = RoundedCornerShape(8.dp)
+    val shape = KupioShapes.Small
     Surface(
         modifier = modifier
             .border(KupioThemeDefaults.ghostBorder, shape)

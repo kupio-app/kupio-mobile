@@ -5,7 +5,7 @@ data class AuthenticatedUser(
     val username: String?,
     val displayName: String?,
     val email: String,
-    val role: String,
+    val role: UserRole,
     val needsUsername: Boolean,
     val balance: Int,
     val avatarUrl: String?,

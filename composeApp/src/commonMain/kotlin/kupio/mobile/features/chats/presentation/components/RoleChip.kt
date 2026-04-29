@@ -1,7 +1,6 @@
-package kupio.mobile.features.chats.presentation.components
+﻿package kupio.mobile.features.chats.presentation.components
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -9,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.features.chats.domain.model.ChatRole
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.chat_role_buying
@@ -22,7 +22,7 @@ fun RoleChip(
 ) {
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(4.dp),
+        shape = KupioShapes.Micro,
         color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Text(

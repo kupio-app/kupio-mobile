@@ -1,4 +1,4 @@
-package kupio.mobile.features.chats.presentation.thread
+﻿package kupio.mobile.features.chats.presentation.thread
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,12 +14,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PersonOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -35,10 +33,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kupio.mobile.core.designsystem.KupioLoadingScreen
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.KupioTopBarBackAction
 import kupio.mobile.core.designsystem.KupioTopBarIconAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
+import kupio.mobile.core.designsystem.KupioUserAvatar
 import kupio.mobile.core.datetime.monthName
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.chats.domain.model.ChatSummary
@@ -46,7 +47,6 @@ import kupio.mobile.features.chats.presentation.components.ListingPrice
 import kupio.mobile.features.chats.presentation.components.ListingStrip
 import kupio.mobile.features.chats.presentation.components.MessageBubble
 import kupio.mobile.features.chats.presentation.components.MessageComposer
-import kupio.mobile.features.chats.presentation.components.UserAvatar
 import kupio.mobile.features.listings.presentation.detail.ListingDetailScreen
 import kupio.mobile.features.userprofile.presentation.UserPublicProfileScreen
 import mobile.composeapp.generated.resources.Res
@@ -146,7 +146,7 @@ private fun ChatThreadContent(
                                     containerColor = MaterialTheme.colorScheme.onSurface,
                                     contentColor = MaterialTheme.colorScheme.surface,
                                 ),
-                                shape = RoundedCornerShape(8.dp),
+                                shape = KupioShapes.Small,
                                 contentPadding = PaddingValues(horizontal = spacing.md, vertical = 6.dp),
                             ) {
                                 Text(
@@ -161,12 +161,7 @@ private fun ChatThreadContent(
             }
 
             when {
-                state.isLoading && state.messages.isEmpty() -> Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                }
+                state.isLoading && state.messages.isEmpty() -> KupioLoadingScreen()
 
                 state.errorMessage != null && state.messages.isEmpty() -> Column(
                     modifier = Modifier
@@ -219,7 +214,7 @@ private fun ChatThreadTopBar(
                     onClick = onBack,
                 )
                 if (chat != null) {
-                    UserAvatar(initials = chat.participantInitials, size = 36.dp)
+                    KupioUserAvatar(initials = chat.participantInitials, size = 36.dp)
                 }
             }
         },
@@ -267,7 +262,7 @@ private fun DaySeparatorRow(label: DayLabel) {
         contentAlignment = Alignment.Center,
     ) {
         Surface(
-            shape = RoundedCornerShape(999.dp),
+            shape = KupioShapes.Full,
             color = MaterialTheme.colorScheme.surfaceVariant,
         ) {
             Text(

@@ -1,4 +1,4 @@
-package kupio.mobile.core.designsystem
+﻿package kupio.mobile.core.designsystem
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
@@ -126,7 +125,7 @@ private fun BottomNavCell(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .offset(x = 7.dp, y = (-6).dp),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = KupioShapes.Large,
                     color = MaterialTheme.colorScheme.primary,
                 ) {
                     Box(contentAlignment = Alignment.Center) {
@@ -168,7 +167,7 @@ private fun CenterFab(
         color = MaterialTheme.colorScheme.primary,
         modifier = modifier.size(60.dp).shadow(
             elevation = 10.dp,
-            shape = RoundedCornerShape(20.dp),
+            shape = KupioShapes.ExtraLarge,
             ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
             spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
         )

@@ -1,4 +1,4 @@
-package kupio.mobile.features.chats.presentation.components
+﻿package kupio.mobile.features.chats.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kupio.mobile.core.designsystem.KupioCardSurface
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.features.chats.domain.model.ListingSummary
 
@@ -50,7 +50,7 @@ fun ListingStrip(
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .background(bgColor, RoundedCornerShape(8.dp)),
+                    .background(bgColor, KupioShapes.Small),
             )
             Spacer(Modifier.width(spacing.sm))
             Text(

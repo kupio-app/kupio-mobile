@@ -127,7 +127,7 @@ private fun MeRoute(state: MeState, onIntent: (MeIntent) -> Unit) {
                 )
             }
             val user = state.user
-            if (user != null && (user.role == "moderator" || user.role == "admin")) {
+            if (user?.role?.canModerate == true) {
                 item {
                     ReportsDashboardCard(
                         openCount = 0,

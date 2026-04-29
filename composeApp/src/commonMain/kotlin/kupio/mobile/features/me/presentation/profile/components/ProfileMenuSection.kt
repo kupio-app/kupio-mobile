@@ -1,4 +1,4 @@
-package kupio.mobile.features.me.presentation.profile.components
+﻿package kupio.mobile.features.me.presentation.profile.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
@@ -20,8 +19,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
-import kupio.mobile.core.designsystem.bouncingDimClickable
+import kupio.mobile.core.designsystem.bouncingDimClickableIf
 
 @Composable
 internal fun SectionLabel(text: String) {
@@ -40,13 +40,9 @@ internal fun MenuRow(
     trailingBadge: String? = null,
 ) {
     val spacing = KupioThemeDefaults.spacing
-    val modifier = if (onClick != null) {
-        Modifier.bouncingDimClickable(onClick = onClick)
-    } else {
-        Modifier
-    }
     Row(
-        modifier = modifier
+        modifier = Modifier
+            .bouncingDimClickableIf(onClick = onClick)
             .fillMaxWidth()
             .padding(horizontal = spacing.md, vertical = spacing.md),
         verticalAlignment = Alignment.CenterVertically,
@@ -61,7 +57,7 @@ internal fun MenuRow(
         )
         if (trailingBadge != null) {
             Surface(
-                shape = RoundedCornerShape(6.dp),
+                shape = KupioShapes.Micro,
                 color = MaterialTheme.colorScheme.primaryContainer,
             ) {
                 Text(
@@ -91,13 +87,9 @@ internal fun ActivityRow(
     onClick: (() -> Unit)?,
 ) {
     val spacing = KupioThemeDefaults.spacing
-    val modifier = if (onClick != null) {
-        Modifier.bouncingDimClickable(onClick = onClick)
-    } else {
-        Modifier
-    }
     Row(
-        modifier = modifier
+        modifier = Modifier
+            .bouncingDimClickableIf(onClick = onClick)
             .fillMaxWidth()
             .padding(horizontal = spacing.md, vertical = spacing.md),
         verticalAlignment = Alignment.CenterVertically,
@@ -131,7 +123,7 @@ internal fun ActivityRow(
 @Composable
 private fun MenuIcon(imageVector: ImageVector) {
     Surface(
-        shape = RoundedCornerShape(10.dp),
+        shape = KupioShapes.Small,
         color = MaterialTheme.colorScheme.surfaceVariant,
         modifier = Modifier.size(36.dp),
     ) {

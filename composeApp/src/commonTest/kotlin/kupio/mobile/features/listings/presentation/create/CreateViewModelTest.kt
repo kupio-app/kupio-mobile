@@ -22,15 +22,11 @@ import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.listings.presentation.create.CreateEffect
+import kupio.mobile.features.listings.presentation.create.CreateError
 import kupio.mobile.features.listings.presentation.create.CreateFilterInput
 import kupio.mobile.features.listings.presentation.create.CreateIntent
-import kupio.mobile.features.listings.presentation.create.CreateText
 import kupio.mobile.features.listings.presentation.create.CreateViewModel
 import kupio.mobile.features.listings.presentation.create.SelectedListingImage
-import mobile.composeapp.generated.resources.Res
-import mobile.composeapp.generated.resources.create_error_image_limit
-import mobile.composeapp.generated.resources.create_error_unsupported_image
-import org.jetbrains.compose.resources.StringResource
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -425,11 +421,7 @@ class CreateViewModelTest {
 
         val state = viewModel.state.value
         assertEquals(8, state.images.size)
-        assertResource(
-            expected = Res.string.create_error_image_limit,
-            actual = state.imageWarning,
-            args = listOf(8),
-        )
+        assertEquals(CreateError.ImageLimitReached(8), state.imageWarning)
     }
 
     @Test
@@ -455,7 +447,7 @@ class CreateViewModelTest {
 
         val state = viewModel.state.value
         assertTrue(state.images.isEmpty())
-        assertResource(Res.string.create_error_unsupported_image, state.imageWarning)
+        assertEquals(CreateError.UnsupportedImage, state.imageWarning)
     }
 
     private class FakeCategoriesRepository(
@@ -549,16 +541,6 @@ class CreateViewModelTest {
             isRequired = false,
             displayOrder = 0,
         )
-
-        fun assertResource(
-            expected: StringResource,
-            actual: CreateText?,
-            args: List<Any> = emptyList(),
-        ) {
-            val resource = actual as? CreateText.Resource
-            assertEquals(expected, resource?.resource)
-            assertEquals(args, resource?.args)
-        }
 
         fun listing(id: String): Listing = Listing(
             id = id,

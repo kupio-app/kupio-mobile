@@ -1,4 +1,4 @@
-package kupio.mobile.features.listings.presentation.components
+﻿package kupio.mobile.features.listings.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.LocationOn
@@ -27,9 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
-import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.borderBottom
+import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.standaloneTopBarInsetsPadding
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.home_delivery_to
@@ -108,7 +108,7 @@ fun HomeTopBar(
                     modifier = Modifier
                         .size(44.dp)
                         .bouncingClickable { onNotificationsClick() },
-                    shape = RoundedCornerShape(16.dp),
+                    shape = KupioShapes.Large,
                     color = colors.surface,
                     border = KupioThemeDefaults.defaultBorder,
                 ) {

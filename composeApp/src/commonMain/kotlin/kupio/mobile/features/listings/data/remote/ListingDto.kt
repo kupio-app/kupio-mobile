@@ -33,6 +33,10 @@ data class ListingResponseDto(
     val images: List<ListingImageResponseDto> = emptyList(),
     @SerialName("created_at") val createdAt: String,
     @SerialName("seen_count") val seenCount: Int = 0,
+    @SerialName("favourites_count") val favouritesCount: Int = 0,
+    @SerialName("chats_count") val chatsCount: Int = 0,
+    @SerialName("is_promoted") val isPromoted: Boolean = false,
+    @SerialName("promotion_expires_at") val promotionExpiresAt: String? = null,
     val phone: String? = null,
     @SerialName("contact_name") val contactName: String? = null,
     @SerialName("is_calls_disabled") val isCallsDisabled: Boolean = false,
@@ -110,12 +114,21 @@ fun ListingStatus.toDto(): ListingStatusDto = when (this) {
     ListingStatus.SOLD -> ListingStatusDto.SOLD
 }
 
+fun ListingStatusDto.toDomain(): ListingStatus = when (this) {
+    ListingStatusDto.DRAFT -> ListingStatus.DRAFT
+    ListingStatusDto.PLANNED -> ListingStatus.PLANNED
+    ListingStatusDto.ACTIVE -> ListingStatus.ACTIVE
+    ListingStatusDto.INACTIVE -> ListingStatus.INACTIVE
+    ListingStatusDto.SOLD -> ListingStatus.SOLD
+}
+
 fun ListingResponseDto.toDomain(): Listing = Listing(
     id = id,
     title = title,
     description = description,
     price = price,
     currency = currency.toDomain(),
+    status = status.toDomain(),
     primaryImageUrl = images.minByOrNull { it.sortOrder }?.url,
     imageUrls = images.sortedBy { it.sortOrder }.map { it.url },
     createdAt = createdAt,
@@ -123,6 +136,10 @@ fun ListingResponseDto.toDomain(): Listing = Listing(
     categoryId = category.id,
     categoryName = category.name,
     seenCount = seenCount,
+    favouritesCount = favouritesCount,
+    chatsCount = chatsCount,
+    isPromoted = isPromoted,
+    promotionExpiresAt = promotionExpiresAt,
     phone = phone,
     contactName = contactName,
     isCallsDisabled = isCallsDisabled,

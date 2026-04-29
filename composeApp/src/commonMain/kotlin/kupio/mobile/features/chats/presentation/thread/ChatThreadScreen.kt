@@ -1,4 +1,4 @@
-package kupio.mobile.features.chats.presentation.thread
+﻿package kupio.mobile.features.chats.presentation.thread
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PersonOutline
 import androidx.compose.material3.Button
@@ -64,6 +63,7 @@ import mobile.composeapp.generated.resources.topbar_back
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kupio.mobile.core.designsystem.KupioShapes
 
 class ChatThreadScreen(private val conversationId: String) : Screen {
     @Composable
@@ -146,7 +146,7 @@ private fun ChatThreadContent(
                                     containerColor = MaterialTheme.colorScheme.onSurface,
                                     contentColor = MaterialTheme.colorScheme.surface,
                                 ),
-                                shape = RoundedCornerShape(8.dp),
+                                shape = KupioShapes.Small,
                                 contentPadding = PaddingValues(horizontal = spacing.md, vertical = 6.dp),
                             ) {
                                 Text(
@@ -262,7 +262,7 @@ private fun DaySeparatorRow(label: DayLabel) {
         contentAlignment = Alignment.Center,
     ) {
         Surface(
-            shape = RoundedCornerShape(999.dp),
+            shape = KupioShapes.Full,
             color = MaterialTheme.colorScheme.surfaceVariant,
         ) {
             Text(

@@ -1,11 +1,10 @@
-package kupio.mobile.features.listings.presentation.create.components
+﻿package kupio.mobile.features.listings.presentation.create.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.Icon
@@ -38,6 +37,7 @@ import mobile.composeapp.generated.resources.create_error_load_categories
 import mobile.composeapp.generated.resources.create_title
 import mobile.composeapp.generated.resources.create_title_placeholder
 import org.jetbrains.compose.resources.stringResource
+import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 internal fun DetailsSection(
@@ -114,8 +114,8 @@ private fun CategoryField(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
+            .bouncingDimClickable(shape = KupioShapes.Medium, onClick = onClick),
+        shape = KupioShapes.Medium,
         color = MaterialTheme.colorScheme.surface,
         border = KupioThemeDefaults.strongBorder,
     ) {

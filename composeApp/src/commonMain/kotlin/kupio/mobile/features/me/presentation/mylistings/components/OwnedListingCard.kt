@@ -1,4 +1,4 @@
-package kupio.mobile.features.me.presentation.mylistings.components
+﻿package kupio.mobile.features.me.presentation.mylistings.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.Bolt
@@ -58,6 +57,7 @@ import mobile.composeapp.generated.resources.my_listings_promote
 import mobile.composeapp.generated.resources.my_listings_promoted_label
 import mobile.composeapp.generated.resources.my_listings_stats_icon_desc
 import org.jetbrains.compose.resources.stringResource
+import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 internal fun OwnedListingCard(
@@ -72,7 +72,7 @@ internal fun OwnedListingCard(
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = KupioShapes.Large,
         color = MaterialTheme.colorScheme.surface,
         border = KupioThemeDefaults.defaultBorder,
     ) {
@@ -113,7 +113,7 @@ internal fun OwnedListingCard(
                     modifier = Modifier
                         .size(32.dp)
                         .bouncingClickable(onClick = onEdit),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = KupioShapes.Small,
                     color = MaterialTheme.colorScheme.surfaceVariant,
                 ) {
                     Box(contentAlignment = Alignment.Center) {
@@ -157,7 +157,7 @@ private fun ListingImagePlaceholder(listingId: String) {
     Box(
         modifier = Modifier
             .size(80.dp)
-            .background(bg, RoundedCornerShape(10.dp)),
+            .background(bg, KupioShapes.Small),
     )
 }
 
@@ -207,7 +207,7 @@ private fun ListingStatusBadge(status: OwnedListingStatus) {
     }
 
     Surface(
-        shape = RoundedCornerShape(999.dp),
+        shape = KupioShapes.Full,
         color = containerColor,
     ) {
         Text(

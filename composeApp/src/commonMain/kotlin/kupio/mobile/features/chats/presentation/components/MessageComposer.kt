@@ -1,4 +1,4 @@
-package kupio.mobile.features.chats.presentation.components
+﻿package kupio.mobile.features.chats.presentation.components
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -26,6 +25,7 @@ import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.chat_composer_placeholder
 import mobile.composeapp.generated.resources.chat_send
 import org.jetbrains.compose.resources.stringResource
+import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 fun MessageComposer(
@@ -52,7 +52,7 @@ fun MessageComposer(
         ) {
             Surface(
                 modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(24.dp),
+                shape = KupioShapes.ExtraLarge,
                 color = colors.surface,
                 border = KupioThemeDefaults.defaultBorder,
             ) {
@@ -80,7 +80,7 @@ fun MessageComposer(
                 modifier = Modifier
                     .size(44.dp)
                     .bouncingClickable(onSend),
-                shape = RoundedCornerShape(16.dp),
+                shape = KupioShapes.Large,
                 color = colors.primary,
             ) {
                 Icon(

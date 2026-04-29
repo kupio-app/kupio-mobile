@@ -1,4 +1,4 @@
-package kupio.mobile.features.me.presentation.profile.components
+﻿package kupio.mobile.features.me.presentation.profile.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Message
 import androidx.compose.material.icons.filled.ChevronRight
@@ -55,6 +54,7 @@ import mobile.composeapp.generated.resources.profile_section
 import mobile.composeapp.generated.resources.profile_settings
 import mobile.composeapp.generated.resources.profile_topup_balance
 import org.jetbrains.compose.resources.stringResource
+import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 internal fun MyListingsSection(stats: UserListingStats?, onManageClick: () -> Unit) {
@@ -128,7 +128,7 @@ private fun ListingStatCard(
     val spacing = KupioThemeDefaults.spacing
     Surface(
         modifier = modifier.bouncingDimClickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
+        shape = KupioShapes.Large,
         color = MaterialTheme.colorScheme.surface,
         border = KupioThemeDefaults.defaultBorder,
     ) {
@@ -174,7 +174,7 @@ internal fun ActivitySection(
         SectionLabel(text = stringResource(Res.string.profile_activity))
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
+            shape = KupioShapes.Large,
             color = MaterialTheme.colorScheme.surface,
             border = KupioThemeDefaults.defaultBorder,
         ) {
@@ -208,7 +208,7 @@ internal fun PaymentsSection(
         SectionLabel(text = stringResource(Res.string.profile_payments))
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
+            shape = KupioShapes.Large,
             color = MaterialTheme.colorScheme.surface,
             border = KupioThemeDefaults.defaultBorder,
         ) {
@@ -245,7 +245,7 @@ internal fun ProfileSection(
         SectionLabel(text = stringResource(Res.string.profile_section))
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
+            shape = KupioShapes.Large,
             color = MaterialTheme.colorScheme.surface,
             border = KupioThemeDefaults.defaultBorder,
         ) {
@@ -273,7 +273,7 @@ internal fun ReportsDashboardCard(openCount: Int, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .bouncingDimClickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
+        shape = KupioShapes.Large,
         color = MaterialTheme.colorScheme.primaryContainer,
         border = KupioThemeDefaults.defaultBorder,
     ) {
@@ -283,7 +283,7 @@ internal fun ReportsDashboardCard(openCount: Int, onClick: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(spacing.md),
         ) {
             Surface(
-                shape = RoundedCornerShape(10.dp),
+                shape = KupioShapes.Small,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                 modifier = Modifier.size(44.dp),
             ) {
@@ -313,7 +313,7 @@ internal fun ReportsDashboardCard(openCount: Int, onClick: () -> Unit) {
             }
             if (openCount > 0) {
                 Surface(
-                    shape = RoundedCornerShape(16.dp),
+                    shape = KupioShapes.Large,
                     color = MaterialTheme.colorScheme.primary,
                 ) {
                     Text(

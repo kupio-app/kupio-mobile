@@ -1,4 +1,4 @@
-package kupio.mobile.features.listings.presentation.create.components
+﻿package kupio.mobile.features.listings.presentation.create.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
@@ -57,6 +56,7 @@ import mobile.composeapp.generated.resources.create_price
 import mobile.composeapp.generated.resources.create_publish
 import mobile.composeapp.generated.resources.create_save_draft
 import org.jetbrains.compose.resources.stringResource
+import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 internal fun PriceSection(
@@ -106,7 +106,7 @@ private fun CreatePriceField(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
+        shape = KupioShapes.Medium,
         color = MaterialTheme.colorScheme.surface,
         border = if (error == null) {
             KupioThemeDefaults.strongBorder
@@ -141,7 +141,7 @@ private fun CreatePriceField(
                     letterSpacing = (-0.6).sp,
                 ),
                 colors = priceTextFieldColors(),
-                shape = RoundedCornerShape(12.dp),
+                shape = KupioShapes.Medium,
             )
         }
     }
@@ -177,8 +177,8 @@ private fun CurrencyMenu(
         Surface(
             modifier = Modifier
                 .size(48.dp)
-                .bouncingDimClickable(shape = RoundedCornerShape(12.dp)) { expanded = true },
-            shape = RoundedCornerShape(12.dp),
+                .bouncingDimClickable(shape = KupioShapes.Medium) { expanded = true },
+            shape = KupioShapes.Medium,
             color = MaterialTheme.colorScheme.surfaceVariant,
             border = KupioThemeDefaults.strongBorder,
         ) {
@@ -228,7 +228,7 @@ private fun ToggleRow(
         modifier = modifier
             .fillMaxWidth()
             .height(96.dp)
-            .bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onClick),
+            .bouncingDimClickable(shape = KupioShapes.Medium, onClick = onClick),
         color = if (checked) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
         border = if (checked) {
             BorderStroke(
@@ -238,7 +238,7 @@ private fun ToggleRow(
         } else {
             KupioThemeDefaults.strongBorder
         },
-        shape = RoundedCornerShape(12.dp),
+        shape = KupioShapes.Medium,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
@@ -248,7 +248,7 @@ private fun ToggleRow(
             Box(
                 modifier = Modifier
                     .size(20.dp)
-                    .clip(RoundedCornerShape(6.dp))
+                    .clip(KupioShapes.Micro)
                     .border(
                         if (checked) {
                             BorderStroke(
@@ -258,7 +258,7 @@ private fun ToggleRow(
                         } else {
                             KupioThemeDefaults.strongBorder
                         },
-                        RoundedCornerShape(6.dp),
+                        KupioShapes.Micro,
                     )
                     .background(
                         if (checked) {
@@ -313,7 +313,7 @@ internal fun PublishBar(
                 onClick = onSaveDraft,
                 enabled = !state.isSubmitting,
                 modifier = Modifier.height(48.dp),
-                shape = RoundedCornerShape(14.dp),
+                shape = KupioShapes.Medium,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -330,7 +330,7 @@ internal fun PublishBar(
                 modifier = Modifier
                     .weight(1f)
                     .height(48.dp),
-                shape = RoundedCornerShape(20.dp),
+                shape = KupioShapes.ExtraLarge,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.onSurface,
                     contentColor = MaterialTheme.colorScheme.surface,

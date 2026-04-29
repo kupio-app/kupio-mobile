@@ -1,4 +1,4 @@
-package kupio.mobile.features.me.presentation.profile.components
+﻿package kupio.mobile.features.me.presentation.profile.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountBalanceWallet
 import androidx.compose.material3.Icon
@@ -28,13 +27,14 @@ import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.profile_balance_label
 import mobile.composeapp.generated.resources.profile_topup
 import org.jetbrains.compose.resources.stringResource
+import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 internal fun BalanceCard(user: AuthenticatedUser?, onTopUp: () -> Unit) {
     val spacing = KupioThemeDefaults.spacing
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = KupioShapes.ExtraLarge,
         color = MaterialTheme.colorScheme.onSurface,
     ) {
         Row(
@@ -44,7 +44,7 @@ internal fun BalanceCard(user: AuthenticatedUser?, onTopUp: () -> Unit) {
         ) {
             Surface(
                 modifier = Modifier.size(44.dp),
-                shape = RoundedCornerShape(12.dp),
+                shape = KupioShapes.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -72,7 +72,7 @@ internal fun BalanceCard(user: AuthenticatedUser?, onTopUp: () -> Unit) {
             Spacer(modifier = Modifier.weight(1f))
             Surface(
                 modifier = Modifier.bouncingClickable(onClick = onTopUp),
-                shape = RoundedCornerShape(50.dp),
+                shape = KupioShapes.Full,
                 color = MaterialTheme.colorScheme.primary,
             ) {
                 Text(

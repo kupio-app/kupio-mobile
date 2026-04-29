@@ -1,4 +1,4 @@
-package kupio.mobile.features.listings.presentation.create.components
+﻿package kupio.mobile.features.listings.presentation.create.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -41,6 +40,7 @@ import mobile.composeapp.generated.resources.create_filters
 import mobile.composeapp.generated.resources.create_filters_empty
 import mobile.composeapp.generated.resources.create_filters_select_category
 import org.jetbrains.compose.resources.stringResource
+import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 internal fun FiltersSection(
@@ -194,8 +194,8 @@ private fun ChoiceChip(
     Surface(
         modifier = modifier
             .height(34.dp)
-            .bouncingDimClickable(shape = RoundedCornerShape(99.dp), onClick = onClick),
-        shape = RoundedCornerShape(99.dp),
+            .bouncingDimClickable(shape = KupioShapes.Full, onClick = onClick),
+        shape = KupioShapes.Full,
         color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surface,
         border = if (selected) {
             BorderStroke(

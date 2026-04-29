@@ -1,4 +1,4 @@
-package kupio.mobile.features.listings.presentation.create.components
+﻿package kupio.mobile.features.listings.presentation.create.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image as ComposeImage
@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ChevronLeft
@@ -65,6 +64,7 @@ import mobile.composeapp.generated.resources.create_photo_take
 import mobile.composeapp.generated.resources.create_photo_take_supporting
 import mobile.composeapp.generated.resources.create_photos
 import org.jetbrains.compose.resources.stringResource
+import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 internal fun PhotosSection(
@@ -84,13 +84,13 @@ internal fun PhotosSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(4f / 3f)
-                .clip(RoundedCornerShape(16.dp))
+                .clip(KupioShapes.Large)
                 .background(MaterialTheme.colorScheme.surface)
                 .border(
                     KupioThemeDefaults.strongBorder,
-                    RoundedCornerShape(16.dp)
+                    KupioShapes.Large
                 )
-                .bouncingDimClickable(shape = RoundedCornerShape(16.dp), onClick = onAdd),
+                .bouncingDimClickable(shape = KupioShapes.Large, onClick = onAdd),
             contentAlignment = Alignment.Center,
         ) {
             if (selectedImage?.previewBitmap != null) {
@@ -183,7 +183,7 @@ internal fun ImageSourceSheet(
                     contentDescription = null,
                 )
             },
-            modifier = Modifier.bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onTakePhoto),
+            modifier = Modifier.bouncingDimClickable(shape = KupioShapes.Medium, onClick = onTakePhoto),
         )
         ListItem(
             headlineContent = { Text(stringResource(Res.string.create_photo_choose_gallery)) },
@@ -194,7 +194,7 @@ internal fun ImageSourceSheet(
                     contentDescription = null,
                 )
             },
-            modifier = Modifier.bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onChooseFromGallery),
+            modifier = Modifier.bouncingDimClickable(shape = KupioShapes.Medium, onClick = onChooseFromGallery),
         )
         Spacer(Modifier.height(24.dp))
     }
@@ -212,7 +212,7 @@ private fun PhotoPlaceholder(
     ) {
         Surface(
             modifier = Modifier.size(56.dp),
-            shape = RoundedCornerShape(18.dp),
+            shape = KupioShapes.Large,
             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
             shadowElevation = 2.dp,
         ) {
@@ -251,9 +251,9 @@ private fun PreviewArrow(
             .size(40.dp)
             .background(
                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f),
-                shape = RoundedCornerShape(14.dp),
+                shape = KupioShapes.Medium,
             )
-            .bouncingDimClickable(shape = RoundedCornerShape(14.dp), onClick = onClick),
+            .bouncingDimClickable(shape = KupioShapes.Medium, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
@@ -269,7 +269,7 @@ private fun CoverBadge(modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier,
         color = MaterialTheme.colorScheme.primary,
-        shape = RoundedCornerShape(4.dp),
+        shape = KupioShapes.Micro,
     ) {
         Text(
             text = stringResource(Res.string.create_photo_cover),
@@ -291,7 +291,7 @@ private fun ImageTile(
     Box(
         modifier = Modifier
             .size(72.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(KupioShapes.Small)
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .border(
                 if (selected) {
@@ -299,9 +299,9 @@ private fun ImageTile(
                 } else {
                     KupioThemeDefaults.strongBorder
                 },
-                RoundedCornerShape(10.dp)
+                KupioShapes.Small
             )
-            .bouncingDimClickable(shape = RoundedCornerShape(10.dp), onClick = onClick),
+            .bouncingDimClickable(shape = KupioShapes.Small, onClick = onClick),
     ) {
         if (image.previewBitmap != null) {
             ComposeImage(
@@ -323,7 +323,7 @@ private fun ImageTile(
                 .align(Alignment.TopEnd)
                 .padding(6.dp)
                 .size(16.dp)
-                .bouncingDimClickable(shape = RoundedCornerShape(99.dp), onClick = onRemove),
+                .bouncingDimClickable(shape = KupioShapes.Full, onClick = onRemove),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -341,8 +341,8 @@ private fun AddImageTile(onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .size(72.dp)
-            .bouncingDimClickable(shape = RoundedCornerShape(10.dp), onClick = onClick),
-        shape = RoundedCornerShape(10.dp),
+            .bouncingDimClickable(shape = KupioShapes.Small, onClick = onClick),
+        shape = KupioShapes.Small,
         color = Color.Transparent,
         border = KupioThemeDefaults.strongBorder,
     ) {

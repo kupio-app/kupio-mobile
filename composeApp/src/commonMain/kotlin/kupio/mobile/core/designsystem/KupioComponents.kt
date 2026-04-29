@@ -1,4 +1,4 @@
-package kupio.mobile.core.designsystem
+﻿package kupio.mobile.core.designsystem
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -94,7 +93,7 @@ fun KupioPrimaryButton(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
         ),
-        shape = RoundedCornerShape(20.dp),
+        shape = KupioShapes.ExtraLarge,
     ) {
         if (loading) {
             CircularProgressIndicator(
@@ -120,7 +119,7 @@ fun KupioOutlinedLoadingButton(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         enabled = enabled && !loading,
-        shape = RoundedCornerShape(20.dp),
+        shape = KupioShapes.ExtraLarge,
         border = KupioThemeDefaults.defaultBorder,
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -172,7 +171,7 @@ fun KupioOutlinedTextField(
                 Text(errorMessage)
             }
         },
-        shape = RoundedCornerShape(20.dp),
+        shape = KupioShapes.ExtraLarge,
     )
 }
 
@@ -204,7 +203,7 @@ fun KupioCardSurface(
     Surface(
         modifier = modifier,
         color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(16.dp),
+        shape = KupioShapes.Large,
         border = KupioThemeDefaults.defaultBorder,
         content = content,
     )

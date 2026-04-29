@@ -1,10 +1,9 @@
-package kupio.mobile.features.chats.presentation.components
+﻿package kupio.mobile.features.chats.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Icon
@@ -25,6 +24,7 @@ import mobile.composeapp.generated.resources.chats_filter_all
 import mobile.composeapp.generated.resources.chats_filter_buying
 import mobile.composeapp.generated.resources.chats_filter_selling
 import org.jetbrains.compose.resources.stringResource
+import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 fun ChatsFilterChips(
@@ -73,7 +73,7 @@ private fun FilterChip(
 
     Surface(
         modifier = Modifier.bouncingClickable(onClick),
-        shape = RoundedCornerShape(20.dp),
+        shape = KupioShapes.ExtraLarge,
         color = if (selected) colors.onSurface else colors.background,
         border = if (selected) null else KupioThemeDefaults.strongBorder,
     ) {

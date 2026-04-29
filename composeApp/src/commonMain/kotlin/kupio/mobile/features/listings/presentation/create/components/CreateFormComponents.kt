@@ -1,4 +1,4 @@
-package kupio.mobile.features.listings.presentation.create.components
+﻿package kupio.mobile.features.listings.presentation.create.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,6 +28,7 @@ import kupio.mobile.features.listings.presentation.create.toErrorMessage
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.retry
 import org.jetbrains.compose.resources.stringResource
+import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 internal fun FormSection(
@@ -90,7 +90,7 @@ internal fun CreateTextField(
         minLines = minLines,
         supportingText = { error?.let { Text(it.toErrorMessage()) } },
         colors = createTextFieldColors(),
-        shape = RoundedCornerShape(12.dp),
+        shape = KupioShapes.Medium,
     )
 }
 

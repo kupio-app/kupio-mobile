@@ -1,4 +1,4 @@
-package kupio.mobile.features.listings.presentation.create.components
+﻿package kupio.mobile.features.listings.presentation.create.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ChevronLeft
@@ -47,6 +46,7 @@ import mobile.composeapp.generated.resources.create_category_use
 import mobile.composeapp.generated.resources.create_error_load_subcategories
 import mobile.composeapp.generated.resources.create_subcategories
 import org.jetbrains.compose.resources.stringResource
+import kupio.mobile.core.designsystem.KupioShapes
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -89,7 +89,7 @@ internal fun CategoryPickerSheet(
                 Button(
                     onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
+                    shape = KupioShapes.Medium,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.onSurface,
                         contentColor = MaterialTheme.colorScheme.surface,
@@ -150,8 +150,8 @@ private fun CategoryBackRow(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
+            .bouncingDimClickable(shape = KupioShapes.Medium, onClick = onClick),
+        shape = KupioShapes.Medium,
         color = MaterialTheme.colorScheme.surfaceVariant,
         border = KupioThemeDefaults.strongBorder,
     ) {
@@ -213,8 +213,8 @@ private fun CategoryBreadcrumbItem(
     Text(
         text = text,
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .bouncingDimClickable(shape = RoundedCornerShape(8.dp), onClick = onClick)
+            .clip(KupioShapes.Small)
+            .bouncingDimClickable(shape = KupioShapes.Small, onClick = onClick)
             .padding(horizontal = 4.dp, vertical = 4.dp),
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -241,8 +241,8 @@ private fun CategoryPickerRow(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .bouncingDimClickable(shape = RoundedCornerShape(12.dp), onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
+            .bouncingDimClickable(shape = KupioShapes.Medium, onClick = onClick),
+        shape = KupioShapes.Medium,
         color = if (selected) {
             MaterialTheme.colorScheme.primaryContainer
         } else {
@@ -265,7 +265,7 @@ private fun CategoryPickerRow(
             Box(
                 modifier = Modifier
                     .size(22.dp)
-                    .clip(RoundedCornerShape(99.dp))
+                    .clip(KupioShapes.Full)
                     .background(
                         if (selected) {
                             MaterialTheme.colorScheme.onSurface
@@ -275,7 +275,7 @@ private fun CategoryPickerRow(
                     )
                     .border(
                         KupioThemeDefaults.strongBorder,
-                        RoundedCornerShape(99.dp),
+                        KupioShapes.Full,
                     ),
                 contentAlignment = Alignment.Center,
             ) {

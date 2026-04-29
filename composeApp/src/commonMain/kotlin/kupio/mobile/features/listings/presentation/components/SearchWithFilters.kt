@@ -1,4 +1,4 @@
-package kupio.mobile.features.listings.presentation.components
+﻿package kupio.mobile.features.listings.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -33,6 +32,7 @@ import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.home_filters
 import mobile.composeapp.generated.resources.home_search_placeholder
 import org.jetbrains.compose.resources.stringResource
+import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 fun SearchWithFilters(
@@ -52,7 +52,7 @@ fun SearchWithFilters(
     ) {
         Surface(
             modifier = Modifier.weight(1f).height(56.dp),
-            shape = RoundedCornerShape(20.dp),
+            shape = KupioShapes.ExtraLarge,
             color = colors.surface,
             border = KupioThemeDefaults.defaultBorder,
         ) {
@@ -96,7 +96,7 @@ fun SearchWithFilters(
             }
         }
 
-        val filtersBtnShape = RoundedCornerShape(20.dp)
+        val filtersBtnShape = KupioShapes.ExtraLarge
         Box(
             modifier = Modifier
                 .size(56.dp)

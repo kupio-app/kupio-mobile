@@ -1,10 +1,9 @@
-package kupio.mobile.features.me.presentation.mylistings.components
+﻿package kupio.mobile.features.me.presentation.mylistings.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -21,6 +20,7 @@ import mobile.composeapp.generated.resources.my_listings_filter_all
 import mobile.composeapp.generated.resources.my_listings_filter_draft
 import mobile.composeapp.generated.resources.my_listings_filter_inactive
 import org.jetbrains.compose.resources.stringResource
+import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 internal fun FilterChipsRow(
@@ -55,7 +55,7 @@ private fun FilterChip(label: String, selected: Boolean, onClick: () -> Unit) {
     val textColor = if (selected) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurface
     Surface(
         modifier = Modifier.bouncingClickable(onClick = onClick),
-        shape = RoundedCornerShape(50.dp),
+        shape = KupioShapes.Full,
         color = bgColor,
         border = KupioThemeDefaults.defaultBorder,
     ) {

@@ -16,6 +16,8 @@ interface ListingsRepository {
 
     suspend fun getListing(id: String): Listing
 
+    suspend fun getListingDetail(id: String): Listing
+
     suspend fun createListing(listing: CreateListing): Listing
 
     suspend fun updateListingStatus(

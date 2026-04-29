@@ -493,6 +493,8 @@ class CreateViewModelTest {
 
         override suspend fun getListing(id: String): Listing = listing(id)
 
+        override suspend fun getListingDetail(id: String): Listing = listing(id)
+
         override suspend fun createListing(listing: CreateListing): Listing {
             createCalls += 1
             createdListing = listing
@@ -549,9 +551,16 @@ class CreateViewModelTest {
             price = 180,
             currency = Currency.EUR,
             primaryImageUrl = null,
+            imageUrls = emptyList(),
             createdAt = "2026-04-26T00:00:00Z",
+            userId = "seller",
             categoryId = 1,
             categoryName = "Furniture",
+            seenCount = 0,
+            phone = null,
+            contactName = null,
+            isCallsDisabled = false,
+            customFilters = emptyMap(),
         )
     }
 }

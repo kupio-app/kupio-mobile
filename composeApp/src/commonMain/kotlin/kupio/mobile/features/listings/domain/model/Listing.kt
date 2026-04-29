@@ -7,9 +7,16 @@ data class Listing(
     val price: Int,
     val currency: Currency,
     val primaryImageUrl: String?,
+    val imageUrls: List<String>,
     val createdAt: String,
+    val userId: String,
     val categoryId: Int,
     val categoryName: String,
+    val seenCount: Int,
+    val phone: String?,
+    val contactName: String?,
+    val isCallsDisabled: Boolean,
+    val customFilters: Map<String, String>,
 )
 
 data class ListingFeed(

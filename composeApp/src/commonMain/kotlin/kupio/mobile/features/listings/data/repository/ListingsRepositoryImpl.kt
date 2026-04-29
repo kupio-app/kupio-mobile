@@ -34,6 +34,11 @@ class ListingsRepositoryImpl(
             listingsApi.getListing(authorize, id)
         }.toDomain()
 
+    override suspend fun getListingDetail(id: String): Listing =
+        authenticatedApiClient.request { authorize ->
+            listingsApi.getListing(authorize, id, countSeen = true)
+        }.toDomain()
+
     override suspend fun createListing(listing: CreateListing): Listing =
         authenticatedApiClient.request { authorize ->
             listingsApi.createListing(authorize, listing.toDto())

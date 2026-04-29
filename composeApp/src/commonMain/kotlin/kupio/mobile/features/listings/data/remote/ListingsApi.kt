@@ -20,8 +20,12 @@ class ListingsApi(private val httpClient: HttpClient) {
     suspend fun getListing(
         authorize: HttpRequestBuilder.() -> Unit,
         id: String,
+        countSeen: Boolean = false,
     ): ListingResponseDto = httpClient.get("/api/listings/$id") {
         authorize()
+        url {
+            parameters.append("count_seen", countSeen.toString())
+        }
     }.bodyOrThrow()
 
     suspend fun getListings(

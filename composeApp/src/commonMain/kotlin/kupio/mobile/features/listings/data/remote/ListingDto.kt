@@ -6,6 +6,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
 import kupio.mobile.features.listings.domain.model.Currency
 import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.CustomFilterPayloadValue
@@ -31,6 +32,11 @@ data class ListingResponseDto(
     val category: CategorySlimDto,
     val images: List<ListingImageResponseDto> = emptyList(),
     @SerialName("created_at") val createdAt: String,
+    @SerialName("seen_count") val seenCount: Int = 0,
+    val phone: String? = null,
+    @SerialName("contact_name") val contactName: String? = null,
+    @SerialName("is_calls_disabled") val isCallsDisabled: Boolean = false,
+    @SerialName("custom_filters") val customFilters: JsonObject? = null,
 )
 
 @Serializable
@@ -111,9 +117,16 @@ fun ListingResponseDto.toDomain(): Listing = Listing(
     price = price,
     currency = currency.toDomain(),
     primaryImageUrl = images.minByOrNull { it.sortOrder }?.url,
+    imageUrls = images.sortedBy { it.sortOrder }.map { it.url },
     createdAt = createdAt,
+    userId = userId,
     categoryId = category.id,
     categoryName = category.name,
+    seenCount = seenCount,
+    phone = phone,
+    contactName = contactName,
+    isCallsDisabled = isCallsDisabled,
+    customFilters = customFilters.toDisplayMap(),
 )
 
 fun ListListingsResponseDto.toDomain(): ListingFeed = ListingFeed(
@@ -142,4 +155,15 @@ private fun CustomFilterPayloadValue.toJsonElement(): JsonElement = when (this) 
     is CustomFilterPayloadValue.Text -> JsonPrimitive(value)
     is CustomFilterPayloadValue.Number -> JsonPrimitive(value)
     is CustomFilterPayloadValue.BooleanValue -> JsonPrimitive(value)
+}
+
+private fun JsonObject?.toDisplayMap(): Map<String, String> {
+    if (this == null) return emptyMap()
+    return entries.mapNotNull { (key, value) ->
+        val text = when (value) {
+            is JsonPrimitive -> value.contentOrNull
+            else -> value.toString()
+        }?.takeIf { it.isNotBlank() }
+        text?.let { key to it }
+    }.toMap()
 }

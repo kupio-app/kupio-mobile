@@ -38,6 +38,7 @@ import kupio.mobile.core.datetime.toLocalDate
 import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingClickable
+import kupio.mobile.features.listings.presentation.components.ListingThumbnail
 import kupio.mobile.features.me.domain.model.OwnedListing
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.domain.model.formatPrice
@@ -84,7 +85,11 @@ internal fun OwnedListingCard(
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.spacedBy(spacing.md),
             ) {
-                ListingImagePlaceholder(listing.id)
+                ListingThumbnail(
+                    imageUrl = listing.primaryImageUrl,
+                    contentDescription = listing.title,
+                    modifier = Modifier.size(80.dp),
+                )
                 Column(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(spacing.xs),
@@ -143,22 +148,6 @@ internal fun OwnedListingCard(
             )
         }
     }
-}
-
-@Composable
-private fun ListingImagePlaceholder(listingId: String) {
-    val colors = listOf(
-        Color(0xFFCEB99A),
-        Color(0xFFB5A088),
-        Color(0xFF9B876F),
-        Color(0xFF856E58),
-    )
-    val bg = colors[(listingId.hashCode() and 0x7FFFFFFF) % colors.size]
-    Box(
-        modifier = Modifier
-            .size(80.dp)
-            .background(bg, KupioShapes.Small),
-    )
 }
 
 @Composable

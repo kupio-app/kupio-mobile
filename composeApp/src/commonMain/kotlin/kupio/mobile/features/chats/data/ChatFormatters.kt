@@ -22,4 +22,5 @@ internal fun Listing.toSummary() = ListingSummary(
     title = title,
     priceFormatted = formatPrice(),
     placeholderSeed = id.hashCode(),
+    imageUrl = primaryImageUrl,
 )

@@ -330,7 +330,7 @@ internal fun PublishBar(
                 modifier = Modifier
                     .weight(1f)
                     .height(48.dp),
-                shape = KupioShapes.ExtraLarge,
+                shape = KupioShapes.Medium,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.onSurface,
                     contentColor = MaterialTheme.colorScheme.surface,

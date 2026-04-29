@@ -1,4 +1,4 @@
-package kupio.mobile.core.designsystem
+﻿package kupio.mobile.core.designsystem
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -47,6 +48,15 @@ private val KupioDarkColors = darkColorScheme(
     onSurfaceVariant = Color(0xFFC1A986),     // kp-ink-2 dark
     outline = Color(0xFF8A7559),              // kp-ink-3 dark
 )
+
+object KupioShapes {
+    val Full = RoundedCornerShape(percent = 50)
+    val ExtraLarge = RoundedCornerShape(20.dp)
+    val Large = RoundedCornerShape(16.dp)
+    val Medium = RoundedCornerShape(12.dp)
+    val Small = RoundedCornerShape(8.dp)
+    val Micro = RoundedCornerShape(4.dp)
+}
 
 @Immutable
 data class KupioSpacing(

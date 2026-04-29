@@ -28,6 +28,7 @@ import kupio.mobile.features.chats.data.remote.UserApi
 import kupio.mobile.features.chats.data.repository.ChatsRepositoryImpl
 import kupio.mobile.features.chats.data.repository.MessagesRepositoryImpl
 import kupio.mobile.features.chats.domain.repository.ChatsRepository
+import kupio.mobile.features.chats.domain.repository.ConversationsRefresher
 import kupio.mobile.features.chats.domain.repository.MessagesRepository
 import kupio.mobile.features.chats.presentation.list.ChatsListViewModel
 import kupio.mobile.features.chats.presentation.thread.ChatThreadViewModel
@@ -82,6 +83,7 @@ val kupioAppModules: List<Module> = listOf(
         single<MessagesRepository> { MessagesRepositoryImpl(get(), get(), get(), get()) }
         single { SessionCleaner(get(), get()) }
         single { ConversationsStore(get(), get(), get(), get(), get(), get()) }
+        single<ConversationsRefresher> { get<ConversationsStore>() }
         viewModelOf(::ChatsListViewModel)
         viewModel { params -> ChatThreadViewModel(params.get(), get(), get()) }
         single<AuthClock> { SystemAuthClock() }
@@ -107,6 +109,6 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::MyListingsViewModel)
         viewModelOf(::SettingsViewModel)
         viewModelOf(::UsernameViewModel)
-        viewModel { params -> ListingDetailViewModel(params.get(), get()) }
+        viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get()) }
     },
 )

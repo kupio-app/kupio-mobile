@@ -99,6 +99,12 @@
     <string name="listing_detail_photo_count">%1$d/%2$d</string>
     <string name="listing_detail_seen_count">%1$d</string>
     <string name="listing_detail_description">Description</string>
+    <string name="listing_detail_metrics">Metrics</string>
+    <string name="listing_detail_views">Views</string>
+    <string name="listing_detail_favourites">Favourites</string>
+    <string name="listing_detail_chats">Chats</string>
+    <string name="listing_detail_promoted">Promoted</string>
+    <string name="listing_detail_status_error">Could not update listing status.</string>
     <string name="listing_detail_seller_profile">Profile</string>
     <string name="listing_detail_report">Report listing</string>
     <string name="listing_detail_posted">Posted %1$s</string>

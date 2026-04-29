@@ -8,12 +8,15 @@ import kupio.mobile.features.listings.domain.model.Listing
 data class ListingDetailState(
     val listing: Listing? = null,
     val seller: ListingSellerUi? = null,
+    val isOwnListing: Boolean = false,
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
-    val isMessageDialogVisible: Boolean = false,
+    val isMessageSheetVisible: Boolean = false,
     val messageDraft: String = "",
     val isSendingMessage: Boolean = false,
     val messageError: String? = null,
+    val isUpdatingStatus: Boolean = false,
+    val statusError: String? = null,
 ) : UiState
 
 data class ListingSellerUi(
@@ -32,11 +35,14 @@ data class ListingSellerUi(
 sealed interface ListingDetailIntent : UiAction {
     data object Retry : ListingDetailIntent
     data object Back : ListingDetailIntent
-    data object OpenMessageDialog : ListingDetailIntent
-    data object CloseMessageDialog : ListingDetailIntent
+    data object OpenMessageSheet : ListingDetailIntent
+    data object CloseMessageSheet : ListingDetailIntent
     data class MessageChanged(val value: String) : ListingDetailIntent
     data object SendMessage : ListingDetailIntent
     data object CallSeller : ListingDetailIntent
+    data object EditListing : ListingDetailIntent
+    data object PromoteListing : ListingDetailIntent
+    data object ToggleOwnerStatus : ListingDetailIntent
     data object ReportListing : ListingDetailIntent
     data object OpenSellerProfile : ListingDetailIntent
 }

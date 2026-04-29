@@ -1,13 +1,13 @@
 package kupio.mobile.features.listings.presentation.detail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,32 +17,36 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.Message
+import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.Circle
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.Visibility
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -56,8 +60,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kupio.mobile.core.designsystem.KupioErrorRetryRow
+import kupio.mobile.core.designsystem.KupioDefaultButton
 import kupio.mobile.core.designsystem.KupioLoadingScreen
 import kupio.mobile.core.designsystem.KupioShapes
+import kupio.mobile.core.designsystem.KupioTextField
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.KupioUserAvatar
 import kupio.mobile.core.designsystem.bouncingClickable
@@ -65,26 +71,43 @@ import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.chats.presentation.thread.ChatThreadScreen
 import kupio.mobile.features.listings.domain.model.Listing
+import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.model.formatPrice
 import kupio.mobile.features.listings.presentation.components.ListingImage
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.back
+import mobile.composeapp.generated.resources.listing_detail_chats
 import mobile.composeapp.generated.resources.listing_detail_call
 import mobile.composeapp.generated.resources.listing_detail_cancel
 import mobile.composeapp.generated.resources.listing_detail_description
 import mobile.composeapp.generated.resources.listing_detail_favourite
+import mobile.composeapp.generated.resources.listing_detail_favourites
 import mobile.composeapp.generated.resources.listing_detail_image
 import mobile.composeapp.generated.resources.listing_detail_message_empty
 import mobile.composeapp.generated.resources.listing_detail_message_placeholder
 import mobile.composeapp.generated.resources.listing_detail_message_seller
 import mobile.composeapp.generated.resources.listing_detail_message_title
+import mobile.composeapp.generated.resources.listing_detail_metrics
 import mobile.composeapp.generated.resources.listing_detail_photo_count
 import mobile.composeapp.generated.resources.listing_detail_posted
+import mobile.composeapp.generated.resources.listing_detail_promoted
 import mobile.composeapp.generated.resources.listing_detail_report
 import mobile.composeapp.generated.resources.listing_detail_seen_count
 import mobile.composeapp.generated.resources.listing_detail_seller_fallback
 import mobile.composeapp.generated.resources.listing_detail_seller_profile
 import mobile.composeapp.generated.resources.listing_detail_send
+import mobile.composeapp.generated.resources.listing_detail_status_error
+import mobile.composeapp.generated.resources.listing_detail_views
+import mobile.composeapp.generated.resources.my_listings_activate
+import mobile.composeapp.generated.resources.my_listings_deactivate
+import mobile.composeapp.generated.resources.my_listings_edit
+import mobile.composeapp.generated.resources.my_listings_extend
+import mobile.composeapp.generated.resources.my_listings_filter_active
+import mobile.composeapp.generated.resources.my_listings_filter_draft
+import mobile.composeapp.generated.resources.my_listings_filter_inactive
+import mobile.composeapp.generated.resources.my_listings_filter_planned
+import mobile.composeapp.generated.resources.my_listings_filter_sold
+import mobile.composeapp.generated.resources.my_listings_promote
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -113,7 +136,11 @@ private fun ListingDetailContent(
     Scaffold(
         bottomBar = {
             if (state.listing != null && !state.isLoading) {
-                DetailActionBar(state = state, onIntent = onIntent)
+                if (state.isOwnListing) {
+                    OwnerActionBar(state = state, onIntent = onIntent)
+                } else {
+                    DetailActionBar(state = state, onIntent = onIntent)
+                }
             }
         },
     ) { paddingValues ->
@@ -139,8 +166,8 @@ private fun ListingDetailContent(
         }
     }
 
-    if (state.isMessageDialogVisible) {
-        MessageSellerDialog(state = state, onIntent = onIntent)
+    if (state.isMessageSheetVisible) {
+        MessageSellerSheet(state = state, onIntent = onIntent)
     }
 }
 
@@ -157,42 +184,52 @@ private fun DetailBody(
         item {
             ListingHero(
                 listing = listing,
+                showFavourite = !state.isOwnListing,
                 onBack = { onIntent(ListingDetailIntent.Back) },
             )
         }
         item { ListingSummarySection(listing) }
+        if (state.isOwnListing) {
+            item { OwnerMetricsSection(listing = listing) }
+        }
         if (listing.customFilters.isNotEmpty()) {
             item { ListingSpecsSection(listing.customFilters) }
         }
         item { ListingDescriptionSection(listing.description) }
-        item {
-            SellerSection(
-                seller = state.seller,
-                onProfile = { onIntent(ListingDetailIntent.OpenSellerProfile) },
-            )
-        }
-        item {
-            ListingFooter(
-                listing = listing,
-                onReport = { onIntent(ListingDetailIntent.ReportListing) },
-            )
+        if (!state.isOwnListing) {
+            item {
+                SellerSection(
+                    seller = state.seller,
+                    onProfile = { onIntent(ListingDetailIntent.OpenSellerProfile) },
+                )
+            }
+            item {
+                ListingFooter(
+                    listing = listing,
+                    onReport = { onIntent(ListingDetailIntent.ReportListing) },
+                )
+            }
+        } else if (state.statusError != null) {
+            item { OwnerStatusError(message = state.statusError) }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ListingHero(
     listing: Listing,
+    showFavourite: Boolean,
     onBack: () -> Unit,
 ) {
-    var selectedIndex by remember(listing.id, listing.imageUrls) { mutableIntStateOf(0) }
     val imageUrls = listing.imageUrls.ifEmpty {
         listing.primaryImageUrl
             ?.takeIf { it.isNotBlank() }
             ?.let(::listOf)
             .orEmpty()
     }
-    val selectedUrl = imageUrls.getOrNull(selectedIndex)?.takeIf { it.isNotBlank() }
+    val pageCount = imageUrls.size.coerceAtLeast(1)
+    val pagerState = rememberPagerState(pageCount = { pageCount })
     val spacing = KupioThemeDefaults.spacing
 
     Box(
@@ -200,11 +237,16 @@ private fun ListingHero(
             .fillMaxWidth()
             .height(330.dp),
     ) {
-        ListingImage(
-            imageUrl = selectedUrl,
-            contentDescription = stringResource(Res.string.listing_detail_image),
+        HorizontalPager(
+            state = pagerState,
             modifier = Modifier.fillMaxSize(),
-        )
+        ) { page ->
+            ListingImage(
+                imageUrl = imageUrls.getOrNull(page),
+                contentDescription = stringResource(Res.string.listing_detail_image),
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
 
         Row(
             modifier = Modifier
@@ -220,15 +262,17 @@ private fun ListingHero(
             ) {
                 Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null)
             }
-            FloatingIconButton(
-                onClick = {},
-                contentDescription = stringResource(Res.string.listing_detail_favourite),
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.FavoriteBorder,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface,
-                )
+            if (showFavourite) {
+                FloatingIconButton(
+                    onClick = {},
+                    contentDescription = stringResource(Res.string.listing_detail_favourite),
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.FavoriteBorder,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
             }
         }
 
@@ -242,11 +286,10 @@ private fun ListingHero(
                 imageUrls.forEachIndexed { index, _ ->
                     Surface(
                         modifier = Modifier
-                            .size(width = if (index == selectedIndex) 20.dp else 6.dp, height = 6.dp)
-                            .bouncingClickable { selectedIndex = index },
+                            .size(width = if (index == pagerState.currentPage) 20.dp else 6.dp, height = 6.dp),
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.surface.copy(
-                            alpha = if (index == selectedIndex) 1f else 0.6f,
+                            alpha = if (index == pagerState.currentPage) 1f else 0.6f,
                         ),
                         content = {},
                     )
@@ -276,7 +319,7 @@ private fun ListingHero(
                     Text(
                         text = stringResource(
                             Res.string.listing_detail_photo_count,
-                            selectedIndex + 1,
+                            pagerState.currentPage + 1,
                             imageUrls.size,
                         ),
                         style = MaterialTheme.typography.labelSmall,
@@ -335,6 +378,13 @@ private fun ListingSummarySection(listing: Listing) {
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            StatusChip(text = listing.status.label())
+            if (listing.isPromoted) {
+                StatusChip(
+                    text = stringResource(Res.string.listing_detail_promoted),
+                    isPromoted = true,
+                )
+            }
         }
         Text(
             text = listing.title,
@@ -365,6 +415,123 @@ private fun ListingSummarySection(listing: Listing) {
             )
         }
     }
+}
+
+@Composable
+private fun StatusChip(
+    text: String,
+    isPromoted: Boolean = false,
+) {
+    Surface(
+        shape = KupioShapes.Small,
+        color = if (isPromoted) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surfaceVariant
+        },
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = if (isPromoted) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            fontWeight = FontWeight.Medium,
+        )
+    }
+}
+
+@Composable
+private fun OwnerMetricsSection(listing: Listing) {
+    val spacing = KupioThemeDefaults.spacing
+    Column(
+        modifier = Modifier.padding(horizontal = spacing.lg, vertical = spacing.xs),
+        verticalArrangement = Arrangement.spacedBy(spacing.sm),
+    ) {
+        SectionLabel(stringResource(Res.string.listing_detail_metrics))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(spacing.sm),
+        ) {
+            OwnerMetricCard(
+                count = listing.seenCount,
+                label = stringResource(Res.string.listing_detail_views),
+                icon = { Icon(Icons.Outlined.Visibility, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                modifier = Modifier.weight(1f),
+            )
+            OwnerMetricCard(
+                count = listing.favouritesCount,
+                label = stringResource(Res.string.listing_detail_favourites),
+                icon = { Icon(Icons.Outlined.FavoriteBorder, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                modifier = Modifier.weight(1f),
+            )
+            OwnerMetricCard(
+                count = listing.chatsCount,
+                label = stringResource(Res.string.listing_detail_chats),
+                icon = { Icon(Icons.AutoMirrored.Outlined.Message, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+@Composable
+private fun OwnerMetricCard(
+    count: Int,
+    label: String,
+    icon: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        shape = KupioShapes.Large,
+        color = MaterialTheme.colorScheme.surface,
+        border = KupioThemeDefaults.defaultBorder,
+    ) {
+        Column(
+            modifier = Modifier.padding(KupioThemeDefaults.spacing.md),
+            verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.xs),
+        ) {
+            Text(
+                text = count.toString(),
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                Box(
+                    modifier = Modifier.size(14.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    icon()
+                }
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun OwnerStatusError(message: String) {
+    val text = message.ifBlank { stringResource(Res.string.listing_detail_status_error) }
+    Text(
+        text = text,
+        modifier = Modifier.padding(horizontal = KupioThemeDefaults.spacing.lg),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.error,
+    )
 }
 
 @Composable
@@ -585,7 +752,7 @@ private fun DetailActionBar(
                 Text(stringResource(Res.string.listing_detail_call))
             }
             Button(
-                onClick = { onIntent(ListingDetailIntent.OpenMessageDialog) },
+                onClick = { onIntent(ListingDetailIntent.OpenMessageSheet) },
                 modifier = Modifier.weight(1f),
                 shape = KupioShapes.Large,
                 colors = ButtonDefaults.buttonColors(
@@ -606,53 +773,155 @@ private fun DetailActionBar(
 }
 
 @Composable
-private fun MessageSellerDialog(
+private fun OwnerActionBar(
     state: ListingDetailState,
     onIntent: (ListingDetailIntent) -> Unit,
 ) {
-    AlertDialog(
+    val listing = state.listing ?: return
+    val spacing = KupioThemeDefaults.spacing
+    val canToggle = listing.status.canToggleOwnerStatus() && !state.isUpdatingStatus
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        border = KupioThemeDefaults.defaultBorder,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = spacing.md, vertical = spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(spacing.sm),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            OwnerActionButton(
+                label = stringResource(Res.string.my_listings_edit),
+                icon = { Icon(Icons.Outlined.Edit, contentDescription = null, modifier = Modifier.size(18.dp)) },
+                onClick = { onIntent(ListingDetailIntent.EditListing) },
+                modifier = Modifier.weight(1f),
+            )
+            OwnerActionButton(
+                label = if (listing.isPromoted) {
+                    stringResource(Res.string.my_listings_extend)
+                } else {
+                    stringResource(Res.string.my_listings_promote)
+                },
+                icon = { Icon(Icons.Outlined.Bolt, contentDescription = null, modifier = Modifier.size(18.dp)) },
+                onClick = { onIntent(ListingDetailIntent.PromoteListing) },
+                modifier = Modifier.weight(1f),
+                emphasis = true,
+            )
+            OwnerActionButton(
+                label = listing.status.toggleLabel(),
+                icon = { Icon(Icons.Outlined.Circle, contentDescription = null, modifier = Modifier.size(18.dp)) },
+                onClick = { onIntent(ListingDetailIntent.ToggleOwnerStatus) },
+                modifier = Modifier.weight(1f),
+                enabled = canToggle,
+            )
+        }
+    }
+}
+
+@Composable
+private fun OwnerActionButton(
+    label: String,
+    icon: @Composable () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    emphasis: Boolean = false,
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        shape = KupioShapes.Large,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (emphasis) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.surface
+            },
+            contentColor = if (emphasis) {
+                MaterialTheme.colorScheme.onPrimary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+        ),
+        border = if (emphasis) null else KupioThemeDefaults.strongBorder,
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 13.dp),
+    ) {
+        icon()
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = label,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            fontWeight = FontWeight.SemiBold,
+        )
+    }
+}
+
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+private fun MessageSellerSheet(
+    state: ListingDetailState,
+    onIntent: (ListingDetailIntent) -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
         onDismissRequest = {
-            if (!state.isSendingMessage) onIntent(ListingDetailIntent.CloseMessageDialog)
+            if (!state.isSendingMessage) onIntent(ListingDetailIntent.CloseMessageSheet)
         },
-        title = { Text(stringResource(Res.string.listing_detail_message_title)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm)) {
-                OutlinedTextField(
-                    value = state.messageDraft,
-                    onValueChange = { onIntent(ListingDetailIntent.MessageChanged(it)) },
-                    placeholder = { Text(stringResource(Res.string.listing_detail_message_placeholder)) },
-                    minLines = 3,
+        sheetState = sheetState,
+        shape = KupioShapes.ExtraLarge,
+        containerColor = MaterialTheme.colorScheme.background,
+    ) {
+        val emptyMessage = stringResource(Res.string.listing_detail_message_empty)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = KupioThemeDefaults.spacing.lg)
+                .padding(bottom = KupioThemeDefaults.spacing.lg),
+            verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
+        ) {
+            Text(
+                text = stringResource(Res.string.listing_detail_message_title),
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold,
+            )
+            KupioTextField(
+                value = state.messageDraft,
+                onValueChange = { onIntent(ListingDetailIntent.MessageChanged(it)) },
+                label = stringResource(Res.string.listing_detail_message_title),
+                placeholder = stringResource(Res.string.listing_detail_message_placeholder),
+                error = state.messageError?.ifBlank { emptyMessage },
+                singleLine = false,
+                minLines = 4,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                TextButton(
+                    onClick = { onIntent(ListingDetailIntent.CloseMessageSheet) },
                     enabled = !state.isSendingMessage,
-                    isError = state.messageError != null,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                if (state.messageError != null) {
-                    val emptyMessage = stringResource(Res.string.listing_detail_message_empty)
-                    Text(
-                        text = state.messageError.ifBlank { emptyMessage },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
+                ) {
+                    Text(stringResource(Res.string.listing_detail_cancel))
                 }
+                KupioDefaultButton(
+                    text = stringResource(Res.string.listing_detail_send),
+                    modifier = Modifier.weight(1f),
+                    onClick = { onIntent(ListingDetailIntent.SendMessage) },
+                    enabled = !state.isSendingMessage,
+                    loading = state.isSendingMessage,
+                )
             }
-        },
-        confirmButton = {
-            Button(
-                onClick = { onIntent(ListingDetailIntent.SendMessage) },
-                enabled = !state.isSendingMessage,
-            ) {
-                Text(stringResource(Res.string.listing_detail_send))
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = { onIntent(ListingDetailIntent.CloseMessageDialog) },
-                enabled = !state.isSendingMessage,
-            ) {
-                Text(stringResource(Res.string.listing_detail_cancel))
-            }
-        },
-    )
+        }
+    }
 }
 
 @Composable
@@ -663,4 +932,33 @@ private fun SectionLabel(text: String) {
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
+}
+
+@Composable
+private fun ListingStatus.label(): String = when (this) {
+    ListingStatus.ACTIVE -> stringResource(Res.string.my_listings_filter_active)
+    ListingStatus.INACTIVE -> stringResource(Res.string.my_listings_filter_inactive)
+    ListingStatus.DRAFT -> stringResource(Res.string.my_listings_filter_draft)
+    ListingStatus.PLANNED -> stringResource(Res.string.my_listings_filter_planned)
+    ListingStatus.SOLD -> stringResource(Res.string.my_listings_filter_sold)
+}
+
+@Composable
+private fun ListingStatus.toggleLabel(): String = when (this) {
+    ListingStatus.ACTIVE -> stringResource(Res.string.my_listings_deactivate)
+    ListingStatus.INACTIVE,
+    ListingStatus.DRAFT,
+    ListingStatus.PLANNED,
+    ListingStatus.SOLD,
+    -> stringResource(Res.string.my_listings_activate)
+}
+
+private fun ListingStatus.canToggleOwnerStatus(): Boolean = when (this) {
+    ListingStatus.ACTIVE,
+    ListingStatus.INACTIVE,
+    ListingStatus.DRAFT,
+    -> true
+    ListingStatus.PLANNED,
+    ListingStatus.SOLD,
+    -> false
 }

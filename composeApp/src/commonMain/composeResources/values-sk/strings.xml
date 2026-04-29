@@ -105,6 +105,12 @@
     <string name="listing_detail_photo_count">%1$d/%2$d</string>
     <string name="listing_detail_seen_count">%1$d</string>
     <string name="listing_detail_description">Popis</string>
+    <string name="listing_detail_metrics">Metriky</string>
+    <string name="listing_detail_views">Zobrazenia</string>
+    <string name="listing_detail_favourites">Obľúbené</string>
+    <string name="listing_detail_chats">Chaty</string>
+    <string name="listing_detail_promoted">Propagované</string>
+    <string name="listing_detail_status_error">Nepodarilo sa aktualizovať stav inzerátu.</string>
     <string name="listing_detail_seller_profile">Profil</string>
     <string name="listing_detail_report">Nahlásiť inzerát</string>
     <string name="listing_detail_posted">Pridané %1$s</string>

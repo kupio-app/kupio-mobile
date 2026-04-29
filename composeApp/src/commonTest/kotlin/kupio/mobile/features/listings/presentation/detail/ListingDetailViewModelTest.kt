@@ -15,6 +15,12 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kupio.mobile.core.platform.PhoneDialer
+import kupio.mobile.features.auth.domain.model.AuthSession
+import kupio.mobile.features.auth.domain.model.AuthenticatedUser
+import kupio.mobile.features.auth.domain.model.UserRole
+import kupio.mobile.features.auth.domain.repository.AuthRepository
+import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.chats.domain.model.ChatRole
 import kupio.mobile.features.chats.domain.model.ConversationData
 import kupio.mobile.features.chats.domain.repository.ChatsRepository
@@ -61,14 +67,14 @@ class ListingDetailViewModelTest {
         val viewModel = createViewModel(chats = chats, conversationsRefresher = refresher)
         advanceUntilIdle()
 
-        viewModel.onIntent(ListingDetailIntent.OpenMessageDialog)
+        viewModel.onIntent(ListingDetailIntent.OpenMessageSheet)
         viewModel.onIntent(ListingDetailIntent.MessageChanged("Hi, is this still available?"))
         viewModel.onIntent(ListingDetailIntent.SendMessage)
         advanceUntilIdle()
 
         assertEquals("listing-1" to "Hi, is this still available?", chats.startedConversations.single())
         assertEquals(1, refresher.refreshCalls)
-        assertFalse(viewModel.state.value.isMessageDialogVisible)
+        assertFalse(viewModel.state.value.isMessageSheetVisible)
         assertEquals(ListingDetailEffect.OpenChat("conversation-1"), viewModel.effects.first())
     }
 
@@ -78,13 +84,49 @@ class ListingDetailViewModelTest {
         val viewModel = createViewModel(chats = chats)
         advanceUntilIdle()
 
-        viewModel.onIntent(ListingDetailIntent.OpenMessageDialog)
+        viewModel.onIntent(ListingDetailIntent.OpenMessageSheet)
         viewModel.onIntent(ListingDetailIntent.MessageChanged("   "))
         viewModel.onIntent(ListingDetailIntent.SendMessage)
         advanceUntilIdle()
 
         assertTrue(chats.startedConversations.isEmpty())
         assertEquals("Enter a message.", viewModel.state.value.messageError)
+    }
+
+    @Test
+    fun `load marks own listing from current user id`() = runTest(dispatcher) {
+        val viewModel = createViewModel(currentUserId = "seller-1")
+        advanceUntilIdle()
+
+        assertTrue(viewModel.state.value.isOwnListing)
+    }
+
+    @Test
+    fun `own listing does not start conversation`() = runTest(dispatcher) {
+        val chats = FakeChatsRepository()
+        val viewModel = createViewModel(chats = chats, currentUserId = "seller-1")
+        advanceUntilIdle()
+
+        viewModel.onIntent(ListingDetailIntent.OpenMessageSheet)
+        viewModel.onIntent(ListingDetailIntent.MessageChanged("Hello"))
+        viewModel.onIntent(ListingDetailIntent.SendMessage)
+        advanceUntilIdle()
+
+        assertTrue(chats.startedConversations.isEmpty())
+    }
+
+    @Test
+    fun `own listing status toggle deactivates active listing`() = runTest(dispatcher) {
+        val listings = FakeListingsRepository()
+        val viewModel = createViewModel(listings = listings, currentUserId = "seller-1")
+        advanceUntilIdle()
+
+        viewModel.onIntent(ListingDetailIntent.ToggleOwnerStatus)
+        advanceUntilIdle()
+
+        assertEquals("listing-1" to ListingStatus.INACTIVE, listings.statusUpdates.single())
+        assertEquals(ListingStatus.INACTIVE, viewModel.state.value.listing?.status)
+        assertFalse(viewModel.state.value.isUpdatingStatus)
     }
 
     @Test
@@ -122,24 +164,43 @@ class ListingDetailViewModelTest {
         assertTrue(dialer.openedPhones.isEmpty())
     }
 
-    private fun createViewModel(
+    private suspend fun createViewModel(
         listings: FakeListingsRepository = FakeListingsRepository(),
         chats: FakeChatsRepository = FakeChatsRepository(),
         conversationsRefresher: FakeConversationsRefresher = FakeConversationsRefresher(),
         phoneDialer: FakePhoneDialer = FakePhoneDialer(),
-    ): ListingDetailViewModel = ListingDetailViewModel(
-        listingId = "listing-1",
-        listingsRepository = listings,
-        chatsRepository = chats,
-        conversationsRefresher = conversationsRefresher,
-        phoneDialer = phoneDialer,
-    )
+        currentUserId: String = "buyer-1",
+    ): ListingDetailViewModel {
+        val sessionManager = AuthSessionManager(
+            authRepository = FakeAuthRepository(currentUserId),
+            secureSessionStore = FakeSecureSessionStore(),
+        )
+        if (currentUserId.isNotBlank()) {
+            sessionManager.establishSession(
+                AuthSession(
+                    accessToken = "access",
+                    refreshToken = "refresh",
+                    accessExpiresAt = Long.MAX_VALUE,
+                    refreshExpiresAt = Long.MAX_VALUE,
+                ),
+            )
+        }
+        return ListingDetailViewModel(
+            listingId = "listing-1",
+            listingsRepository = listings,
+            chatsRepository = chats,
+            conversationsRefresher = conversationsRefresher,
+            phoneDialer = phoneDialer,
+            sessionManager = sessionManager,
+        )
+    }
 
     private class FakeListingsRepository : ListingsRepository {
         var getListingDetailCalls = 0
         var phone: String? = "+421900111222"
         var isCallsDisabled = false
         val detailIds = mutableListOf<String>()
+        val statusUpdates = mutableListOf<Pair<String, ListingStatus>>()
 
         override suspend fun getFeed(
             limit: Int,
@@ -159,8 +220,10 @@ class ListingDetailViewModelTest {
         override suspend fun createListing(listing: CreateListing): Listing =
             listing("created", phone, isCallsDisabled)
 
-        override suspend fun updateListingStatus(listingId: String, status: ListingStatus): Listing =
-            listing(listingId, phone, isCallsDisabled)
+        override suspend fun updateListingStatus(listingId: String, status: ListingStatus): Listing {
+            statusUpdates += listingId to status
+            return listing(listingId, phone, isCallsDisabled, status)
+        }
 
         override suspend fun uploadListingImages(listingId: String, images: List<ListingImageUpload>) = Unit
     }
@@ -202,17 +265,51 @@ class ListingDetailViewModelTest {
         }
     }
 
+    private class FakeAuthRepository(
+        private val currentUserId: String,
+    ) : AuthRepository {
+        override suspend fun login(email: String, password: String): AuthSession = error("Unused")
+        override suspend fun register(email: String, password: String, username: String): AuthSession = error("Unused")
+        override suspend fun loginWithGoogle(idToken: String): AuthSession = error("Unused")
+        override suspend fun refreshSession(): AuthSession = error("Unused")
+        override suspend fun getCurrentUser(): AuthenticatedUser = AuthenticatedUser(
+            id = currentUserId,
+            username = "current",
+            displayName = "Current User",
+            email = "current@example.test",
+            role = UserRole.USER,
+            needsUsername = false,
+            balance = 0,
+            avatarUrl = null,
+        )
+        override suspend fun setUsername(username: String): AuthenticatedUser = error("Unused")
+        override suspend fun logout(refreshToken: String) = Unit
+    }
+
+    private class FakeSecureSessionStore : SecureSessionStore {
+        private var session: AuthSession? = null
+        override suspend fun readSession(): AuthSession? = session
+        override suspend fun writeSession(session: AuthSession) {
+            this.session = session
+        }
+        override suspend fun clear() {
+            session = null
+        }
+    }
+
     private companion object {
         fun listing(
             id: String,
             phone: String? = "+421900111222",
             isCallsDisabled: Boolean = false,
+            status: ListingStatus = ListingStatus.ACTIVE,
         ): Listing = Listing(
             id = id,
             title = "Vintage oak desk",
             description = "Solid oak writing desk in good condition with small signs of normal use.",
             price = 180,
             currency = Currency.EUR,
+            status = status,
             primaryImageUrl = "https://example.test/listing.jpg",
             imageUrls = listOf("https://example.test/listing.jpg"),
             createdAt = "2026-04-26T00:00:00Z",
@@ -220,6 +317,10 @@ class ListingDetailViewModelTest {
             categoryId = 1,
             categoryName = "Furniture",
             seenCount = 12,
+            favouritesCount = 4,
+            chatsCount = 2,
+            isPromoted = true,
+            promotionExpiresAt = "2026-05-01T00:00:00Z",
             phone = phone,
             contactName = "Elena K.",
             isCallsDisabled = isCallsDisabled,

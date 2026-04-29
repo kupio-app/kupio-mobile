@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.KupioFieldLabel
 import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
@@ -132,7 +133,7 @@ private fun SelectFilter(
     error: CreateError?,
     onChange: (String) -> Unit,
 ) {
-    FieldLabel(
+    KupioFieldLabel(
         label = filter.label,
         required = filter.isRequired,
     )
@@ -158,7 +159,7 @@ private fun BooleanFilter(
     error: CreateError?,
     onChange: (Boolean?) -> Unit,
 ) {
-    FieldLabel(
+    KupioFieldLabel(
         label = filter.label,
         required = filter.isRequired,
     )

@@ -1,4 +1,4 @@
-﻿package kupio.mobile.features.listings.presentation.create.components
+package kupio.mobile.features.listings.presentation.create.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,8 +12,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,7 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kupio.mobile.core.designsystem.KupioShapes
+import kupio.mobile.core.designsystem.KupioFieldLabel
+import kupio.mobile.core.designsystem.KupioTextField
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.features.listings.presentation.create.CreateError
 import kupio.mobile.features.listings.presentation.create.toErrorMessage
@@ -74,72 +73,19 @@ internal fun CreateTextField(
     minLines: Int = 1,
     keyboardType: KeyboardType = KeyboardType.Text,
 ) {
-    FieldLabel(
-        label = label,
-        required = required,
-        trailing = characterCount,
-    )
-    OutlinedTextField(
+    KupioTextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = modifier.fillMaxWidth(),
-        placeholder = { Text(placeholder) },
-        isError = error != null,
+        label = label,
+        placeholder = placeholder,
+        modifier = modifier,
+        error = error?.toErrorMessage(),
+        required = required,
+        trailingLabel = characterCount,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         singleLine = singleLine,
         minLines = minLines,
-        supportingText = { error?.let { Text(it.toErrorMessage()) } },
-        colors = createTextFieldColors(),
-        shape = KupioShapes.Medium,
     )
-}
-
-@Composable
-private fun createTextFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-    disabledTextColor = MaterialTheme.colorScheme.outline,
-    focusedContainerColor = MaterialTheme.colorScheme.surface,
-    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-    errorContainerColor = MaterialTheme.colorScheme.surface,
-    cursorColor = MaterialTheme.colorScheme.primary,
-    focusedBorderColor = MaterialTheme.colorScheme.primary,
-    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
-    disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.16f),
-    errorBorderColor = MaterialTheme.colorScheme.error,
-    focusedPlaceholderColor = MaterialTheme.colorScheme.outline,
-    unfocusedPlaceholderColor = MaterialTheme.colorScheme.outline,
-    disabledPlaceholderColor = MaterialTheme.colorScheme.outline,
-)
-
-@Composable
-internal fun FieldLabel(
-    label: String,
-    required: Boolean = false,
-    trailing: String? = null,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 2.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = label.uppercase() + if (required) " *" else "",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.outline,
-            fontWeight = FontWeight.SemiBold,
-        )
-        Spacer(Modifier.weight(1f))
-        trailing?.let {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.outline,
-            )
-        }
-    }
 }
 
 @Composable

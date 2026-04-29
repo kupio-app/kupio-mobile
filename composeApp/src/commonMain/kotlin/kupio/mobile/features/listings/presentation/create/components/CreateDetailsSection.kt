@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.KupioFieldLabel
 import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
@@ -85,7 +86,7 @@ private fun CategorySelector(
         )
     }
 
-    FieldLabel(
+    KupioFieldLabel(
         label = stringResource(Res.string.create_category),
         required = true,
     )

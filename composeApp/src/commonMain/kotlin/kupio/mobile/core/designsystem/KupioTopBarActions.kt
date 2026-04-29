@@ -25,7 +25,7 @@ fun KupioTopBarIconAction(
 ) {
     Icon(
         modifier = modifier
-            .size(24.dp)
+            .size(28.dp)
             .bouncingClickable(onClick = onClick),
         imageVector = imageVector,
         contentDescription = contentDescription,

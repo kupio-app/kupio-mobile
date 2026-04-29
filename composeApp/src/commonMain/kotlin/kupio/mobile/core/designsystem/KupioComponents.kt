@@ -1,22 +1,20 @@
-﻿package kupio.mobile.core.designsystem
+package kupio.mobile.core.designsystem
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -24,12 +22,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.retry
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
 
 @Composable
 fun KupioScaffold(
@@ -72,7 +73,7 @@ fun KupioButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
-    KupioPrimaryButton(
+    KupioDefaultButton(
         text = text,
         onClick = onClick,
         modifier = modifier,
@@ -81,7 +82,7 @@ fun KupioButton(
 }
 
 @Composable
-fun KupioPrimaryButton(
+fun KupioDefaultButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -111,92 +112,142 @@ fun KupioPrimaryButton(
 }
 
 @Composable
-fun KupioOutlinedLoadingButton(
-    text: String,
-    onClick: () -> Unit,
+fun KupioFieldLabel(
+    label: String,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    loading: Boolean = false,
+    required: Boolean = false,
+    trailing: String? = null,
 ) {
-    OutlinedButton(
-        onClick = onClick,
+    Row(
         modifier = modifier.fillMaxWidth(),
-        enabled = enabled && !loading,
-        shape = KupioShapes.ExtraLarge,
-        border = KupioThemeDefaults.defaultBorder,
-        colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-        ),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            if (loading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(18.dp),
-                    strokeWidth = 2.dp,
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-            }
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
-                text = text,
-                fontWeight = FontWeight.Medium,
+                text = label.uppercase(),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Bold,
+            )
+            if (required) {
+                Text(
+                    text = "*",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
+        if (trailing != null) {
+            Text(
+                text = trailing,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
 }
 
 @Composable
-fun KupioOutlinedTextField(
+fun KupioTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
     placeholder: String,
-    errorMessage: String?,
-    keyboardOptions: KeyboardOptions,
     modifier: Modifier = Modifier,
+    error: String? = null,
+    required: Boolean = false,
+    trailingLabel: String? = null,
+    trailingSlot: (@Composable () -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    singleLine: Boolean = true,
+    minLines: Int = 1,
 ) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
+    Column(
         modifier = modifier.fillMaxWidth(),
-        label = { Text(label) },
-        placeholder = { Text(placeholder) },
-        singleLine = true,
-        isError = errorMessage != null,
-        keyboardOptions = keyboardOptions,
-        visualTransformation = visualTransformation,
-        supportingText = {
-            if (errorMessage != null) {
-                Text(errorMessage)
+        verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.xs)
+    ) {
+        KupioFieldLabel(
+            label = label,
+            required = required,
+            trailing = trailingLabel,
+        )
+        Surface(
+            shape = KupioShapes.Medium,
+            color = MaterialTheme.colorScheme.surface,
+            border = if (error != null) {
+                KupioThemeDefaults.defaultBorder.copy(brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.error))
+            } else {
+                KupioThemeDefaults.strongBorder
             }
-        },
-        shape = KupioShapes.ExtraLarge,
-    )
+        ) {
+            OutlinedTextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text(placeholder, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)) },
+                trailingIcon = trailingSlot,
+                visualTransformation = visualTransformation,
+                keyboardOptions = keyboardOptions,
+                singleLine = singleLine,
+                minLines = minLines,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    disabledBorderColor = Color.Transparent,
+                    errorBorderColor = Color.Transparent,
+                ),
+                shape = KupioShapes.Medium,
+            )
+        }
+        if (error != null) {
+            Text(
+                text = error,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+    }
 }
 
 @Composable
-fun KupioLabeledDivider(
-    text: String,
+fun KupioCheckbox(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    label: String,
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
+        modifier = modifier.bouncingClickable { onCheckedChange(!checked) },
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        HorizontalDivider(modifier = Modifier.weight(1f))
+        Surface(
+            modifier = Modifier.size(20.dp),
+            shape = KupioShapes.Micro,
+            color = if (checked) MaterialTheme.colorScheme.onSurface else Color.Transparent,
+            border = if (checked) null else KupioThemeDefaults.strongBorder,
+        ) {
+            if (checked) {
+                Icon(
+                    imageVector = Icons.Outlined.Check,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.padding(2.dp)
+                )
+            }
+        }
         Text(
-            text = text,
-            style = MaterialTheme.typography.labelMedium,
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        HorizontalDivider(modifier = Modifier.weight(1f))
     }
 }
+
 
 @Composable
 fun KupioCardSurface(

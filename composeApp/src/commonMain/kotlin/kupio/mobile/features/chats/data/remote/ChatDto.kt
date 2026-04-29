@@ -51,3 +51,8 @@ data class ListMessagesResponseDto(
 data class SendMessageRequestDto(
     val body: String,
 )
+
+@Serializable
+data class ConversationStartRequestDto(
+    @SerialName("start_with") val startWith: String? = null,
+)

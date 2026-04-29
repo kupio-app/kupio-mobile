@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.listings.presentation.create.CreateField
@@ -37,7 +38,6 @@ import mobile.composeapp.generated.resources.create_error_load_categories
 import mobile.composeapp.generated.resources.create_title
 import mobile.composeapp.generated.resources.create_title_placeholder
 import org.jetbrains.compose.resources.stringResource
-import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 internal fun DetailsSection(

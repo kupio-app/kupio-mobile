@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.bouncingDimClickable
@@ -55,7 +56,6 @@ import mobile.composeapp.generated.resources.profile_section
 import mobile.composeapp.generated.resources.profile_settings
 import mobile.composeapp.generated.resources.profile_topup_balance
 import org.jetbrains.compose.resources.stringResource
-import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 private fun MenuGroup(content: @Composable ColumnScope.() -> Unit) {

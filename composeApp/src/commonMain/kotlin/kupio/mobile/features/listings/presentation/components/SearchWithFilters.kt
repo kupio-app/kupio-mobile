@@ -26,13 +26,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.home_filters
 import mobile.composeapp.generated.resources.home_search_placeholder
 import org.jetbrains.compose.resources.stringResource
-import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 fun SearchWithFilters(

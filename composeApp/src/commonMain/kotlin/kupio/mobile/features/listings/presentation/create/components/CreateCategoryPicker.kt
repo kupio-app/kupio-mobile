@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.listings.presentation.create.CreateIntent
@@ -46,7 +47,6 @@ import mobile.composeapp.generated.resources.create_category_use
 import mobile.composeapp.generated.resources.create_error_load_subcategories
 import mobile.composeapp.generated.resources.create_subcategories
 import org.jetbrains.compose.resources.stringResource
-import kupio.mobile.core.designsystem.KupioShapes
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable

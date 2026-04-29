@@ -19,9 +19,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kupio.mobile.core.designsystem.KupioThemeDefaults
-import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.core.designsystem.KupioShapes
+import kupio.mobile.core.designsystem.KupioThemeDefaults
+import kupio.mobile.core.designsystem.bouncingDimClickableIf
 
 @Composable
 internal fun SectionLabel(text: String) {
@@ -40,13 +40,9 @@ internal fun MenuRow(
     trailingBadge: String? = null,
 ) {
     val spacing = KupioThemeDefaults.spacing
-    val modifier = if (onClick != null) {
-        Modifier.bouncingDimClickable(onClick = onClick)
-    } else {
-        Modifier
-    }
     Row(
-        modifier = modifier
+        modifier = Modifier
+            .bouncingDimClickableIf(onClick = onClick)
             .fillMaxWidth()
             .padding(horizontal = spacing.md, vertical = spacing.md),
         verticalAlignment = Alignment.CenterVertically,
@@ -91,13 +87,9 @@ internal fun ActivityRow(
     onClick: (() -> Unit)?,
 ) {
     val spacing = KupioThemeDefaults.spacing
-    val modifier = if (onClick != null) {
-        Modifier.bouncingDimClickable(onClick = onClick)
-    } else {
-        Modifier
-    }
     Row(
-        modifier = modifier
+        modifier = Modifier
+            .bouncingDimClickableIf(onClick = onClick)
             .fillMaxWidth()
             .padding(horizontal = spacing.md, vertical = spacing.md),
         verticalAlignment = Alignment.CenterVertically,

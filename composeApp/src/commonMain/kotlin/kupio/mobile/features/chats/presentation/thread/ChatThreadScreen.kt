@@ -34,6 +34,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kupio.mobile.core.designsystem.KupioLoadingScreen
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.KupioTopBarBackAction
 import kupio.mobile.core.designsystem.KupioTopBarIconAction
@@ -63,7 +64,6 @@ import mobile.composeapp.generated.resources.topbar_back
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import kupio.mobile.core.designsystem.KupioShapes
 
 class ChatThreadScreen(private val conversationId: String) : Screen {
     @Composable

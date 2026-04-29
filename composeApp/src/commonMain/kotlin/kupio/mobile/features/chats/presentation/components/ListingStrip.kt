@@ -19,9 +19,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kupio.mobile.core.designsystem.KupioCardSurface
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.features.chats.domain.model.ListingSummary
-import kupio.mobile.core.designsystem.KupioShapes
 
 private val listingPlaceholderColors = listOf(
     Color(0xFFCEB99A),

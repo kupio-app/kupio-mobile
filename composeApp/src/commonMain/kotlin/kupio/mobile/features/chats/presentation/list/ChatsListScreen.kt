@@ -1,4 +1,4 @@
-package kupio.mobile.features.chats.presentation.list
+﻿package kupio.mobile.features.chats.presentation.list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

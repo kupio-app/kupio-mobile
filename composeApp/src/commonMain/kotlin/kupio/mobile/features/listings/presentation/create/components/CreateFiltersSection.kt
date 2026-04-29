@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.listings.presentation.create.CreateError
@@ -40,7 +41,6 @@ import mobile.composeapp.generated.resources.create_filters
 import mobile.composeapp.generated.resources.create_filters_empty
 import mobile.composeapp.generated.resources.create_filters_select_category
 import org.jetbrains.compose.resources.stringResource
-import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 internal fun FiltersSection(

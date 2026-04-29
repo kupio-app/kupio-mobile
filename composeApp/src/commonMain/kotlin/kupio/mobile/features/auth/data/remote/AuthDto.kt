@@ -4,6 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kupio.mobile.features.auth.domain.model.AuthSession
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
+import kupio.mobile.features.auth.domain.model.UserRole
 
 @Serializable
 data class LoginRequestDto(
@@ -80,7 +81,7 @@ fun UserPrivateDto.toDomain(): AuthenticatedUser {
         username = username,
         displayName = displayName,
         email = email,
-        role = role,
+        role = UserRole.fromString(role),
         needsUsername = needsUsername,
         balance = balance,
         avatarUrl = avatarUrl,

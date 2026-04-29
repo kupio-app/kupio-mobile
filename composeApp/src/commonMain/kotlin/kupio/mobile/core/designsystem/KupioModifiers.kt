@@ -77,6 +77,11 @@ inline fun Modifier.glowClickable(
         )
 }
 
+fun Modifier.bouncingDimClickableIf(
+    shape: Shape = KupioShapes.Large,
+    onClick: (() -> Unit)?,
+): Modifier = if (onClick != null) bouncingDimClickable(shape = shape, onClick = onClick) else this
+
 inline fun Modifier.bouncingDimClickable(
     shape: Shape = KupioShapes.Large,
     crossinline onClick: () -> Unit,

@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.borderTop
 import kupio.mobile.core.designsystem.bouncingClickable
@@ -25,7 +26,6 @@ import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.chat_composer_placeholder
 import mobile.composeapp.generated.resources.chat_send
 import org.jetbrains.compose.resources.stringResource
-import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 fun MessageComposer(

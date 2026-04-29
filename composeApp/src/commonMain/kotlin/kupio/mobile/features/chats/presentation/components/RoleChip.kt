@@ -8,12 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.features.chats.domain.model.ChatRole
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.chat_role_buying
 import mobile.composeapp.generated.resources.chat_role_selling
 import org.jetbrains.compose.resources.stringResource
-import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 fun RoleChip(

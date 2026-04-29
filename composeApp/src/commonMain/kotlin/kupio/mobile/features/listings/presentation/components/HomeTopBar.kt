@@ -26,15 +26,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
-import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.borderBottom
+import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.standaloneTopBarInsetsPadding
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.home_delivery_to
 import mobile.composeapp.generated.resources.home_notifications
 import org.jetbrains.compose.resources.stringResource
-import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 fun HomeTopBar(

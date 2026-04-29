@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.daysUntil
 import kupio.mobile.core.datetime.today
 import kupio.mobile.core.datetime.toLocalDate
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.features.me.domain.model.OwnedListing
@@ -57,7 +58,6 @@ import mobile.composeapp.generated.resources.my_listings_promote
 import mobile.composeapp.generated.resources.my_listings_promoted_label
 import mobile.composeapp.generated.resources.my_listings_stats_icon_desc
 import org.jetbrains.compose.resources.stringResource
-import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 internal fun OwnedListingCard(

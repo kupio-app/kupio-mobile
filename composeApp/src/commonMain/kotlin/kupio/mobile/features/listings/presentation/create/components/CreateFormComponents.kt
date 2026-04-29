@@ -22,13 +22,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.features.listings.presentation.create.CreateError
 import kupio.mobile.features.listings.presentation.create.toErrorMessage
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.retry
 import org.jetbrains.compose.resources.stringResource
-import kupio.mobile.core.designsystem.KupioShapes
 
 @Composable
 internal fun FormSection(

@@ -273,4 +273,8 @@
     <string name="my_listings_stats_icon_desc">Stats counter</string>
     <string name="my_listings_empty">No listings</string>
     <string name="my_listings_load_error">Failed to load listings</string>
+    <string name="saved_subtitle">%1$d items</string>
+    <string name="saved_empty">No saved listings yet.</string>
+    <string name="saved_load_error">Couldn\'t load saved listings.</string>
+    <string name="saved_remove">Remove from saved</string>
 </resources>

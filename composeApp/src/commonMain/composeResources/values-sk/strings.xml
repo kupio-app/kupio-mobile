@@ -278,4 +278,8 @@
     <string name="my_listings_stats_icon_desc">Počítadlo štatistík</string>
     <string name="my_listings_empty">Žiadne inzeráty</string>
     <string name="my_listings_load_error">Nepodarilo sa načítať inzeráty</string>
+    <string name="saved_subtitle">%1$d položiek</string>
+    <string name="saved_empty">Zatiaľ žiadne uložené inzeráty.</string>
+    <string name="saved_load_error">Uložené inzeráty sa nepodarilo načítať.</string>
+    <string name="saved_remove">Odstrániť z uložených</string>
 </resources>

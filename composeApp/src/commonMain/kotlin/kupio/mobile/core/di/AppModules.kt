@@ -47,6 +47,10 @@ import kupio.mobile.features.me.data.repository.MeRepositoryImpl
 import kupio.mobile.features.me.domain.repository.MeRepository
 import kupio.mobile.features.me.presentation.mylistings.MyListingsViewModel
 import kupio.mobile.features.me.presentation.profile.MeViewModel
+import kupio.mobile.features.saved.presentation.SavedViewModel
+import kupio.mobile.features.saved.data.remote.FavouritesApi
+import kupio.mobile.features.saved.data.repository.FavouritesRepositoryImpl
+import kupio.mobile.features.saved.domain.repository.FavouritesRepository
 import kupio.mobile.features.settings.SettingsViewModel
 import kupio.mobile.core.navigation.RootNavigationViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -78,6 +82,8 @@ val kupioAppModules: List<Module> = listOf(
         single<CategoriesRepository> { CategoriesRepositoryImpl(get()) }
         single { ChatApi(get()) }
         single { UserApi(get()) }
+        single { FavouritesApi(get()) }
+        single<FavouritesRepository> { FavouritesRepositoryImpl(get(), get()) }
         single { MeApi(get()) }
         single<MeRepository> { MeRepositoryImpl(get(), get()) }
         single<ChatsRepository> { ChatsRepositoryImpl(get(), get()) }
@@ -110,6 +116,7 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::MeViewModel)
         viewModelOf(::MyListingsViewModel)
         viewModelOf(::SettingsViewModel)
+        viewModelOf(::SavedViewModel)
         viewModelOf(::UsernameViewModel)
         viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get()) }
         viewModel { params -> EditListingViewModel(params.get(), get(), get()) }

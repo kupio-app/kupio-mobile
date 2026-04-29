@@ -166,37 +166,46 @@ internal fun ImageSourceSheet(
     onTakePhoto: () -> Unit,
     onChooseFromGallery: () -> Unit,
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Text(
-            text = stringResource(Res.string.create_photo_add),
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Medium,
-        )
-        ListItem(
-            headlineContent = { Text(stringResource(Res.string.create_photo_take)) },
-            supportingContent = { Text(stringResource(Res.string.create_photo_take_supporting)) },
-            leadingContent = {
-                Icon(
-                    imageVector = Icons.Outlined.PhotoCamera,
-                    contentDescription = null,
-                )
-            },
-            modifier = Modifier.bouncingDimClickable(shape = KupioShapes.Medium, onClick = onTakePhoto),
-        )
-        ListItem(
-            headlineContent = { Text(stringResource(Res.string.create_photo_choose_gallery)) },
-            supportingContent = { Text(stringResource(Res.string.create_photo_choose_gallery_supporting)) },
-            leadingContent = {
-                Icon(
-                    imageVector = Icons.Outlined.ImageIcon,
-                    contentDescription = null,
-                )
-            },
-            modifier = Modifier.bouncingDimClickable(shape = KupioShapes.Medium, onClick = onChooseFromGallery),
-        )
-        Spacer(Modifier.height(24.dp))
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = stringResource(Res.string.create_photo_add),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Medium,
+            )
+            ListItem(
+                headlineContent = { Text(stringResource(Res.string.create_photo_take)) },
+                supportingContent = { Text(stringResource(Res.string.create_photo_take_supporting)) },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Outlined.PhotoCamera,
+                        contentDescription = null,
+                    )
+                },
+                modifier = Modifier.bouncingDimClickable(shape = KupioShapes.Medium, onClick = onTakePhoto),
+            )
+            ListItem(
+                headlineContent = { Text(stringResource(Res.string.create_photo_choose_gallery)) },
+                supportingContent = { Text(stringResource(Res.string.create_photo_choose_gallery_supporting)) },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Outlined.ImageIcon,
+                        contentDescription = null,
+                    )
+                },
+                modifier = Modifier.bouncingDimClickable(shape = KupioShapes.Medium, onClick = onChooseFromGallery),
+            )
+            Spacer(Modifier.height(24.dp))
+        }
     }
 }
 

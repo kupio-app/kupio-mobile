@@ -18,6 +18,7 @@ import kupio.mobile.features.auth.domain.model.AuthSession
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.model.FieldValidationError
 import kupio.mobile.features.auth.domain.model.SessionState
+import kupio.mobile.features.auth.domain.model.UserRole
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
@@ -255,7 +256,7 @@ private fun sampleUser() = AuthenticatedUser(
     username = "kupio",
     displayName = "Kupio User",
     email = "hello@kupio.dev",
-    role = "user",
+    role = UserRole.USER,
     needsUsername = false,
     balance = 0,
     avatarUrl = null,

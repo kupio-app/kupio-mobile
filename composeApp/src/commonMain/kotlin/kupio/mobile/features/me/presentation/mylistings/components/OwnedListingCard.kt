@@ -63,6 +63,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun OwnedListingCard(
     listing: OwnedListing,
+    onClick: () -> Unit,
     onEdit: () -> Unit,
     onBumpUp: () -> Unit,
     onPromote: () -> Unit,
@@ -72,7 +73,9 @@ internal fun OwnedListingCard(
     val spacing = KupioThemeDefaults.spacing
 
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .bouncingClickable(onClick = onClick),
         shape = KupioShapes.Large,
         color = MaterialTheme.colorScheme.surface,
         border = KupioThemeDefaults.defaultBorder,

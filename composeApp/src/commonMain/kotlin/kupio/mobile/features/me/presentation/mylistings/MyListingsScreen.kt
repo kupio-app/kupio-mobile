@@ -29,6 +29,7 @@ import kupio.mobile.core.designsystem.KupioTopBarBackAction
 import kupio.mobile.core.designsystem.KupioTopBarIconAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
 import kupio.mobile.core.presentation.CollectEffect
+import kupio.mobile.features.listings.presentation.detail.ListingDetailScreen
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.presentation.mylistings.components.FilterChipsRow
 import kupio.mobile.features.me.presentation.mylistings.components.OwnedListingCard
@@ -53,12 +54,14 @@ class MyListingsScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val rootNavigator = generateSequence(navigator) { it.parent }.last()
         val viewModel = koinViewModel<MyListingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
 
         CollectEffect(viewModel.effects) { effect ->
             when (effect) {
                 MyListingsEffect.NavigateBack -> navigator.pop()
+                is MyListingsEffect.OpenListing -> rootNavigator.push(ListingDetailScreen(effect.id))
             }
         }
 
@@ -129,6 +132,7 @@ private fun MyListingsRoute(state: MyListingsState, onIntent: (MyListingsIntent)
                         items(state.visibleListings, key = { it.id }) { listing ->
                             OwnedListingCard(
                                 listing = listing,
+                                onClick = { onIntent(MyListingsIntent.OpenListing(listing.id)) },
                                 onEdit = { onIntent(MyListingsIntent.EditListing(listing.id)) },
                                 onBumpUp = { onIntent(MyListingsIntent.BumpUp(listing.id)) },
                                 onPromote = { onIntent(MyListingsIntent.Promote(listing.id)) },

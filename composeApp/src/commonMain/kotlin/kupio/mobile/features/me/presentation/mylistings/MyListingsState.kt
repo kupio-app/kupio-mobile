@@ -38,6 +38,7 @@ sealed interface MyListingsIntent : UiAction {
     data class BumpUp(val id: String) : MyListingsIntent
     data class Promote(val id: String) : MyListingsIntent
     data class ToggleActiveClicked(val id: String) : MyListingsIntent
+    data class OpenListing(val id: String) : MyListingsIntent
     data object ConfirmStatusChange : MyListingsIntent
     data object DismissStatusChange : MyListingsIntent
     data object BackClicked : MyListingsIntent
@@ -46,4 +47,5 @@ sealed interface MyListingsIntent : UiAction {
 
 sealed interface MyListingsEffect : UiEffect {
     data object NavigateBack : MyListingsEffect
+    data class OpenListing(val id: String) : MyListingsEffect
 }

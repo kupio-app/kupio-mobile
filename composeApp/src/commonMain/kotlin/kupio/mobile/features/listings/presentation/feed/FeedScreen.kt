@@ -52,11 +52,12 @@ class FeedScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val rootNavigator = generateSequence(navigator) { it.parent }.last()
         val viewModel = koinViewModel<FeedViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         CollectEffect(viewModel.effects) { effect ->
             when (effect) {
-                is FeedEffect.OpenListing -> navigator.push(ListingDetailScreen(effect.id))
+                is FeedEffect.OpenListing -> rootNavigator.push(ListingDetailScreen(effect.id))
                 is FeedEffect.OpenSearch -> navigator.push(SearchScreen(effect.query))
             }
         }
@@ -191,4 +192,3 @@ private fun LazyListScope.recommendedGrid(
         }
     }
 }
-

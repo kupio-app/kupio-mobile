@@ -38,6 +38,9 @@ class MyListingsViewModel(
             is MyListingsIntent.EditListing -> Unit
             is MyListingsIntent.BumpUp -> Unit
             is MyListingsIntent.Promote -> Unit
+            is MyListingsIntent.OpenListing -> viewModelScope.launch {
+                effectChannel.send(MyListingsEffect.OpenListing(intent.id))
+            }
             is MyListingsIntent.ToggleActiveClicked -> prepareStatusChange(intent.id)
             MyListingsIntent.ConfirmStatusChange -> confirmStatusChange()
             MyListingsIntent.DismissStatusChange -> _state.update { it.copy(statusChangeConfirmation = null) }
@@ -140,4 +143,3 @@ private fun OwnedListingStatus.nextToggleStatus(): OwnedListingStatus? = when (t
     OwnedListingStatus.SOLD,
     -> null
 }
-

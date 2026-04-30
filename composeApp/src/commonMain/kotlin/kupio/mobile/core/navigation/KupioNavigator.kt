@@ -12,8 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
-import cafe.adriel.voyager.transitions.SlideTransition
 import kupio.mobile.core.designsystem.KupioButton
 import kupio.mobile.core.designsystem.KupioCenteredContent
 import kupio.mobile.core.designsystem.KupioText
@@ -71,6 +71,6 @@ private fun KupioDefaultNavigator(screen: Screen) {
             }
         }
 
-        SlideTransition(navigator)
+        CurrentScreen()
     }
 }

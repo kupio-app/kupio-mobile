@@ -121,7 +121,6 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.tab.navigator)
-            implementation(libs.voyager.transitions)
             implementation(compose.materialIconsExtended)
             api("io.github.mirzemehdi:kmpnotifier:${libs.versions.kmpnotifier.get()}")
         }

@@ -1,6 +1,7 @@
 package kupio.mobile.features.listings.presentation.form
 
 import androidx.compose.ui.graphics.ImageBitmap
+import kupio.mobile.features.listings.domain.model.ListingImageUpload
 
 sealed interface ListingFormImage {
     val id: String
@@ -49,3 +50,9 @@ data class RemoteListingImage(
     override val fileName: String = imageId
     override val previewBitmap: ImageBitmap? = null
 }
+
+fun LocalListingImage.toUpload(): ListingImageUpload = ListingImageUpload(
+    fileName = fileName,
+    mimeType = mimeType,
+    bytes = bytes,
+)

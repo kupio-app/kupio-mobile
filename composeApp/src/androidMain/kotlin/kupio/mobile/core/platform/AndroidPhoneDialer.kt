@@ -8,7 +8,8 @@ class AndroidPhoneDialer(
     private val context: Context,
 ) : PhoneDialer {
     override fun openDialer(phone: String): Boolean {
-        val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone"))
+        val sanitizedPhone = phone.trim()
+        val intent = Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", sanitizedPhone, null))
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         return runCatching {
             context.startActivity(intent)

@@ -8,6 +8,7 @@ data class Listing(
     val currency: Currency,
     val status: ListingStatus,
     val primaryImageUrl: String?,
+    val images: List<ListingImage>,
     val imageUrls: List<String>,
     val createdAt: String,
     val userId: String,
@@ -18,6 +19,12 @@ data class Listing(
     val contactName: String?,
     val isCallsDisabled: Boolean,
     val customFilters: Map<String, String>,
+)
+
+data class ListingImage(
+    val id: String,
+    val url: String,
+    val sortOrder: Int,
 )
 
 data class ListingFeed(

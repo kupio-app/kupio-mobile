@@ -3,11 +3,13 @@ package kupio.mobile.features.listings.data.repository
 import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.features.listings.data.remote.ListingsApi
 import kupio.mobile.features.listings.data.remote.ListingStatusUpdateRequestDto
+import kupio.mobile.features.listings.data.remote.UpdateListingImagesOrderRequestDto
 import kupio.mobile.features.listings.data.remote.toDomain
 import kupio.mobile.features.listings.data.remote.toDto
 import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.ListingFeed
+import kupio.mobile.features.listings.domain.model.ListingImage
 import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
@@ -44,6 +46,24 @@ class ListingsRepositoryImpl(
             listingsApi.createListing(authorize, listing.toDto())
         }.toDomain()
 
+    override suspend fun updateListing(
+        listingId: String,
+        listing: CreateListing,
+        phone: String?,
+        contactName: String?,
+        isCallsDisabled: Boolean,
+    ): Listing = authenticatedApiClient.request { authorize ->
+        listingsApi.updateListing(
+            authorize = authorize,
+            listingId = listingId,
+            request = listing.toDto(
+                phone = phone,
+                contactName = contactName,
+                isCallsDisabled = isCallsDisabled,
+            ),
+        )
+    }.toDomain()
+
     override suspend fun updateListingStatus(
         listingId: String,
         status: ListingStatus,
@@ -58,10 +78,32 @@ class ListingsRepositoryImpl(
     override suspend fun uploadListingImages(
         listingId: String,
         images: List<ListingImageUpload>,
-    ) {
-        if (images.isEmpty()) return
-        authenticatedApiClient.request { authorize ->
+    ): List<ListingImage> {
+        if (images.isEmpty()) return emptyList()
+        return authenticatedApiClient.request { authorize ->
             listingsApi.uploadListingImages(authorize, listingId, images)
+        }.map { it.toDomain() }
+    }
+
+    override suspend fun deleteListingImage(
+        listingId: String,
+        imageId: String,
+    ) {
+        authenticatedApiClient.request { authorize ->
+            listingsApi.deleteListingImage(authorize, listingId, imageId)
+        }
+    }
+
+    override suspend fun updateListingImagesOrder(
+        listingId: String,
+        imageIds: List<String>,
+    ) {
+        authenticatedApiClient.request { authorize ->
+            listingsApi.updateListingImagesOrder(
+                authorize = authorize,
+                listingId = listingId,
+                request = UpdateListingImagesOrderRequestDto(imageIds),
+            )
         }
     }
 }

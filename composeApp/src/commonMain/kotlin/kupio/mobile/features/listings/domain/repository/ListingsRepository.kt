@@ -3,6 +3,7 @@ package kupio.mobile.features.listings.domain.repository
 import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.ListingFeed
+import kupio.mobile.features.listings.domain.model.ListingImage
 import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.model.ListingStatus
 
@@ -20,6 +21,14 @@ interface ListingsRepository {
 
     suspend fun createListing(listing: CreateListing): Listing
 
+    suspend fun updateListing(
+        listingId: String,
+        listing: CreateListing,
+        phone: String? = null,
+        contactName: String? = null,
+        isCallsDisabled: Boolean = false,
+    ): Listing
+
     suspend fun updateListingStatus(
         listingId: String,
         status: ListingStatus,
@@ -28,5 +37,15 @@ interface ListingsRepository {
     suspend fun uploadListingImages(
         listingId: String,
         images: List<ListingImageUpload>,
+    ): List<ListingImage>
+
+    suspend fun deleteListingImage(
+        listingId: String,
+        imageId: String,
+    )
+
+    suspend fun updateListingImagesOrder(
+        listingId: String,
+        imageIds: List<String>,
     )
 }

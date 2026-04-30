@@ -475,19 +475,22 @@ private fun StatusChip(
     isActive: Boolean = false,
 ) {
     Surface(
-        shape = KupioShapes.Small,
+        shape = if (isActive) KupioShapes.Full else KupioShapes.Small,
         color = when {
-            isActive -> MaterialTheme.colorScheme.errorContainer
+            isActive -> MaterialTheme.colorScheme.primaryContainer
             isPromoted -> MaterialTheme.colorScheme.primaryContainer
             else -> MaterialTheme.colorScheme.surfaceVariant
         },
     ) {
         Text(
             text = text,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+            modifier = Modifier.padding(
+                horizontal = if (isActive) KupioThemeDefaults.spacing.sm else 8.dp,
+                vertical = if (isActive) 2.dp else 3.dp,
+            ),
             style = MaterialTheme.typography.labelSmall,
             color = when {
-                isActive -> MaterialTheme.colorScheme.error
+                isActive -> MaterialTheme.colorScheme.primary
                 isPromoted -> MaterialTheme.colorScheme.primary
                 else -> MaterialTheme.colorScheme.onSurfaceVariant
             },

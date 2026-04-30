@@ -130,7 +130,7 @@ class ListingDetailViewModel(
         if (_state.value.isOwnListing) return
         val message = _state.value.messageDraft.trim()
         if (message.isBlank()) {
-            _state.update { it.copy(messageError = "Enter a message.") }
+            _state.update { it.copy(messageError = "") }
             return
         }
         if (_state.value.isSendingMessage) return

@@ -128,7 +128,7 @@ class ListingDetailViewModelTest {
         advanceUntilIdle()
 
         assertTrue(chats.startedConversations.isEmpty())
-        assertEquals("Enter a message.", viewModel.state.value.messageError)
+        assertEquals("", viewModel.state.value.messageError)
     }
 
     @Test

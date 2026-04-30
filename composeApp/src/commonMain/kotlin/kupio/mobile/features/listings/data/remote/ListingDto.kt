@@ -200,7 +200,7 @@ private fun JsonObject?.toDisplayMap(): Map<String, String> {
     if (this == null) return emptyMap()
     return entries.mapNotNull { (key, value) ->
         val text = when (value) {
-            is JsonPrimitive -> value.contentOrNull
+            is JsonPrimitive -> value.content
             else -> value.toString()
         }?.takeIf { it.isNotBlank() }
         text?.let { key to it }

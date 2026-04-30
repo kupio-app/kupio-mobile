@@ -1,7 +1,6 @@
 package kupio.mobile.core.di
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import kupio.mobile.features.auth.domain.model.SessionState

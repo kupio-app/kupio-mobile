@@ -14,6 +14,7 @@ import org.koin.compose.koinInject
 @Composable
 fun App() {
     val preferencesRepository = koinInject<PreferencesRepository>()
+
     val themeMode by preferencesRepository.themeMode.collectAsStateWithLifecycle(
         initialValue = ThemeMode.SYSTEM,
     )

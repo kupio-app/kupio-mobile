@@ -6,8 +6,13 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 
 private val ThemeModeKey = stringPreferencesKey("theme_mode")
@@ -25,8 +30,14 @@ fun createPreferencesDataStore(
 class DataStorePreferencesRepository(
     private val dataStore: DataStore<Preferences>,
 ) : PreferencesRepository {
+    private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     override val themeMode: Flow<ThemeMode> = dataStore.data.map { preferences ->
         ThemeMode.fromStorageValue(preferences[ThemeModeKey])
+    }
+
+    override val pushToken: Flow<String?> = dataStore.data.map {
+        preferences -> preferences[stringPreferencesKey("push_token")]
     }
 
     override suspend fun setThemeMode(mode: ThemeMode) {
@@ -40,5 +51,11 @@ class DataStorePreferencesRepository(
 
     override suspend fun markChatSeen(conversationId: String, epochMillis: Long) {
         dataStore.edit { it[longPreferencesKey("chat_seen_$conversationId")] = epochMillis }
+    }
+
+    override fun savePushToken(token: String) {
+        repositoryScope.launch {
+            dataStore.edit { it[stringPreferencesKey("push_token")] = token }
+        }
     }
 }

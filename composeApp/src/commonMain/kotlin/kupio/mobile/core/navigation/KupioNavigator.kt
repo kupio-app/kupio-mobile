@@ -5,12 +5,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.transitions.SlideTransition
 import kupio.mobile.core.designsystem.KupioButton
 import kupio.mobile.core.designsystem.KupioCenteredContent
 import kupio.mobile.core.designsystem.KupioText
@@ -23,6 +26,7 @@ import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.auth_bootstrap_failed
 import mobile.composeapp.generated.resources.retry
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -49,8 +53,24 @@ fun KupioNavigator() {
             }
         }
 
-        SessionState.SignedOut -> key(SessionState.SignedOut::class) { Navigator(AuthScreen()) }
-        is SessionState.NeedsUsername -> key(current::class) { Navigator(UsernameScreen()) }
-        is SessionState.SignedIn -> key(current::class) { Navigator(MainTabsScreen()) }
+        SessionState.SignedOut -> key(SessionState.SignedOut::class) { KupioDefaultNavigator(AuthScreen()) }
+        is SessionState.NeedsUsername -> key(current::class) { KupioDefaultNavigator(UsernameScreen()) }
+        is SessionState.SignedIn -> key(current::class) { KupioDefaultNavigator(MainTabsScreen()) }
+    }
+}
+
+@Composable
+private fun KupioDefaultNavigator(screen: Screen) {
+    val notificationNavigator = koinInject<NotificationNavigator>()
+
+    Navigator(screen) { navigator ->
+        // Listen to the Event Bus for Deep Links
+        LaunchedEffect(Unit) {
+            notificationNavigator.navigationEvents.collect { targetScreen ->
+                navigator.push(targetScreen)
+            }
+        }
+
+        SlideTransition(navigator)
     }
 }

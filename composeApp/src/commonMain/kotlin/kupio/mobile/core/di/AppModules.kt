@@ -42,6 +42,10 @@ import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.listings.presentation.detail.ListingDetailViewModel
 import kupio.mobile.features.listings.presentation.edit.EditListingViewModel
 import kupio.mobile.features.listings.presentation.feed.FeedViewModel
+import kupio.mobile.features.reports.data.remote.ReportsApi
+import kupio.mobile.features.reports.data.repository.ReportsRepositoryImpl
+import kupio.mobile.features.reports.domain.repository.ReportsRepository
+import kupio.mobile.features.reports.presentation.create.CreateReportViewModel
 import kupio.mobile.features.me.data.remote.MeApi
 import kupio.mobile.features.me.data.repository.MeRepositoryImpl
 import kupio.mobile.features.me.domain.repository.MeRepository
@@ -80,6 +84,8 @@ val kupioAppModules: List<Module> = listOf(
         single { UserApi(get()) }
         single { MeApi(get()) }
         single<MeRepository> { MeRepositoryImpl(get(), get()) }
+        single { ReportsApi(get()) }
+        single<ReportsRepository> { ReportsRepositoryImpl(get(), get()) }
         single<ChatsRepository> { ChatsRepositoryImpl(get(), get()) }
         single { ChatWebSocket(get(), get(), get(), get()) }
         single<MessagesRepository> { MessagesRepositoryImpl(get(), get(), get(), get()) }
@@ -113,5 +119,6 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::UsernameViewModel)
         viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get()) }
         viewModel { params -> EditListingViewModel(params.get(), get(), get()) }
+        viewModel { params -> CreateReportViewModel(params.get(), params.get(), params.get(), params.get(), get()) }
     },
 )

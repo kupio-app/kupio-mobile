@@ -273,4 +273,11 @@
     <string name="my_listings_stats_icon_desc">Stats counter</string>
     <string name="my_listings_empty">No listings</string>
     <string name="my_listings_load_error">Failed to load listings</string>
+    <string name="report_listing_title">Report listing</string>
+    <string name="report_listing_listing_label">Listing</string>
+    <string name="report_listing_reasons_label">Select a reason</string>
+    <string name="report_listing_reasons_error">Could not load report reasons.</string>
+    <string name="report_listing_additional_info_label">Additional info</string>
+    <string name="report_listing_additional_info_placeholder">Any other details that may help our team…</string>
+    <string name="report_listing_submit">Submit report</string>
 </resources>

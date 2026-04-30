@@ -856,7 +856,6 @@ private fun OwnerActionBar(
     val spacing = KupioThemeDefaults.spacing
     val ownerStatus = state.ownerMetadata?.status ?: listing.status
     val canToggle = ownerStatus.canToggleOwnerStatus() && !state.isUpdatingStatus
-    val dividerColor = KupioThemeDefaults.softDividerColor
     Surface(
         color = MaterialTheme.colorScheme.background,
         border = KupioThemeDefaults.defaultBorder,
@@ -865,19 +864,17 @@ private fun OwnerActionBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = spacing.md),
+                .padding(horizontal = spacing.md, vertical = spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            OwnerActionCell(
+            OwnerActionButton(
                 label = stringResource(Res.string.my_listings_edit),
                 icon = { Icon(Icons.Outlined.Edit, contentDescription = null, modifier = Modifier.size(18.dp)) },
                 onClick = { onIntent(ListingDetailIntent.EditListing) },
                 modifier = Modifier.weight(1f),
-                color = MaterialTheme.colorScheme.onSurface,
-                showDividerAfter = true,
-                dividerColor = dividerColor,
             )
-            OwnerActionCell(
+            OwnerActionButton(
                 label = if (state.ownerMetadata?.isPromoted == true) {
                     stringResource(Res.string.my_listings_extend)
                 } else {
@@ -886,77 +883,58 @@ private fun OwnerActionBar(
                 icon = { Icon(Icons.Outlined.Bolt, contentDescription = null, modifier = Modifier.size(18.dp)) },
                 onClick = { onIntent(ListingDetailIntent.PromoteListing) },
                 modifier = Modifier.weight(1f),
-                color = MaterialTheme.colorScheme.primary,
-                showDividerAfter = true,
-                dividerColor = dividerColor,
+                emphasis = true,
             )
-            OwnerActionCell(
+            OwnerActionButton(
                 label = ownerStatus.toggleLabel(),
                 icon = { Icon(Icons.Outlined.Circle, contentDescription = null, modifier = Modifier.size(18.dp)) },
                 onClick = { onIntent(ListingDetailIntent.ToggleOwnerStatus) },
                 modifier = Modifier.weight(1f),
                 enabled = canToggle,
-                color = if (ownerStatus == ListingStatus.ACTIVE) {
-                    MaterialTheme.colorScheme.error
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
-                showDividerAfter = false,
-                dividerColor = dividerColor,
             )
         }
     }
 }
 
 @Composable
-private fun OwnerActionCell(
+private fun OwnerActionButton(
     label: String,
     icon: @Composable () -> Unit,
     onClick: () -> Unit,
-    color: androidx.compose.ui.graphics.Color,
-    showDividerAfter: Boolean,
-    dividerColor: androidx.compose.ui.graphics.Color,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    emphasis: Boolean = false,
 ) {
-    val interactionModifier = if (enabled) Modifier.bouncingClickable(onClick = onClick) else Modifier
-    val effectiveColor = if (enabled) color else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-    Row(modifier = modifier) {
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .then(interactionModifier)
-                .padding(vertical = KupioThemeDefaults.spacing.sm),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            Box(
-                modifier = Modifier.size(18.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                androidx.compose.runtime.CompositionLocalProvider(
-                    androidx.compose.material3.LocalContentColor provides effectiveColor,
-                ) {
-                    icon()
-                }
-            }
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                color = effectiveColor,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.SemiBold,
-            )
-        }
-        if (showDividerAfter) {
-            Box(
-                modifier = Modifier
-                    .width(KupioThemeDefaults.borderWidths.thin)
-                    .height(42.dp)
-                    .background(dividerColor),
-            )
-        }
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        shape = KupioShapes.Large,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (emphasis) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.surface
+            },
+            contentColor = if (emphasis) {
+                MaterialTheme.colorScheme.onPrimary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+        ),
+        border = if (emphasis) null else KupioThemeDefaults.strongBorder,
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 13.dp),
+    ) {
+        icon()
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = label,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            fontWeight = FontWeight.SemiBold,
+        )
     }
 }
 

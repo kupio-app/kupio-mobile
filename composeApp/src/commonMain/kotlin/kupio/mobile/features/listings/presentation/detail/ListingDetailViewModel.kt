@@ -210,7 +210,7 @@ class ListingDetailViewModel(
                 _state.update {
                     it.copy(
                         isUpdatingStatus = false,
-                        statusError = t.message ?: "Could not update listing status.",
+                        statusError = t.message.orEmpty(),
                     )
                 }
             }

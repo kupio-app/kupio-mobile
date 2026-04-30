@@ -226,9 +226,8 @@ class ListingDetailViewModel(
     }
 
     private fun Listing.toSellerUi(): ListingSellerUi {
-        val label = contactName?.takeIf { it.isNotBlank() } ?: "Seller"
         return ListingSellerUi(
-            displayName = label,
+            displayName = contactName.orEmpty(),
             phone = phone,
             isCallsDisabled = isCallsDisabled,
         )

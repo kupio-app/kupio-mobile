@@ -715,6 +715,10 @@ private fun SellerSection(
     onProfile: () -> Unit,
 ) {
     val spacing = KupioThemeDefaults.spacing
+    val sellerFallback = stringResource(Res.string.listing_detail_seller_fallback)
+    val sellerName = seller?.displayName?.takeIf { it.isNotBlank() } ?: sellerFallback
+    val sellerInitials = seller?.initials?.takeIf { it.isNotBlank() } ?: sellerFallback.take(2)
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -729,7 +733,7 @@ private fun SellerSection(
             horizontalArrangement = Arrangement.spacedBy(spacing.md),
         ) {
             KupioUserAvatar(
-                initials = seller?.initials ?: stringResource(Res.string.listing_detail_seller_fallback).take(2),
+                initials = sellerInitials,
                 size = 44.dp,
             )
             Column(
@@ -737,7 +741,7 @@ private fun SellerSection(
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 Text(
-                    text = seller?.displayName ?: stringResource(Res.string.listing_detail_seller_fallback),
+                    text = sellerName,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,

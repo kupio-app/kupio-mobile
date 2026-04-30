@@ -53,6 +53,7 @@ import kupio.mobile.features.saved.data.repository.FavouritesRepositoryImpl
 import kupio.mobile.features.saved.domain.repository.FavouritesRepository
 import kupio.mobile.features.settings.SettingsViewModel
 import kupio.mobile.core.navigation.RootNavigationViewModel
+import kupio.mobile.core.presentation.SnackbarManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -68,6 +69,7 @@ val kupioAppModules: List<Module> = listOf(
     notificationModule,
     module {
         single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
+        single { SnackbarManager() }
         single<HttpClient> {
             val config = get<BackendConfig>()
             createKupioHttpClient(

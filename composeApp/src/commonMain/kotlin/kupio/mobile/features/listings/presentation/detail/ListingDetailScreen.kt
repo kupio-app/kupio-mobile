@@ -37,7 +37,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -51,10 +50,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -76,6 +72,7 @@ import kupio.mobile.features.chats.presentation.thread.ChatThreadScreen
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.model.formatPrice
+import kupio.mobile.features.listings.presentation.components.ListingFloatingIconButton
 import kupio.mobile.features.listings.presentation.components.ListingImage
 import kupio.mobile.features.me.presentation.mylistings.components.StatusChangeDialog
 import mobile.composeapp.generated.resources.Res
@@ -308,14 +305,14 @@ private fun ListingHero(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            FloatingIconButton(
+            ListingFloatingIconButton(
                 onClick = onBack,
                 contentDescription = stringResource(Res.string.back),
             ) {
                 Icon(Icons.Default.ChevronLeft, contentDescription = null)
             }
             if (showFavourite) {
-                FloatingIconButton(
+                ListingFloatingIconButton(
                     onClick = {},
                     contentDescription = stringResource(Res.string.listing_detail_favourite),
                 ) {
@@ -378,29 +375,6 @@ private fun ListingHero(
                         color = MaterialTheme.colorScheme.surface,
                     )
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun FloatingIconButton(
-    onClick: () -> Unit,
-    contentDescription: String,
-    enabled: Boolean = true,
-    icon: @Composable () -> Unit,
-) {
-    Surface(
-        modifier = Modifier
-            .size(40.dp)
-            .alpha(if (enabled) 1f else 0.65f)
-            .semantics { this.contentDescription = contentDescription },
-        shape = CircleShape,
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-    ) {
-        IconButton(onClick = onClick, enabled = enabled) {
-            Box(contentAlignment = Alignment.Center) {
-                icon()
             }
         }
     }

@@ -58,6 +58,7 @@ class CreateViewModel(
                     )
                 }
             }
+            is CreateIntent.MoveImage -> moveImage(intent.fromIndex, intent.toIndex)
             is CreateIntent.TitleChanged -> updateField(CreateField.TITLE) { it.copy(title = intent.value) }
             is CreateIntent.DescriptionChanged -> updateField(CreateField.DESCRIPTION) {
                 it.copy(description = intent.value)
@@ -116,6 +117,14 @@ class CreateViewModel(
                     else -> null
                 },
             )
+        }
+    }
+
+    private fun moveImage(fromIndex: Int, toIndex: Int) {
+        resetPendingSubmission()
+        _state.update { state ->
+            val images = state.images.move(fromIndex, toIndex) ?: return@update state
+            state.copy(images = images, imageWarning = null)
         }
     }
 
@@ -413,6 +422,13 @@ private fun SelectedListingImage.toUpload(): ListingImageUpload = ListingImageUp
     mimeType = mimeType,
     bytes = bytes,
 )
+
+private fun <T> List<T>.move(fromIndex: Int, toIndex: Int): List<T>? {
+    if (fromIndex !in indices || toIndex !in indices || fromIndex == toIndex) return null
+    return toMutableList().apply {
+        add(toIndex, removeAt(fromIndex))
+    }
+}
 
 private fun Throwable.fieldErrors(): Map<CreateField, CreateError> {
     val apiException = this as? ApiException ?: return emptyMap()

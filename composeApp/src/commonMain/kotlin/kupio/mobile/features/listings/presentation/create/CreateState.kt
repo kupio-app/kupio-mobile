@@ -61,6 +61,7 @@ sealed interface CreateIntent : UiAction {
     data object ImageLimitReached : CreateIntent
     data class ImagesSelected(val images: List<SelectedListingImage>) : CreateIntent
     data class RemoveImage(val id: String) : CreateIntent
+    data class MoveImage(val fromIndex: Int, val toIndex: Int) : CreateIntent
     data class TitleChanged(val value: String) : CreateIntent
     data class DescriptionChanged(val value: String) : CreateIntent
     data class PriceChanged(val value: String) : CreateIntent

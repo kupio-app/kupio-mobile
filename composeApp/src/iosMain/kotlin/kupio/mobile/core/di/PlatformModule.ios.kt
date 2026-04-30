@@ -5,6 +5,8 @@ import androidx.datastore.preferences.core.Preferences
 import com.liftric.kvault.KVault
 import kotlinx.cinterop.ExperimentalForeignApi
 import kupio.mobile.core.config.BackendConfig
+import kupio.mobile.core.platform.IosPhoneDialer
+import kupio.mobile.core.platform.PhoneDialer
 import kupio.mobile.core.preferences.KupioPreferencesFileName
 import kupio.mobile.core.preferences.createPreferencesDataStore
 import org.koin.dsl.module
@@ -33,6 +35,7 @@ actual val platformModule = module {
         }
     }
     single { KVault("kupio.mobile.secure_store") }
+    single<PhoneDialer> { IosPhoneDialer() }
     single<DataStore<Preferences>> {
         createPreferencesDataStore(
             producePath = {

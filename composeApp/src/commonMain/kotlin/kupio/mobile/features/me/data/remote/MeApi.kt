@@ -5,10 +5,11 @@ import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
-import kupio.mobile.core.network.toApiException
 import kupio.mobile.core.network.bodyOrThrow
-import kupio.mobile.features.me.domain.model.OwnedListingStatus
+import kupio.mobile.core.network.toApiException
 import kupio.mobile.features.me.domain.model.OwnedListing
+import kupio.mobile.features.me.domain.model.OwnedListingsPage
+import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.domain.model.UserListingStats
 
 class MeApi(private val httpClient: HttpClient) {
@@ -23,13 +24,23 @@ class MeApi(private val httpClient: HttpClient) {
         authorize: HttpRequestBuilder.() -> Unit,
         limit: Int = 50,
         cursor: String? = null,
-    ): List<OwnedListing> = httpClient.get("/api/users/me/listings") {
+    ): List<OwnedListing> = getMyListingsPage(
+        authorize = authorize,
+        limit = limit,
+        cursor = cursor,
+    ).listings
+
+    suspend fun getMyListingsPage(
+        authorize: HttpRequestBuilder.() -> Unit,
+        limit: Int = 50,
+        cursor: String? = null,
+    ): OwnedListingsPage = httpClient.get("/api/users/me/listings") {
         authorize()
         url {
             parameters.append("limit", limit.toString())
             cursor?.let { parameters.append("cursor", it) }
         }
-    }.bodyOrThrow<ListOwnerListingsResponseDto>().listings.map { it.toDomain() }
+    }.bodyOrThrow<ListOwnerListingsResponseDto>().toDomain()
 
     suspend fun updateListingStatus(
         authorize: HttpRequestBuilder.() -> Unit,

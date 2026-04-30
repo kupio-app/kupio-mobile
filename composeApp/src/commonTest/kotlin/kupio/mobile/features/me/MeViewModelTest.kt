@@ -133,6 +133,8 @@ class MeViewModelTest {
 
         override suspend fun getMyListings(): List<OwnedListing> = emptyList()
 
+        override suspend fun getMyListing(listingId: String): OwnedListing? = null
+
         override suspend fun updateListingStatus(listingId: String, status: OwnedListingStatus) = Unit
     }
 }

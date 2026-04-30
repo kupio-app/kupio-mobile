@@ -32,6 +32,18 @@ class ChatApi(private val httpClient: HttpClient) {
         authorize()
     }.bodyOrThrow()
 
+    suspend fun startConversation(
+        authorize: HttpRequestBuilder.() -> Unit,
+        listingId: String,
+        startWith: String,
+    ): ConversationResponseDto = httpClient.post("/api/chat/conversations") {
+        authorize()
+        url {
+            parameters.append("listing_id", listingId)
+        }
+        setBody(ConversationStartRequestDto(startWith = startWith))
+    }.bodyOrThrow()
+
     suspend fun listMessages(
         authorize: HttpRequestBuilder.() -> Unit,
         conversationId: String,

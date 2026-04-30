@@ -5,4 +5,5 @@ data class ListingSummary(
     val title: String,
     val priceFormatted: String,
     val placeholderSeed: Int,
+    val imageUrl: String? = null,
 )

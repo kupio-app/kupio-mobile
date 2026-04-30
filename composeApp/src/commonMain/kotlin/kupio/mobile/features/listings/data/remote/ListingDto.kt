@@ -6,11 +6,13 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
 import kupio.mobile.features.listings.domain.model.Currency
 import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.CustomFilterPayloadValue
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.ListingFeed
+import kupio.mobile.features.listings.domain.model.ListingImage
 import kupio.mobile.features.listings.domain.model.ListingStatus
 
 @Serializable
@@ -26,11 +28,18 @@ data class ListingResponseDto(
     val description: String,
     val price: Int,
     val currency: CurrencyDto,
-    val status: ListingStatusDto = ListingStatusDto.ACTIVE,
+    val status: ListingStatusDto,
     @SerialName("user_id") val userId: String,
     val category: CategorySlimDto,
     val images: List<ListingImageResponseDto> = emptyList(),
     @SerialName("created_at") val createdAt: String,
+    @SerialName("seen_count") val seenCount: Int = 0,
+    val phone: String? = null,
+    @SerialName("contact_name") val contactName: String? = null,
+    @SerialName("is_calls_disabled") val isCallsDisabled: Boolean = false,
+    @SerialName("is_free") val isFree: Boolean = false,
+    @SerialName("is_tradable") val isTradable: Boolean = false,
+    @SerialName("custom_filters") val customFilters: JsonObject? = null,
 )
 
 @Serializable
@@ -58,11 +67,19 @@ data class ListingRequestDto(
     val currency: CurrencyDto,
     @SerialName("category_id") val categoryId: Int,
     @SerialName("custom_filters") val customFilters: JsonObject? = null,
+    val phone: String? = null,
+    @SerialName("contact_name") val contactName: String? = null,
+    @SerialName("is_calls_disabled") val isCallsDisabled: Boolean = false,
 )
 
 @Serializable
 data class ListingStatusUpdateRequestDto(
     val status: ListingStatusDto,
+)
+
+@Serializable
+data class UpdateListingImagesOrderRequestDto(
+    @SerialName("image_ids") val imageIds: List<String>,
 )
 
 @Serializable
@@ -104,16 +121,44 @@ fun ListingStatus.toDto(): ListingStatusDto = when (this) {
     ListingStatus.SOLD -> ListingStatusDto.SOLD
 }
 
-fun ListingResponseDto.toDomain(): Listing = Listing(
+fun ListingStatusDto.toDomain(): ListingStatus = when (this) {
+    ListingStatusDto.DRAFT -> ListingStatus.DRAFT
+    ListingStatusDto.PLANNED -> ListingStatus.PLANNED
+    ListingStatusDto.ACTIVE -> ListingStatus.ACTIVE
+    ListingStatusDto.INACTIVE -> ListingStatus.INACTIVE
+    ListingStatusDto.SOLD -> ListingStatus.SOLD
+}
+
+fun ListingResponseDto.toDomain(): Listing {
+    val sortedImages = images.sortedBy { it.sortOrder }.map { it.toDomain() }
+    return Listing(
+        id = id,
+        title = title,
+        description = description,
+        price = price,
+        currency = currency.toDomain(),
+        status = status.toDomain(),
+        primaryImageUrl = sortedImages.firstOrNull()?.url,
+        images = sortedImages,
+        imageUrls = sortedImages.map { it.url },
+        createdAt = createdAt,
+        userId = userId,
+        categoryId = category.id,
+        categoryName = category.name,
+        seenCount = seenCount,
+        phone = phone,
+        contactName = contactName,
+        isCallsDisabled = isCallsDisabled,
+        isFree = isFree,
+        isTradable = isTradable,
+        customFilters = customFilters.toDisplayMap(),
+    )
+}
+
+fun ListingImageResponseDto.toDomain(): ListingImage = ListingImage(
     id = id,
-    title = title,
-    description = description,
-    price = price,
-    currency = currency.toDomain(),
-    primaryImageUrl = images.minByOrNull { it.sortOrder }?.url,
-    createdAt = createdAt,
-    categoryId = category.id,
-    categoryName = category.name,
+    url = url,
+    sortOrder = sortOrder,
 )
 
 fun ListListingsResponseDto.toDomain(): ListingFeed = ListingFeed(
@@ -121,7 +166,11 @@ fun ListListingsResponseDto.toDomain(): ListingFeed = ListingFeed(
     nextCursor = nextCursor,
 )
 
-fun CreateListing.toDto(): ListingRequestDto = ListingRequestDto(
+fun CreateListing.toDto(
+    phone: String? = null,
+    contactName: String? = null,
+    isCallsDisabled: Boolean = false,
+): ListingRequestDto = ListingRequestDto(
     title = title,
     description = description,
     price = price,
@@ -130,6 +179,9 @@ fun CreateListing.toDto(): ListingRequestDto = ListingRequestDto(
     currency = currency.toDto(),
     categoryId = categoryId,
     customFilters = customFilters.toJsonObject().takeUnless { it.isEmpty() },
+    phone = phone,
+    contactName = contactName,
+    isCallsDisabled = isCallsDisabled,
 )
 
 fun Map<String, CustomFilterPayloadValue>.toJsonObject(): JsonObject = buildJsonObject {
@@ -142,4 +194,15 @@ private fun CustomFilterPayloadValue.toJsonElement(): JsonElement = when (this) 
     is CustomFilterPayloadValue.Text -> JsonPrimitive(value)
     is CustomFilterPayloadValue.Number -> JsonPrimitive(value)
     is CustomFilterPayloadValue.BooleanValue -> JsonPrimitive(value)
+}
+
+private fun JsonObject?.toDisplayMap(): Map<String, String> {
+    if (this == null) return emptyMap()
+    return entries.mapNotNull { (key, value) ->
+        val text = when (value) {
+            is JsonPrimitive -> value.content
+            else -> value.toString()
+        }.takeIf { it.isNotBlank() }
+        text?.let { key to it }
+    }.toMap()
 }

@@ -6,6 +6,7 @@ import kupio.mobile.features.listings.data.remote.CurrencyDto
 import kupio.mobile.features.listings.data.remote.ListingStatusDto
 import kupio.mobile.features.listings.data.remote.toDomain
 import kupio.mobile.features.me.domain.model.OwnedListing
+import kupio.mobile.features.me.domain.model.OwnedListingsPage
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.domain.model.UserListingStats
 
@@ -31,13 +32,13 @@ data class OwnerListingResponseDto(
     val title: String,
     val price: Int,
     val currency: CurrencyDto,
-    val status: ListingStatusDto = ListingStatusDto.ACTIVE,
+    val status: ListingStatusDto,
     val images: List<OwnerListingImageDto> = emptyList(),
-    @SerialName("seen_count") val seenCount: Int = 0,
-    @SerialName("favourites_count") val favouritesCount: Int = 0,
-    @SerialName("chats_count") val chatsCount: Int = 0,
-    @SerialName("is_promoted") val isPromoted: Boolean = false,
-    @SerialName("promotion_expires_at") val promotionExpiresAt: String? = null,
+    @SerialName("seen_count") val seenCount: Int,
+    @SerialName("favourites_count") val favouritesCount: Int,
+    @SerialName("chats_count") val chatsCount: Int,
+    @SerialName("is_promoted") val isPromoted: Boolean,
+    @SerialName("promotion_expires_at") val promotionExpiresAt: String?,
 )
 
 @Serializable
@@ -73,6 +74,11 @@ fun OwnerListingResponseDto.toDomain() = OwnedListing(
     promotionExpiresAt = promotionExpiresAt,
 )
 
+fun ListOwnerListingsResponseDto.toDomain() = OwnedListingsPage(
+    listings = listings.map { it.toDomain() },
+    nextCursor = nextCursor,
+)
+
 fun ListingStatusDto.toOwnedDomain(): OwnedListingStatus = when (this) {
     ListingStatusDto.ACTIVE -> OwnedListingStatus.ACTIVE
     ListingStatusDto.INACTIVE -> OwnedListingStatus.INACTIVE
@@ -88,4 +94,3 @@ fun OwnedListingStatus.toDto(): ListingStatusDto = when (this) {
     OwnedListingStatus.PLANNED -> ListingStatusDto.PLANNED
     OwnedListingStatus.SOLD -> ListingStatusDto.SOLD
 }
-

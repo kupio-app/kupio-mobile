@@ -16,6 +16,11 @@ data class OwnedListing(
     val promotionExpiresAt: String?,
 )
 
+data class OwnedListingsPage(
+    val listings: List<OwnedListing>,
+    val nextCursor: String?,
+)
+
 enum class OwnedListingStatus { ACTIVE, INACTIVE, DRAFT, PLANNED, SOLD }
 
 fun OwnedListing.formatPrice(): String =

@@ -28,6 +28,7 @@ import kupio.mobile.features.chats.data.remote.UserApi
 import kupio.mobile.features.chats.data.repository.ChatsRepositoryImpl
 import kupio.mobile.features.chats.data.repository.MessagesRepositoryImpl
 import kupio.mobile.features.chats.domain.repository.ChatsRepository
+import kupio.mobile.features.chats.domain.repository.ConversationsRefresher
 import kupio.mobile.features.chats.domain.repository.MessagesRepository
 import kupio.mobile.features.chats.presentation.list.ChatsListViewModel
 import kupio.mobile.features.chats.presentation.thread.ChatThreadViewModel
@@ -39,6 +40,7 @@ import kupio.mobile.features.listings.data.repository.ListingsRepositoryImpl
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.listings.presentation.detail.ListingDetailViewModel
+import kupio.mobile.features.listings.presentation.edit.EditListingViewModel
 import kupio.mobile.features.listings.presentation.feed.FeedViewModel
 import kupio.mobile.features.me.data.remote.MeApi
 import kupio.mobile.features.me.data.repository.MeRepositoryImpl
@@ -83,6 +85,7 @@ val kupioAppModules: List<Module> = listOf(
         single<MessagesRepository> { MessagesRepositoryImpl(get(), get(), get(), get()) }
         single { SessionCleaner(get(), get()) }
         single { ConversationsStore(get(), get(), get(), get(), get(), get()) }
+        single<ConversationsRefresher> { get<ConversationsStore>() }
         viewModelOf(::ChatsListViewModel)
         viewModel { params -> ChatThreadViewModel(params.get(), get(), get()) }
         single<AuthClock> { SystemAuthClock() }
@@ -108,6 +111,7 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::MyListingsViewModel)
         viewModelOf(::SettingsViewModel)
         viewModelOf(::UsernameViewModel)
-        viewModel { params -> ListingDetailViewModel(params.get(), get()) }
+        viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get()) }
+        viewModel { params -> EditListingViewModel(params.get(), get(), get()) }
     },
 )

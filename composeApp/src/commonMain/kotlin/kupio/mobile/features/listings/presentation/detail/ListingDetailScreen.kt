@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,8 +22,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Message
+import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
@@ -51,6 +52,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -144,6 +146,7 @@ private fun ListingDetailContent(
     onIntent: (ListingDetailIntent) -> Unit,
 ) {
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             if (state.listing != null && !state.isLoading) {
                 if (state.isOwnListing) {
@@ -309,7 +312,7 @@ private fun ListingHero(
                 onClick = onBack,
                 contentDescription = stringResource(Res.string.back),
             ) {
-                Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null)
+                Icon(Icons.Default.ChevronLeft, contentDescription = null)
             }
             if (showFavourite) {
                 FloatingIconButton(
@@ -516,88 +519,106 @@ private fun OwnerMetricsSection(
     fallbackSeenCount: Int,
 ) {
     val spacing = KupioThemeDefaults.spacing
+    val metrics = if (ownerMetadata == null) {
+        listOf(
+            OwnerMetricUi(
+                count = fallbackSeenCount,
+                label = stringResource(Res.string.listing_detail_views),
+                icon = Icons.Outlined.Visibility,
+            ),
+        )
+    } else {
+        listOf(
+            OwnerMetricUi(
+                count = ownerMetadata.seenCount,
+                label = stringResource(Res.string.listing_detail_views),
+                icon = Icons.Outlined.Visibility,
+            ),
+            OwnerMetricUi(
+                count = ownerMetadata.favouritesCount,
+                label = stringResource(Res.string.listing_detail_favourites),
+                icon = Icons.Outlined.FavoriteBorder,
+            ),
+            OwnerMetricUi(
+                count = ownerMetadata.chatsCount,
+                label = stringResource(Res.string.listing_detail_chats),
+                icon = Icons.AutoMirrored.Outlined.Message,
+            ),
+        )
+    }
     Column(
         modifier = Modifier.padding(horizontal = spacing.lg, vertical = spacing.xs),
         verticalArrangement = Arrangement.spacedBy(spacing.sm),
     ) {
         SectionLabel(stringResource(Res.string.listing_detail_metrics))
-        if (ownerMetadata == null) {
-            OwnerMetricCard(
-                count = fallbackSeenCount,
-                label = stringResource(Res.string.listing_detail_views),
-                icon = { Icon(Icons.Outlined.Visibility, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        } else {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = KupioShapes.Large,
+            color = MaterialTheme.colorScheme.surface,
+            border = KupioThemeDefaults.defaultBorder,
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(spacing.sm),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                OwnerMetricCard(
-                    count = ownerMetadata.seenCount,
-                    label = stringResource(Res.string.listing_detail_views),
-                    icon = { Icon(Icons.Outlined.Visibility, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                    modifier = Modifier.weight(1f),
-                )
-                OwnerMetricCard(
-                    count = ownerMetadata.favouritesCount,
-                    label = stringResource(Res.string.listing_detail_favourites),
-                    icon = { Icon(Icons.Outlined.FavoriteBorder, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                    modifier = Modifier.weight(1f),
-                )
-                OwnerMetricCard(
-                    count = ownerMetadata.chatsCount,
-                    label = stringResource(Res.string.listing_detail_chats),
-                    icon = { Icon(Icons.AutoMirrored.Outlined.Message, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                    modifier = Modifier.weight(1f),
-                )
+                metrics.forEachIndexed { index, metric ->
+                    OwnerMetricCell(
+                        metric = metric,
+                        modifier = Modifier.weight(1f),
+                    )
+                    if (index < metrics.lastIndex) {
+                        Box(
+                            modifier = Modifier
+                                .width(KupioThemeDefaults.borderWidths.thin)
+                                .height(108.dp)
+                                .background(KupioThemeDefaults.softDividerColor),
+                        )
+                    }
+                }
             }
         }
     }
 }
 
+private data class OwnerMetricUi(
+    val count: Int,
+    val label: String,
+    val icon: ImageVector,
+)
+
 @Composable
-private fun OwnerMetricCard(
-    count: Int,
-    label: String,
-    icon: @Composable () -> Unit,
+private fun OwnerMetricCell(
+    metric: OwnerMetricUi,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
-        modifier = modifier,
-        shape = KupioShapes.Large,
-        color = MaterialTheme.colorScheme.surface,
-        border = KupioThemeDefaults.defaultBorder,
+    Column(
+        modifier = modifier.padding(
+            horizontal = KupioThemeDefaults.spacing.md,
+            vertical = KupioThemeDefaults.spacing.md,
+        ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Column(
-            modifier = Modifier.padding(KupioThemeDefaults.spacing.md),
-            verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.xs),
-        ) {
-            Text(
-                text = count.toString(),
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold,
-            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.dp),
-            ) {
-                Box(
-                    modifier = Modifier.size(14.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    icon()
-                }
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
+        Icon(
+            imageVector = metric.icon,
+            contentDescription = null,
+            modifier = Modifier.size(18.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = metric.count.toString(),
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            text = metric.label.uppercase(),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 
@@ -915,12 +936,12 @@ private fun OwnerActionButton(
         shape = KupioShapes.Large,
         colors = ButtonDefaults.buttonColors(
             containerColor = if (emphasis) {
-                MaterialTheme.colorScheme.primary
+                MaterialTheme.colorScheme.onSurface
             } else {
                 MaterialTheme.colorScheme.surface
             },
             contentColor = if (emphasis) {
-                MaterialTheme.colorScheme.onPrimary
+                MaterialTheme.colorScheme.surface
             } else {
                 MaterialTheme.colorScheme.onSurfaceVariant
             },

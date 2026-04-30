@@ -35,6 +35,7 @@ import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.Currency
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.ListingFeed
+import kupio.mobile.features.listings.domain.model.ListingImage
 import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
@@ -291,12 +292,27 @@ class ListingDetailViewModelTest {
         override suspend fun createListing(listing: CreateListing): Listing =
             listing("created", phone, isCallsDisabled)
 
+        override suspend fun updateListing(
+            listingId: String,
+            listing: CreateListing,
+            phone: String?,
+            contactName: String?,
+            isCallsDisabled: Boolean,
+        ): Listing = listing(listingId, phone, isCallsDisabled)
+
         override suspend fun updateListingStatus(listingId: String, status: ListingStatus): Listing {
             statusUpdates += listingId to status
             return listing(listingId, phone, isCallsDisabled, status)
         }
 
-        override suspend fun uploadListingImages(listingId: String, images: List<ListingImageUpload>) = Unit
+        override suspend fun uploadListingImages(
+            listingId: String,
+            images: List<ListingImageUpload>,
+        ): List<ListingImage> = emptyList()
+
+        override suspend fun deleteListingImage(listingId: String, imageId: String) = Unit
+
+        override suspend fun updateListingImagesOrder(listingId: String, imageIds: List<String>) = Unit
     }
 
     private class FakeMeRepository(
@@ -443,6 +459,13 @@ class ListingDetailViewModelTest {
             currency = Currency.EUR,
             status = status,
             primaryImageUrl = "https://example.test/listing.jpg",
+            images = listOf(
+                ListingImage(
+                    id = "image-1",
+                    url = "https://example.test/listing.jpg",
+                    sortOrder = 0,
+                ),
+            ),
             imageUrls = listOf("https://example.test/listing.jpg"),
             createdAt = "2026-04-26T00:00:00Z",
             userId = "seller-1",

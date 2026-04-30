@@ -17,6 +17,7 @@ import kupio.mobile.features.listings.domain.model.FilterOptions
 import kupio.mobile.features.listings.domain.model.FilterType
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.ListingFeed
+import kupio.mobile.features.listings.domain.model.ListingImage
 import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
@@ -501,6 +502,14 @@ class CreateViewModelTest {
             return listing("created-listing")
         }
 
+        override suspend fun updateListing(
+            listingId: String,
+            listing: CreateListing,
+            phone: String?,
+            contactName: String?,
+            isCallsDisabled: Boolean,
+        ): Listing = listing(listingId)
+
         override suspend fun updateListingStatus(
             listingId: String,
             status: ListingStatus,
@@ -517,7 +526,7 @@ class CreateViewModelTest {
         override suspend fun uploadListingImages(
             listingId: String,
             images: List<ListingImageUpload>,
-        ) {
+        ): List<ListingImage> {
             uploadCalls += 1
             if (failNextUpload) {
                 failNextUpload = false
@@ -525,7 +534,18 @@ class CreateViewModelTest {
             }
             uploadedListingId = listingId
             uploadedImages = images
+            return images.mapIndexed { index, _ ->
+                ListingImage(
+                    id = "image-$index",
+                    url = "https://example.test/image-$index.jpg",
+                    sortOrder = index,
+                )
+            }
         }
+
+        override suspend fun deleteListingImage(listingId: String, imageId: String) = Unit
+
+        override suspend fun updateListingImagesOrder(listingId: String, imageIds: List<String>) = Unit
     }
 
     private companion object {
@@ -552,6 +572,7 @@ class CreateViewModelTest {
             currency = Currency.EUR,
             status = ListingStatus.ACTIVE,
             primaryImageUrl = null,
+            images = emptyList(),
             imageUrls = emptyList(),
             createdAt = "2026-04-26T00:00:00Z",
             userId = "seller",

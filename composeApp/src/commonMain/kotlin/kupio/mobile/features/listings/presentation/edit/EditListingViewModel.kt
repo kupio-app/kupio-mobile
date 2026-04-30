@@ -274,6 +274,13 @@ class EditListingViewModel(
                     }
                 }
                 updateImagesOrder(finalImageIds, effectiveImages, uploadedImageIdsByLocalId)
+                val savedRemoteImages = effectiveImages.filterIsInstance<RemoteListingImage>()
+                _state.update {
+                    it.copy(
+                        images = savedRemoteImages,
+                        originalImages = savedRemoteImages,
+                    )
+                }
             }.onSuccess {
                 _state.update { it.copy(isSaving = false) }
                 effectChannel.send(EditListingEffect.OpenListing(listingId))

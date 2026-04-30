@@ -222,6 +222,38 @@ class EditListingViewModelTest {
     }
 
     @Test
+    fun `saved uploaded image can be removed by a later save`() = runTest(dispatcher) {
+        val listings = FakeListingsRepository()
+        val viewModel = EditListingViewModel(
+            listingId = "listing-1",
+            listingsRepository = listings,
+            categoriesRepository = FakeCategoriesRepository(),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(
+            EditListingIntent.ImagesSelected(
+                listOf(
+                    SelectedListingImage(
+                        id = "local-1",
+                        fileName = "new.jpg",
+                        mimeType = "image/jpeg",
+                        bytes = byteArrayOf(1, 2, 3),
+                    ),
+                ),
+            ),
+        )
+        viewModel.onIntent(EditListingIntent.Save)
+        advanceUntilIdle()
+
+        viewModel.onIntent(EditListingIntent.RemoveImage("remote-uploaded-0"))
+        viewModel.onIntent(EditListingIntent.Save)
+        advanceUntilIdle()
+
+        assertEquals(listOf("uploaded-0"), listings.deletedImageIds)
+    }
+
+    @Test
     fun `already deleted image does not block save retry`() = runTest(dispatcher) {
         val listings = FakeListingsRepository(
             deleteFailures = mutableMapOf(

@@ -27,6 +27,7 @@ import kupio.mobile.features.listings.presentation.create.CreateState
 import kupio.mobile.features.listings.presentation.create.SelectedListingImage
 import kupio.mobile.features.listings.presentation.create.validateCreateListing
 import kupio.mobile.features.listings.presentation.form.ListingFormController
+import kupio.mobile.features.listings.presentation.form.ListingFormImage
 import kupio.mobile.features.listings.presentation.form.LocalListingImage
 import kupio.mobile.features.listings.presentation.form.RemoteListingImage
 import kupio.mobile.features.listings.presentation.form.toCreateError
@@ -222,37 +223,57 @@ class EditListingViewModel(
                     contactName = originalListing.contactName,
                     isCallsDisabled = originalListing.isCallsDisabled,
                 )
-                val uploadedImages = listingsRepository.uploadListingImages(
-                    listingId = listingId,
-                    images = localImages.map { it.toUpload() },
-                )
+                val uploadedImages = if (localImages.isEmpty()) {
+                    emptyList()
+                } else {
+                    listingsRepository.uploadListingImages(
+                        listingId = listingId,
+                        images = localImages.map { it.toUpload() },
+                    )
+                }
                 if (uploadedImages.size != localImages.size) {
                     error("Could not upload all images.")
                 }
                 val uploadedImageIdsByLocalId = localImages
                     .zip(uploadedImages)
                     .associate { (localImage, uploadedImage) -> localImage.id to uploadedImage.id }
+                val uploadedImagesByLocalId = localImages
+                    .zip(uploadedImages)
+                    .associate { (localImage, uploadedImage) -> localImage.id to uploadedImage }
+                val effectiveImages = state.images.map { image ->
+                    when (image) {
+                        is RemoteListingImage -> image
+                        is LocalListingImage -> {
+                            val uploadedImage = uploadedImagesByLocalId[image.id] ?: return@map image
+                            RemoteListingImage(
+                                id = "remote-${uploadedImage.id}",
+                                imageId = uploadedImage.id,
+                                imageUrl = uploadedImage.url,
+                                sortOrder = uploadedImage.sortOrder,
+                            )
+                        }
+                    }
+                }
+                if (uploadedImagesByLocalId.isNotEmpty()) {
+                    _state.update { it.copy(images = effectiveImages) }
+                }
 
-                val remainingRemoteImageIds = state.images
+                val remainingRemoteImageIds = effectiveImages
                     .filterIsInstance<RemoteListingImage>()
                     .map { it.imageId }
                     .toSet()
                 val removedImageIds = state.originalImages
                     .map { it.imageId }
                     .filterNot { it in remainingRemoteImageIds }
-                removedImageIds.forEach { imageId ->
-                    listingsRepository.deleteListingImage(listingId, imageId)
-                }
+                deleteRemovedImages(removedImageIds)
 
-                val finalImageIds = state.images.mapNotNull { image ->
+                val finalImageIds = effectiveImages.mapNotNull { image ->
                     when (image) {
                         is RemoteListingImage -> image.imageId
                         is LocalListingImage -> uploadedImageIdsByLocalId[image.id]
                     }
                 }
-                if (finalImageIds.isNotEmpty()) {
-                    listingsRepository.updateListingImagesOrder(listingId, finalImageIds)
-                }
+                updateImagesOrder(finalImageIds, effectiveImages, uploadedImageIdsByLocalId)
             }.onSuccess {
                 _state.update { it.copy(isSaving = false) }
                 effectChannel.send(EditListingEffect.OpenListing(listingId))
@@ -266,6 +287,60 @@ class EditListingViewModel(
                     )
                 }
             }
+        }
+    }
+
+    private suspend fun deleteRemovedImages(imageIds: List<String>) {
+        imageIds.forEach { imageId ->
+            val result = runCatching {
+                listingsRepository.deleteListingImage(listingId, imageId)
+            }
+            val apiException = result.exceptionOrNull() as? ApiException
+            if (result.isFailure && apiException?.statusCode != 404) {
+                result.getOrThrow()
+            }
+            _state.update { state ->
+                state.copy(
+                    originalImages = state.originalImages.filterNot { it.imageId == imageId },
+                )
+            }
+        }
+    }
+
+    private suspend fun updateImagesOrder(
+        imageIds: List<String>,
+        desiredImages: List<ListingFormImage>,
+        uploadedImageIdsByLocalId: Map<String, String>,
+    ) {
+        if (imageIds.isEmpty()) return
+
+        try {
+            listingsRepository.updateListingImagesOrder(listingId, imageIds)
+        } catch (throwable: Throwable) {
+            val apiException = throwable as? ApiException
+            if (apiException?.statusCode != 422) throw throwable
+
+            val currentImages = listingsRepository.getListing(listingId).images
+            val currentImageIds = currentImages.map { it.id }.toSet()
+            val currentImageIdsByUrl = currentImages.associate { it.url to it.id }
+            val resolvedImageIds = desiredImages.mapNotNull { image ->
+                when (image) {
+                    is RemoteListingImage -> when {
+                        image.imageId in currentImageIds -> image.imageId
+                        else -> currentImageIdsByUrl[image.imageUrl]
+                    }
+                    is LocalListingImage -> uploadedImageIdsByLocalId[image.id]
+                }
+            }
+            val resolvedImageIdSet = resolvedImageIds.toSet()
+            val missingCurrentImageIds = currentImages
+                .map { it.id }
+                .filterNot { it in resolvedImageIdSet }
+            val retryImageIds = (resolvedImageIds + missingCurrentImageIds).distinct()
+
+            if (retryImageIds.isEmpty() || retryImageIds == imageIds) throw throwable
+
+            listingsRepository.updateListingImagesOrder(listingId, retryImageIds)
         }
     }
 }

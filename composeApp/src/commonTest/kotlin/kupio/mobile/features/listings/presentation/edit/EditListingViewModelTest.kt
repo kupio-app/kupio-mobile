@@ -15,6 +15,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kupio.mobile.core.network.ApiException
 import kupio.mobile.features.listings.domain.model.Category
 import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.Currency
@@ -123,6 +124,126 @@ class EditListingViewModelTest {
         )
     }
 
+    @Test
+    fun `order failure refreshes current images and retries with all image ids`() = runTest(dispatcher) {
+        val listings = FakeListingsRepository(
+            firstOrderFailure = ApiException(
+                statusCode = 422,
+                message = "image_ids must contain all listing images exactly once",
+            ),
+            refreshedListing = listing("listing-1").copy(
+                images = listOf(
+                    ListingImage(
+                        id = "image-a",
+                        url = "https://example.test/a.jpg",
+                        sortOrder = 0,
+                    ),
+                    ListingImage(
+                        id = "image-b",
+                        url = "https://example.test/b.jpg",
+                        sortOrder = 1,
+                    ),
+                    ListingImage(
+                        id = "image-c",
+                        url = "https://example.test/c.jpg",
+                        sortOrder = 2,
+                    ),
+                ),
+                imageUrls = listOf(
+                    "https://example.test/a.jpg",
+                    "https://example.test/b.jpg",
+                    "https://example.test/c.jpg",
+                ),
+            ),
+        )
+        val viewModel = EditListingViewModel(
+            listingId = "listing-1",
+            listingsRepository = listings,
+            categoriesRepository = FakeCategoriesRepository(),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(EditListingIntent.MoveImage(fromIndex = 1, toIndex = 0))
+        viewModel.onIntent(EditListingIntent.Save)
+        advanceUntilIdle()
+
+        assertEquals(
+            listOf(
+                listOf("image-b", "image-a"),
+                listOf("image-b", "image-a", "image-c"),
+            ),
+            listings.orderAttempts,
+        )
+        assertEquals(EditListingEffect.OpenListing("listing-1"), viewModel.effects.first())
+    }
+
+    @Test
+    fun `retry after image upload failure does not upload same local image again`() = runTest(dispatcher) {
+        val listings = FakeListingsRepository(
+            firstOrderFailure = ApiException(statusCode = 500, message = "Ordering failed."),
+        )
+        val viewModel = EditListingViewModel(
+            listingId = "listing-1",
+            listingsRepository = listings,
+            categoriesRepository = FakeCategoriesRepository(),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(
+            EditListingIntent.ImagesSelected(
+                listOf(
+                    SelectedListingImage(
+                        id = "local-1",
+                        fileName = "new.jpg",
+                        mimeType = "image/jpeg",
+                        bytes = byteArrayOf(1, 2, 3),
+                    ),
+                ),
+            ),
+        )
+        viewModel.onIntent(EditListingIntent.Save)
+        advanceUntilIdle()
+
+        assertEquals(1, listings.uploadCalls)
+        assertIs<CreateError.ServerMessage>(viewModel.state.value.submitError)
+
+        viewModel.onIntent(EditListingIntent.Save)
+        advanceUntilIdle()
+
+        assertEquals(1, listings.uploadCalls)
+        assertEquals(
+            listOf(
+                listOf("image-a", "image-b", "uploaded-0"),
+                listOf("image-a", "image-b", "uploaded-0"),
+            ),
+            listings.orderAttempts,
+        )
+        assertEquals(EditListingEffect.OpenListing("listing-1"), viewModel.effects.first())
+    }
+
+    @Test
+    fun `already deleted image does not block save retry`() = runTest(dispatcher) {
+        val listings = FakeListingsRepository(
+            deleteFailures = mutableMapOf(
+                "image-a" to ApiException(statusCode = 404, message = "Listing image not found"),
+            ),
+        )
+        val viewModel = EditListingViewModel(
+            listingId = "listing-1",
+            listingsRepository = listings,
+            categoriesRepository = FakeCategoriesRepository(),
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(EditListingIntent.RemoveImage("remote-image-a"))
+        viewModel.onIntent(EditListingIntent.Save)
+        advanceUntilIdle()
+
+        assertEquals(listOf("image-a"), listings.deletedImageIds)
+        assertEquals(listOf("image-b"), listings.orderedImageIds)
+        assertEquals(EditListingEffect.OpenListing("listing-1"), viewModel.effects.first())
+    }
+
     private class FakeCategoriesRepository : CategoriesRepository {
         override suspend fun getRootCategories(limit: Int): List<Category> =
             listOf(Category(1, "Furniture", null, 0, null)).take(limit)
@@ -139,15 +260,22 @@ class EditListingViewModelTest {
         ): List<FilterDefinition> = emptyList()
     }
 
-    private class FakeListingsRepository : ListingsRepository {
+    private class FakeListingsRepository(
+        private var firstOrderFailure: ApiException? = null,
+        private val refreshedListing: Listing? = null,
+        private val deleteFailures: MutableMap<String, ApiException> = mutableMapOf(),
+    ) : ListingsRepository {
         var updatedListingId: String? = null
         var updatedListing: CreateListing? = null
         var updatedPhone: String? = null
         var updatedContactName: String? = null
         var updatedIsCallsDisabled: Boolean? = null
         var uploadedImages: List<ListingImageUpload> = emptyList()
+        var uploadCalls = 0
         val deletedImageIds = mutableListOf<String>()
         var orderedImageIds: List<String> = emptyList()
+        val orderAttempts = mutableListOf<List<String>>()
+        private var getListingCalls = 0
 
         override suspend fun getFeed(
             limit: Int,
@@ -156,7 +284,14 @@ class EditListingViewModelTest {
             categoryId: Int?,
         ): ListingFeed = ListingFeed(emptyList(), null)
 
-        override suspend fun getListing(id: String): Listing = listing(id)
+        override suspend fun getListing(id: String): Listing {
+            getListingCalls += 1
+            return if (getListingCalls > 1 && refreshedListing != null) {
+                refreshedListing
+            } else {
+                listing(id)
+            }
+        }
 
         override suspend fun getListingDetail(id: String): Listing = listing(id)
 
@@ -186,6 +321,7 @@ class EditListingViewModelTest {
             listingId: String,
             images: List<ListingImageUpload>,
         ): List<ListingImage> {
+            uploadCalls += 1
             uploadedImages = images
             return images.mapIndexed { index, _ ->
                 ListingImage(
@@ -198,9 +334,15 @@ class EditListingViewModelTest {
 
         override suspend fun deleteListingImage(listingId: String, imageId: String) {
             deletedImageIds += imageId
+            deleteFailures.remove(imageId)?.let { throw it }
         }
 
         override suspend fun updateListingImagesOrder(listingId: String, imageIds: List<String>) {
+            orderAttempts += imageIds
+            firstOrderFailure?.let { failure ->
+                firstOrderFailure = null
+                throw failure
+            }
             orderedImageIds = imageIds
         }
     }

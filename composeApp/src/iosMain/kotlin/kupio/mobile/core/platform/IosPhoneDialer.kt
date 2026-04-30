@@ -1,14 +1,18 @@
 package kupio.mobile.core.platform
 
-import platform.Foundation.NSURL
+import platform.Foundation.NSURLComponents
 import platform.UIKit.UIApplication
 
 class IosPhoneDialer : PhoneDialer {
     override fun openDialer(phone: String): Boolean {
-        val url = NSURL.URLWithString("tel:$phone") ?: return false
+        val sanitizedPhone = phone.trim()
+        val url = NSURLComponents().apply {
+            scheme = "tel"
+            path = sanitizedPhone
+        }.URL ?: return false
         val application = UIApplication.sharedApplication
         if (!application.canOpenURL(url)) return false
-        application.openURL(url)
+        application.openURL(url, options = emptyMap<Any?, Any>(), completionHandler = null)
         return true
     }
 }

@@ -20,10 +20,14 @@ import kupio.mobile.features.chats.domain.repository.MessagesRepository
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
+import kupio.mobile.features.me.domain.model.OwnedListing
+import kupio.mobile.features.me.domain.model.OwnedListingStatus
+import kupio.mobile.features.me.domain.repository.MeRepository
 
 class ListingDetailViewModel(
     private val listingId: String,
     private val listingsRepository: ListingsRepository,
+    private val meRepository: MeRepository,
     private val chatsRepository: ChatsRepository,
     private val messagesRepository: MessagesRepository,
     private val conversationsRefresher: ConversationsRefresher,
@@ -73,14 +77,25 @@ class ListingDetailViewModel(
             runCatching {
                 val listing = listingsRepository.getListingDetail(listingId)
                 val currentUserId = sessionManager.currentUserId()
-                listing to (currentUserId.isNotBlank() && listing.userId == currentUserId)
+                val isOwnListing = currentUserId.isNotBlank() && listing.userId == currentUserId
+                val ownerMetadata = if (isOwnListing) {
+                    runCatching { meRepository.getMyListing(listing.id)?.toOwnerMetadataUi() }.getOrNull()
+                } else {
+                    null
+                }
+                LoadedListing(
+                    listing = listing,
+                    isOwnListing = isOwnListing,
+                    ownerMetadata = ownerMetadata,
+                )
             }
-                .onSuccess { (listing, isOwnListing) ->
+                .onSuccess { loaded ->
                     _state.update {
                         it.copy(
-                            listing = listing,
-                            seller = listing.toSellerUi(),
-                            isOwnListing = isOwnListing,
+                            listing = loaded.listing,
+                            ownerMetadata = loaded.ownerMetadata,
+                            seller = loaded.listing.toSellerUi(),
+                            isOwnListing = loaded.isOwnListing,
                             isLoading = false,
                         )
                     }
@@ -149,7 +164,8 @@ class ListingDetailViewModel(
     private fun prepareOwnerStatusChange() {
         val listing = _state.value.listing ?: return
         if (!_state.value.isOwnListing || _state.value.isUpdatingStatus) return
-        val targetStatus = listing.status.nextToggleStatus() ?: return
+        val currentStatus = _state.value.ownerMetadata?.status ?: listing.status
+        val targetStatus = currentStatus.nextToggleStatus() ?: return
         _state.update { it.copy(statusChangeTarget = targetStatus, statusError = null) }
     }
 
@@ -166,6 +182,7 @@ class ListingDetailViewModel(
                 _state.update {
                     it.copy(
                         listing = updated,
+                        ownerMetadata = it.ownerMetadata?.copy(status = targetStatus),
                         isUpdatingStatus = false,
                         statusError = null,
                     )
@@ -190,6 +207,28 @@ class ListingDetailViewModel(
             isCallsDisabled = isCallsDisabled,
         )
     }
+}
+
+private data class LoadedListing(
+    val listing: Listing,
+    val isOwnListing: Boolean,
+    val ownerMetadata: ListingOwnerMetadataUi?,
+)
+
+private fun OwnedListing.toOwnerMetadataUi(): ListingOwnerMetadataUi = ListingOwnerMetadataUi(
+    status = status.toListingStatus(),
+    seenCount = seenCount,
+    favouritesCount = favouritesCount,
+    chatsCount = chatsCount,
+    isPromoted = isPromoted,
+)
+
+private fun OwnedListingStatus.toListingStatus(): ListingStatus = when (this) {
+    OwnedListingStatus.ACTIVE -> ListingStatus.ACTIVE
+    OwnedListingStatus.INACTIVE -> ListingStatus.INACTIVE
+    OwnedListingStatus.DRAFT -> ListingStatus.DRAFT
+    OwnedListingStatus.PLANNED -> ListingStatus.PLANNED
+    OwnedListingStatus.SOLD -> ListingStatus.SOLD
 }
 
 private fun ListingStatus.nextToggleStatus(): ListingStatus? = when (this) {

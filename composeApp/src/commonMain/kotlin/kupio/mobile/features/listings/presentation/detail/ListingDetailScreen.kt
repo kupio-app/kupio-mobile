@@ -225,12 +225,18 @@ private fun DetailBody(
         item {
             ListingSummarySection(
                 listing = listing,
+                ownerMetadata = state.ownerMetadata,
                 showStatus = state.isOwnListing,
                 showSeenCount = !state.isOwnListing,
             )
         }
         if (state.isOwnListing) {
-            item { OwnerMetricsSection(listing = listing) }
+            item {
+                OwnerMetricsSection(
+                    ownerMetadata = state.ownerMetadata,
+                    fallbackSeenCount = listing.seenCount,
+                )
+            }
         }
         if (listing.customFilters.isNotEmpty()) {
             item { ListingSpecsSection(listing.customFilters) }
@@ -397,6 +403,7 @@ private fun FloatingIconButton(
 @Composable
 private fun ListingSummarySection(
     listing: Listing,
+    ownerMetadata: ListingOwnerMetadataUi?,
     showStatus: Boolean,
     showSeenCount: Boolean,
 ) {
@@ -423,12 +430,13 @@ private fun ListingSummarySection(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             if (showStatus) {
+                val status = ownerMetadata?.status ?: listing.status
                 StatusChip(
-                    text = listing.status.label(),
-                    isActive = listing.status == ListingStatus.ACTIVE,
+                    text = status.label(),
+                    isActive = status == ListingStatus.ACTIVE,
                 )
             }
-            if (showStatus && listing.isPromoted) {
+            if (showStatus && ownerMetadata?.isPromoted == true) {
                 StatusChip(
                     text = stringResource(Res.string.listing_detail_promoted),
                     isPromoted = true,
@@ -500,35 +508,47 @@ private fun StatusChip(
 }
 
 @Composable
-private fun OwnerMetricsSection(listing: Listing) {
+private fun OwnerMetricsSection(
+    ownerMetadata: ListingOwnerMetadataUi?,
+    fallbackSeenCount: Int,
+) {
     val spacing = KupioThemeDefaults.spacing
     Column(
         modifier = Modifier.padding(horizontal = spacing.lg, vertical = spacing.xs),
         verticalArrangement = Arrangement.spacedBy(spacing.sm),
     ) {
         SectionLabel(stringResource(Res.string.listing_detail_metrics))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(spacing.sm),
-        ) {
+        if (ownerMetadata == null) {
             OwnerMetricCard(
-                count = listing.seenCount,
+                count = fallbackSeenCount,
                 label = stringResource(Res.string.listing_detail_views),
                 icon = { Icon(Icons.Outlined.Visibility, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.fillMaxWidth(),
             )
-            OwnerMetricCard(
-                count = listing.favouritesCount,
-                label = stringResource(Res.string.listing_detail_favourites),
-                icon = { Icon(Icons.Outlined.FavoriteBorder, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                modifier = Modifier.weight(1f),
-            )
-            OwnerMetricCard(
-                count = listing.chatsCount,
-                label = stringResource(Res.string.listing_detail_chats),
-                icon = { Icon(Icons.AutoMirrored.Outlined.Message, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                modifier = Modifier.weight(1f),
-            )
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(spacing.sm),
+            ) {
+                OwnerMetricCard(
+                    count = ownerMetadata.seenCount,
+                    label = stringResource(Res.string.listing_detail_views),
+                    icon = { Icon(Icons.Outlined.Visibility, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                    modifier = Modifier.weight(1f),
+                )
+                OwnerMetricCard(
+                    count = ownerMetadata.favouritesCount,
+                    label = stringResource(Res.string.listing_detail_favourites),
+                    icon = { Icon(Icons.Outlined.FavoriteBorder, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                    modifier = Modifier.weight(1f),
+                )
+                OwnerMetricCard(
+                    count = ownerMetadata.chatsCount,
+                    label = stringResource(Res.string.listing_detail_chats),
+                    icon = { Icon(Icons.AutoMirrored.Outlined.Message, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
     }
 }
@@ -834,7 +854,8 @@ private fun OwnerActionBar(
 ) {
     val listing = state.listing ?: return
     val spacing = KupioThemeDefaults.spacing
-    val canToggle = listing.status.canToggleOwnerStatus() && !state.isUpdatingStatus
+    val ownerStatus = state.ownerMetadata?.status ?: listing.status
+    val canToggle = ownerStatus.canToggleOwnerStatus() && !state.isUpdatingStatus
     val dividerColor = KupioThemeDefaults.softDividerColor
     Surface(
         color = MaterialTheme.colorScheme.background,
@@ -857,7 +878,7 @@ private fun OwnerActionBar(
                 dividerColor = dividerColor,
             )
             OwnerActionCell(
-                label = if (listing.isPromoted) {
+                label = if (state.ownerMetadata?.isPromoted == true) {
                     stringResource(Res.string.my_listings_extend)
                 } else {
                     stringResource(Res.string.my_listings_promote)
@@ -870,12 +891,12 @@ private fun OwnerActionBar(
                 dividerColor = dividerColor,
             )
             OwnerActionCell(
-                label = listing.status.toggleLabel(),
+                label = ownerStatus.toggleLabel(),
                 icon = { Icon(Icons.Outlined.Circle, contentDescription = null, modifier = Modifier.size(18.dp)) },
                 onClick = { onIntent(ListingDetailIntent.ToggleOwnerStatus) },
                 modifier = Modifier.weight(1f),
                 enabled = canToggle,
-                color = if (listing.status == ListingStatus.ACTIVE) {
+                color = if (ownerStatus == ListingStatus.ACTIVE) {
                     MaterialTheme.colorScheme.error
                 } else {
                     MaterialTheme.colorScheme.onSurface

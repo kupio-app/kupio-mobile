@@ -38,6 +38,10 @@ import kupio.mobile.features.listings.domain.model.ListingFeed
 import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
+import kupio.mobile.features.me.domain.model.OwnedListing
+import kupio.mobile.features.me.domain.model.OwnedListingStatus
+import kupio.mobile.features.me.domain.model.UserListingStats
+import kupio.mobile.features.me.domain.repository.MeRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ListingDetailViewModelTest {
@@ -135,6 +139,30 @@ class ListingDetailViewModelTest {
     }
 
     @Test
+    fun `own listing loads owner metadata from me listings`() = runTest(dispatcher) {
+        val me = FakeMeRepository(
+            ownerListing = ownedListing(
+                id = "listing-1",
+                status = OwnedListingStatus.INACTIVE,
+                seenCount = 24,
+                favouritesCount = 8,
+                chatsCount = 3,
+                isPromoted = true,
+            ),
+        )
+        val viewModel = createViewModel(me = me, currentUserId = "seller-1")
+        advanceUntilIdle()
+
+        val ownerMetadata = viewModel.state.value.ownerMetadata
+        assertEquals(listOf("listing-1"), me.ownerListingRequests)
+        assertEquals(ListingStatus.INACTIVE, ownerMetadata?.status)
+        assertEquals(24, ownerMetadata?.seenCount)
+        assertEquals(8, ownerMetadata?.favouritesCount)
+        assertEquals(3, ownerMetadata?.chatsCount)
+        assertEquals(true, ownerMetadata?.isPromoted)
+    }
+
+    @Test
     fun `own listing does not start conversation`() = runTest(dispatcher) {
         val chats = FakeChatsRepository()
         val viewModel = createViewModel(chats = chats, currentUserId = "seller-1")
@@ -163,6 +191,7 @@ class ListingDetailViewModelTest {
 
         assertEquals("listing-1" to ListingStatus.INACTIVE, listings.statusUpdates.single())
         assertEquals(ListingStatus.INACTIVE, viewModel.state.value.listing?.status)
+        assertEquals(ListingStatus.INACTIVE, viewModel.state.value.ownerMetadata?.status)
         assertEquals(null, viewModel.state.value.statusChangeTarget)
         assertFalse(viewModel.state.value.isUpdatingStatus)
     }
@@ -204,6 +233,7 @@ class ListingDetailViewModelTest {
 
     private suspend fun createViewModel(
         listings: FakeListingsRepository = FakeListingsRepository(),
+        me: FakeMeRepository = FakeMeRepository(),
         chats: FakeChatsRepository = FakeChatsRepository(),
         messages: FakeMessagesRepository = FakeMessagesRepository(),
         conversationsRefresher: FakeConversationsRefresher = FakeConversationsRefresher(),
@@ -227,6 +257,7 @@ class ListingDetailViewModelTest {
         return ListingDetailViewModel(
             listingId = "listing-1",
             listingsRepository = listings,
+            meRepository = me,
             chatsRepository = chats,
             messagesRepository = messages,
             conversationsRefresher = conversationsRefresher,
@@ -266,6 +297,30 @@ class ListingDetailViewModelTest {
         }
 
         override suspend fun uploadListingImages(listingId: String, images: List<ListingImageUpload>) = Unit
+    }
+
+    private class FakeMeRepository(
+        private val ownerListing: OwnedListing? = ownedListing(id = "listing-1"),
+    ) : MeRepository {
+        val ownerListingRequests = mutableListOf<String>()
+
+        override suspend fun getStats(): UserListingStats = UserListingStats(
+            activeCount = 0,
+            inactiveCount = 0,
+            promotedCount = 0,
+            chatsCount = 0,
+            favouritesCount = 0,
+        )
+
+        override suspend fun getMyListings(): List<OwnedListing> =
+            ownerListing?.let(::listOf).orEmpty()
+
+        override suspend fun getMyListing(listingId: String): OwnedListing? {
+            ownerListingRequests += listingId
+            return ownerListing?.takeIf { it.id == listingId }
+        }
+
+        override suspend fun updateListingStatus(listingId: String, status: OwnedListingStatus) = Unit
     }
 
     private class FakeChatsRepository(
@@ -394,14 +449,31 @@ class ListingDetailViewModelTest {
             categoryId = 1,
             categoryName = "Furniture",
             seenCount = 12,
-            favouritesCount = 4,
-            chatsCount = 2,
-            isPromoted = true,
-            promotionExpiresAt = "2026-05-01T00:00:00Z",
             phone = phone,
             contactName = "Elena K.",
             isCallsDisabled = isCallsDisabled,
             customFilters = mapOf("condition" to "Good"),
+        )
+
+        fun ownedListing(
+            id: String,
+            status: OwnedListingStatus = OwnedListingStatus.ACTIVE,
+            seenCount: Int = 12,
+            favouritesCount: Int = 4,
+            chatsCount: Int = 2,
+            isPromoted: Boolean = true,
+        ): OwnedListing = OwnedListing(
+            id = id,
+            title = "Vintage oak desk",
+            price = 180,
+            currency = Currency.EUR,
+            primaryImageUrl = "https://example.test/listing.jpg",
+            status = status,
+            seenCount = seenCount,
+            favouritesCount = favouritesCount,
+            chatsCount = chatsCount,
+            isPromoted = isPromoted,
+            promotionExpiresAt = "2026-05-01T00:00:00Z",
         )
     }
 }

@@ -8,6 +8,7 @@ import kupio.mobile.features.listings.domain.model.ListingStatus
 
 data class ListingDetailState(
     val listing: Listing? = null,
+    val ownerMetadata: ListingOwnerMetadataUi? = null,
     val seller: ListingSellerUi? = null,
     val isOwnListing: Boolean = false,
     val isLoading: Boolean = true,
@@ -20,6 +21,14 @@ data class ListingDetailState(
     val statusError: String? = null,
     val statusChangeTarget: ListingStatus? = null,
 ) : UiState
+
+data class ListingOwnerMetadataUi(
+    val status: ListingStatus,
+    val seenCount: Int,
+    val favouritesCount: Int,
+    val chatsCount: Int,
+    val isPromoted: Boolean,
+)
 
 data class ListingSellerUi(
     val displayName: String,

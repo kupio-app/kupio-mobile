@@ -18,7 +18,27 @@ class MeRepositoryImpl(
     override suspend fun getMyListings(): List<OwnedListing> =
         apiClient.request { meApi.getMyListings(it) }
 
+    override suspend fun getMyListing(listingId: String): OwnedListing? {
+        var cursor: String? = null
+        do {
+            val page = apiClient.request {
+                meApi.getMyListingsPage(
+                    authorize = it,
+                    limit = OWNER_LISTINGS_LOOKUP_PAGE_SIZE,
+                    cursor = cursor,
+                )
+            }
+            page.listings.firstOrNull { it.id == listingId }?.let { return it }
+            cursor = page.nextCursor
+        } while (cursor != null)
+        return null
+    }
+
     override suspend fun updateListingStatus(listingId: String, status: OwnedListingStatus) {
         apiClient.request { meApi.updateListingStatus(it, listingId, status) }
+    }
+
+    private companion object {
+        const val OWNER_LISTINGS_LOOKUP_PAGE_SIZE = 100
     }
 }

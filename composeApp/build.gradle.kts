@@ -51,6 +51,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.google.services)
 }
 
 val validateReleaseRuntimeConfig by tasks.registering(ValidateReleaseRuntimeConfigTask::class) {
@@ -121,6 +122,7 @@ kotlin {
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.tab.navigator)
             implementation(compose.materialIconsExtended)
+            api("io.github.mirzemehdi:kmpnotifier:${libs.versions.kmpnotifier.get()}")
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

@@ -277,4 +277,7 @@
     <string name="saved_empty">No saved listings yet.</string>
     <string name="saved_load_error">Couldn\'t load saved listings.</string>
     <string name="saved_remove">Remove from saved</string>
+    <string name="favourite_added">Added to Saved.</string>
+    <string name="favourite_removed">Removed from Saved.</string>
+    <string name="undo">Undo</string>
 </resources>

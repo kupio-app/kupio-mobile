@@ -282,4 +282,7 @@
     <string name="saved_empty">Zatiaľ žiadne uložené inzeráty.</string>
     <string name="saved_load_error">Uložené inzeráty sa nepodarilo načítať.</string>
     <string name="saved_remove">Odstrániť z uložených</string>
+    <string name="favourite_added">Pridané do uložených.</string>
+    <string name="favourite_removed">Odstránené z uložených.</string>
+    <string name="undo">Späť</string>
 </resources>

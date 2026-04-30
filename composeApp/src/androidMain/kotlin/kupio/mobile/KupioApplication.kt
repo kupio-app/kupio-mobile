@@ -4,6 +4,8 @@ import android.app.Application
 import com.mmk.kmpnotifier.notification.NotifierManager
 import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfiguration
 import kupio.mobile.core.di.initKoin
+import kupio.mobile.core.notifications.PushNotificationManager
+import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 
@@ -21,5 +23,9 @@ class KupioApplication : Application() {
                 showPushNotification = true,
             )
         )
+
+        val pushNotificationManager = get<PushNotificationManager>()
+        pushNotificationManager.start()
+        NotifierManager.addListener(pushNotificationManager)
     }
 }

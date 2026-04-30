@@ -7,7 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kupio.mobile.core.navigation.NotificationNavigator
 import kupio.mobile.core.notifications.data.DeepLinksType
@@ -26,10 +26,13 @@ class PushNotificationManager(
 
     fun start() {
         scope.launch {
+            val existingToken = NotifierManager.getPushNotifier().getToken()
+            existingToken?.let { preferences.savePushToken(it) }
+
             sessionManager.sessionState
                 .filterIsInstance<SessionState.SignedIn>()
                 .collect {
-                    preferences.pushToken.single()?.let {
+                    preferences.pushToken.first()?.let {
                         notifRepository.sendPushToken(it)
                     }
                 }

@@ -17,13 +17,7 @@ import org.koin.compose.koinInject
 
 @Composable
 fun App() {
-    val pushManager = koinInject<PushNotificationManager>()
     val preferencesRepository = koinInject<PreferencesRepository>()
-
-    LaunchedEffect(Unit) {
-        pushManager.start()
-        NotifierManager.addListener(pushManager)
-    }
 
     val themeMode by preferencesRepository.themeMode.collectAsStateWithLifecycle(
         initialValue = ThemeMode.SYSTEM,

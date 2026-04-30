@@ -109,6 +109,6 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::MyListingsViewModel)
         viewModelOf(::SettingsViewModel)
         viewModelOf(::UsernameViewModel)
-        viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get()) }
+        viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get()) }
     },
 )

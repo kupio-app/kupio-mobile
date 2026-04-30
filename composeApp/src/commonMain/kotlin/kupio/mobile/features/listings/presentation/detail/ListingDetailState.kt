@@ -4,6 +4,7 @@ import kupio.mobile.core.presentation.UiAction
 import kupio.mobile.core.presentation.UiEffect
 import kupio.mobile.core.presentation.UiState
 import kupio.mobile.features.listings.domain.model.Listing
+import kupio.mobile.features.listings.domain.model.ListingStatus
 
 data class ListingDetailState(
     val listing: Listing? = null,
@@ -17,6 +18,7 @@ data class ListingDetailState(
     val messageError: String? = null,
     val isUpdatingStatus: Boolean = false,
     val statusError: String? = null,
+    val statusChangeTarget: ListingStatus? = null,
 ) : UiState
 
 data class ListingSellerUi(
@@ -43,6 +45,8 @@ sealed interface ListingDetailIntent : UiAction {
     data object EditListing : ListingDetailIntent
     data object PromoteListing : ListingDetailIntent
     data object ToggleOwnerStatus : ListingDetailIntent
+    data object ConfirmOwnerStatusChange : ListingDetailIntent
+    data object DismissOwnerStatusChange : ListingDetailIntent
     data object ReportListing : ListingDetailIntent
     data object OpenSellerProfile : ListingDetailIntent
 }

@@ -15,6 +15,8 @@ import kupio.mobile.core.platform.PhoneDialer
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.chats.domain.repository.ChatsRepository
 import kupio.mobile.features.chats.domain.repository.ConversationsRefresher
+import kupio.mobile.features.chats.domain.model.ChatRole
+import kupio.mobile.features.chats.domain.repository.MessagesRepository
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
@@ -23,6 +25,7 @@ class ListingDetailViewModel(
     private val listingId: String,
     private val listingsRepository: ListingsRepository,
     private val chatsRepository: ChatsRepository,
+    private val messagesRepository: MessagesRepository,
     private val conversationsRefresher: ConversationsRefresher,
     private val phoneDialer: PhoneDialer,
     private val sessionManager: AuthSessionManager,
@@ -53,7 +56,9 @@ class ListingDetailViewModel(
             }
             ListingDetailIntent.SendMessage -> sendMessage()
             ListingDetailIntent.CallSeller -> callSeller()
-            ListingDetailIntent.ToggleOwnerStatus -> toggleOwnerStatus()
+            ListingDetailIntent.ToggleOwnerStatus -> prepareOwnerStatusChange()
+            ListingDetailIntent.ConfirmOwnerStatusChange -> confirmOwnerStatusChange()
+            ListingDetailIntent.DismissOwnerStatusChange -> _state.update { it.copy(statusChangeTarget = null) }
             ListingDetailIntent.EditListing,
             ListingDetailIntent.PromoteListing,
             ListingDetailIntent.ReportListing,
@@ -100,7 +105,17 @@ class ListingDetailViewModel(
         _state.update { it.copy(isSendingMessage = true, messageError = null) }
         viewModelScope.launch {
             runCatching {
-                chatsRepository.startConversation(listing.id, message)
+                val existing = chatsRepository
+                    .listConversations(ChatRole.BUYING)
+                    .firstOrNull { conversation ->
+                        conversation.listingId == listing.id && conversation.sellerId == listing.userId
+                    }
+                if (existing != null) {
+                    messagesRepository.sendMessage(existing.id, message)
+                    existing
+                } else {
+                    chatsRepository.startConversation(listing.id, message)
+                }
             }.onSuccess { conversation ->
                 runCatching { conversationsRefresher.refresh() }
                 _state.update {
@@ -131,12 +146,19 @@ class ListingDetailViewModel(
         phoneDialer.openDialer(phone)
     }
 
-    private fun toggleOwnerStatus() {
+    private fun prepareOwnerStatusChange() {
         val listing = _state.value.listing ?: return
         if (!_state.value.isOwnListing || _state.value.isUpdatingStatus) return
         val targetStatus = listing.status.nextToggleStatus() ?: return
+        _state.update { it.copy(statusChangeTarget = targetStatus, statusError = null) }
+    }
 
-        _state.update { it.copy(isUpdatingStatus = true, statusError = null) }
+    private fun confirmOwnerStatusChange() {
+        val listing = _state.value.listing ?: return
+        val targetStatus = _state.value.statusChangeTarget ?: return
+        if (!_state.value.isOwnListing || _state.value.isUpdatingStatus) return
+
+        _state.update { it.copy(isUpdatingStatus = true, statusError = null, statusChangeTarget = null) }
         viewModelScope.launch {
             runCatching {
                 listingsRepository.updateListingStatus(listing.id, targetStatus)

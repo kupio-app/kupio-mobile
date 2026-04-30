@@ -8,6 +8,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -23,8 +25,12 @@ import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.chats.domain.model.ChatRole
 import kupio.mobile.features.chats.domain.model.ConversationData
+import kupio.mobile.features.chats.domain.model.MessageItem
+import kupio.mobile.features.chats.domain.model.MessageSender
+import kupio.mobile.features.chats.domain.model.WsMessageEvent
 import kupio.mobile.features.chats.domain.repository.ChatsRepository
 import kupio.mobile.features.chats.domain.repository.ConversationsRefresher
+import kupio.mobile.features.chats.domain.repository.MessagesRepository
 import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.Currency
 import kupio.mobile.features.listings.domain.model.Listing
@@ -79,6 +85,33 @@ class ListingDetailViewModelTest {
     }
 
     @Test
+    fun `send message reuses existing conversation for listing and seller`() = runTest(dispatcher) {
+        val chats = FakeChatsRepository(
+            conversations = listOf(
+                conversation(id = "existing-conversation", listingId = "listing-1", sellerId = "seller-1"),
+            ),
+        )
+        val messages = FakeMessagesRepository()
+        val refresher = FakeConversationsRefresher()
+        val viewModel = createViewModel(
+            chats = chats,
+            messages = messages,
+            conversationsRefresher = refresher,
+        )
+        advanceUntilIdle()
+
+        viewModel.onIntent(ListingDetailIntent.OpenMessageSheet)
+        viewModel.onIntent(ListingDetailIntent.MessageChanged("Can I pick it up today?"))
+        viewModel.onIntent(ListingDetailIntent.SendMessage)
+        advanceUntilIdle()
+
+        assertTrue(chats.startedConversations.isEmpty())
+        assertEquals("existing-conversation" to "Can I pick it up today?", messages.sentMessages.single())
+        assertEquals(1, refresher.refreshCalls)
+        assertEquals(ListingDetailEffect.OpenChat("existing-conversation"), viewModel.effects.first())
+    }
+
+    @Test
     fun `blank message is not sent`() = runTest(dispatcher) {
         val chats = FakeChatsRepository()
         val viewModel = createViewModel(chats = chats)
@@ -124,8 +157,13 @@ class ListingDetailViewModelTest {
         viewModel.onIntent(ListingDetailIntent.ToggleOwnerStatus)
         advanceUntilIdle()
 
+        assertEquals(ListingStatus.INACTIVE, viewModel.state.value.statusChangeTarget)
+        viewModel.onIntent(ListingDetailIntent.ConfirmOwnerStatusChange)
+        advanceUntilIdle()
+
         assertEquals("listing-1" to ListingStatus.INACTIVE, listings.statusUpdates.single())
         assertEquals(ListingStatus.INACTIVE, viewModel.state.value.listing?.status)
+        assertEquals(null, viewModel.state.value.statusChangeTarget)
         assertFalse(viewModel.state.value.isUpdatingStatus)
     }
 
@@ -167,6 +205,7 @@ class ListingDetailViewModelTest {
     private suspend fun createViewModel(
         listings: FakeListingsRepository = FakeListingsRepository(),
         chats: FakeChatsRepository = FakeChatsRepository(),
+        messages: FakeMessagesRepository = FakeMessagesRepository(),
         conversationsRefresher: FakeConversationsRefresher = FakeConversationsRefresher(),
         phoneDialer: FakePhoneDialer = FakePhoneDialer(),
         currentUserId: String = "buyer-1",
@@ -189,6 +228,7 @@ class ListingDetailViewModelTest {
             listingId = "listing-1",
             listingsRepository = listings,
             chatsRepository = chats,
+            messagesRepository = messages,
             conversationsRefresher = conversationsRefresher,
             phoneDialer = phoneDialer,
             sessionManager = sessionManager,
@@ -228,11 +268,13 @@ class ListingDetailViewModelTest {
         override suspend fun uploadListingImages(listingId: String, images: List<ListingImageUpload>) = Unit
     }
 
-    private class FakeChatsRepository : ChatsRepository {
+    private class FakeChatsRepository(
+        private val conversations: List<ConversationData> = emptyList(),
+    ) : ChatsRepository {
         val startedConversations = mutableListOf<Pair<String, String>>()
 
         override suspend fun listConversations(role: ChatRole, limit: Int): List<ConversationData> =
-            emptyList()
+            conversations
 
         override suspend fun startConversation(listingId: String, message: String): ConversationData {
             startedConversations += listingId to message
@@ -248,6 +290,27 @@ class ListingDetailViewModelTest {
         }
 
         override suspend fun getUnreadCount(): Int = 0
+    }
+
+    private class FakeMessagesRepository : MessagesRepository {
+        val sentMessages = mutableListOf<Pair<String, String>>()
+
+        override suspend fun loadMessages(conversationId: String): List<MessageItem> = emptyList()
+
+        override suspend fun sendMessage(conversationId: String, body: String): MessageItem {
+            sentMessages += conversationId to body
+            return MessageItem(
+                id = "message-1",
+                sender = MessageSender.ME,
+                text = body,
+                timeLabel = "12:00",
+                createdAtIso = "2026-04-29T12:00:00Z",
+            )
+        }
+
+        override suspend fun sendTyping(conversationId: String) = Unit
+
+        override fun observeMessages(conversationId: String): Flow<WsMessageEvent> = emptyFlow()
     }
 
     private class FakeConversationsRefresher : ConversationsRefresher {
@@ -298,6 +361,20 @@ class ListingDetailViewModelTest {
     }
 
     private companion object {
+        fun conversation(
+            id: String,
+            listingId: String,
+            sellerId: String,
+        ): ConversationData = ConversationData(
+            id = id,
+            listingId = listingId,
+            buyerId = "buyer-1",
+            sellerId = sellerId,
+            createdAt = "2026-04-29T12:00:00Z",
+            lastMessagePreview = null,
+            unreadCount = 0,
+        )
+
         fun listing(
             id: String,
             phone: String? = "+421900111222",

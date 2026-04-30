@@ -74,6 +74,7 @@ import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.model.formatPrice
 import kupio.mobile.features.listings.presentation.components.ListingImage
+import kupio.mobile.features.me.presentation.mylistings.components.StatusChangeDialog
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.back
 import mobile.composeapp.generated.resources.listing_detail_chats
@@ -99,6 +100,12 @@ import mobile.composeapp.generated.resources.listing_detail_send
 import mobile.composeapp.generated.resources.listing_detail_status_error
 import mobile.composeapp.generated.resources.listing_detail_views
 import mobile.composeapp.generated.resources.my_listings_activate
+import mobile.composeapp.generated.resources.my_listings_cancel_action
+import mobile.composeapp.generated.resources.my_listings_confirm_action
+import mobile.composeapp.generated.resources.my_listings_confirm_activate_body
+import mobile.composeapp.generated.resources.my_listings_confirm_activate_title
+import mobile.composeapp.generated.resources.my_listings_confirm_deactivate_body
+import mobile.composeapp.generated.resources.my_listings_confirm_deactivate_title
 import mobile.composeapp.generated.resources.my_listings_deactivate
 import mobile.composeapp.generated.resources.my_listings_edit
 import mobile.composeapp.generated.resources.my_listings_extend
@@ -116,7 +123,9 @@ data class ListingDetailScreen(val listingId: String) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = koinViewModel<ListingDetailViewModel> { parametersOf(listingId) }
+        val viewModel = koinViewModel<ListingDetailViewModel>(
+            key = "listing-detail-$listingId",
+        ) { parametersOf(listingId) }
         val state by viewModel.state.collectAsStateWithLifecycle()
         CollectEffect(viewModel.effects) { effect ->
             when (effect) {
@@ -169,6 +178,31 @@ private fun ListingDetailContent(
     if (state.isMessageSheetVisible) {
         MessageSellerSheet(state = state, onIntent = onIntent)
     }
+
+    val targetStatus = state.statusChangeTarget
+    if (targetStatus != null) {
+        val isActivation = targetStatus == ListingStatus.ACTIVE
+        StatusChangeDialog(
+            title = stringResource(
+                if (isActivation) {
+                    Res.string.my_listings_confirm_activate_title
+                } else {
+                    Res.string.my_listings_confirm_deactivate_title
+                },
+            ),
+            message = stringResource(
+                if (isActivation) {
+                    Res.string.my_listings_confirm_activate_body
+                } else {
+                    Res.string.my_listings_confirm_deactivate_body
+                },
+            ),
+            confirmLabel = stringResource(Res.string.my_listings_confirm_action),
+            dismissLabel = stringResource(Res.string.my_listings_cancel_action),
+            onConfirm = { onIntent(ListingDetailIntent.ConfirmOwnerStatusChange) },
+            onDismiss = { onIntent(ListingDetailIntent.DismissOwnerStatusChange) },
+        )
+    }
 }
 
 @Composable
@@ -188,7 +222,13 @@ private fun DetailBody(
                 onBack = { onIntent(ListingDetailIntent.Back) },
             )
         }
-        item { ListingSummarySection(listing) }
+        item {
+            ListingSummarySection(
+                listing = listing,
+                showStatus = state.isOwnListing,
+                showSeenCount = !state.isOwnListing,
+            )
+        }
         if (state.isOwnListing) {
             item { OwnerMetricsSection(listing = listing) }
         }
@@ -355,7 +395,11 @@ private fun FloatingIconButton(
 }
 
 @Composable
-private fun ListingSummarySection(listing: Listing) {
+private fun ListingSummarySection(
+    listing: Listing,
+    showStatus: Boolean,
+    showSeenCount: Boolean,
+) {
     val spacing = KupioThemeDefaults.spacing
     Column(
         modifier = Modifier
@@ -378,8 +422,13 @@ private fun ListingSummarySection(listing: Listing) {
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            StatusChip(text = listing.status.label())
-            if (listing.isPromoted) {
+            if (showStatus) {
+                StatusChip(
+                    text = listing.status.label(),
+                    isActive = listing.status == ListingStatus.ACTIVE,
+                )
+            }
+            if (showStatus && listing.isPromoted) {
                 StatusChip(
                     text = stringResource(Res.string.listing_detail_promoted),
                     isPromoted = true,
@@ -398,21 +447,23 @@ private fun ListingSummarySection(listing: Listing) {
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Visibility,
-                contentDescription = null,
-                modifier = Modifier.size(14.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text = stringResource(Res.string.listing_detail_seen_count, listing.seenCount),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+        if (showSeenCount) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Visibility,
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = stringResource(Res.string.listing_detail_seen_count, listing.seenCount),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }
@@ -421,23 +472,24 @@ private fun ListingSummarySection(listing: Listing) {
 private fun StatusChip(
     text: String,
     isPromoted: Boolean = false,
+    isActive: Boolean = false,
 ) {
     Surface(
         shape = KupioShapes.Small,
-        color = if (isPromoted) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            MaterialTheme.colorScheme.surfaceVariant
+        color = when {
+            isActive -> MaterialTheme.colorScheme.errorContainer
+            isPromoted -> MaterialTheme.colorScheme.primaryContainer
+            else -> MaterialTheme.colorScheme.surfaceVariant
         },
     ) {
         Text(
             text = text,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
             style = MaterialTheme.typography.labelSmall,
-            color = if (isPromoted) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
+            color = when {
+                isActive -> MaterialTheme.colorScheme.error
+                isPromoted -> MaterialTheme.colorScheme.primary
+                else -> MaterialTheme.colorScheme.onSurfaceVariant
             },
             fontWeight = FontWeight.Medium,
         )
@@ -780,6 +832,7 @@ private fun OwnerActionBar(
     val listing = state.listing ?: return
     val spacing = KupioThemeDefaults.spacing
     val canToggle = listing.status.canToggleOwnerStatus() && !state.isUpdatingStatus
+    val dividerColor = KupioThemeDefaults.softDividerColor
     Surface(
         color = MaterialTheme.colorScheme.background,
         border = KupioThemeDefaults.defaultBorder,
@@ -788,17 +841,19 @@ private fun OwnerActionBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = spacing.md, vertical = spacing.sm),
-            horizontalArrangement = Arrangement.spacedBy(spacing.sm),
+                .padding(horizontal = spacing.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            OwnerActionButton(
+            OwnerActionCell(
                 label = stringResource(Res.string.my_listings_edit),
                 icon = { Icon(Icons.Outlined.Edit, contentDescription = null, modifier = Modifier.size(18.dp)) },
                 onClick = { onIntent(ListingDetailIntent.EditListing) },
                 modifier = Modifier.weight(1f),
+                color = MaterialTheme.colorScheme.onSurface,
+                showDividerAfter = true,
+                dividerColor = dividerColor,
             )
-            OwnerActionButton(
+            OwnerActionCell(
                 label = if (listing.isPromoted) {
                     stringResource(Res.string.my_listings_extend)
                 } else {
@@ -807,58 +862,77 @@ private fun OwnerActionBar(
                 icon = { Icon(Icons.Outlined.Bolt, contentDescription = null, modifier = Modifier.size(18.dp)) },
                 onClick = { onIntent(ListingDetailIntent.PromoteListing) },
                 modifier = Modifier.weight(1f),
-                emphasis = true,
+                color = MaterialTheme.colorScheme.primary,
+                showDividerAfter = true,
+                dividerColor = dividerColor,
             )
-            OwnerActionButton(
+            OwnerActionCell(
                 label = listing.status.toggleLabel(),
                 icon = { Icon(Icons.Outlined.Circle, contentDescription = null, modifier = Modifier.size(18.dp)) },
                 onClick = { onIntent(ListingDetailIntent.ToggleOwnerStatus) },
                 modifier = Modifier.weight(1f),
                 enabled = canToggle,
+                color = if (listing.status == ListingStatus.ACTIVE) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+                showDividerAfter = false,
+                dividerColor = dividerColor,
             )
         }
     }
 }
 
 @Composable
-private fun OwnerActionButton(
+private fun OwnerActionCell(
     label: String,
     icon: @Composable () -> Unit,
     onClick: () -> Unit,
+    color: androidx.compose.ui.graphics.Color,
+    showDividerAfter: Boolean,
+    dividerColor: androidx.compose.ui.graphics.Color,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    emphasis: Boolean = false,
 ) {
-    Button(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-        shape = KupioShapes.Large,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (emphasis) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.surface
-            },
-            contentColor = if (emphasis) {
-                MaterialTheme.colorScheme.onPrimary
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            },
-            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-        ),
-        border = if (emphasis) null else KupioThemeDefaults.strongBorder,
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 13.dp),
-    ) {
-        icon()
-        Spacer(Modifier.width(6.dp))
-        Text(
-            text = label,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            fontWeight = FontWeight.SemiBold,
-        )
+    val interactionModifier = if (enabled) Modifier.bouncingClickable(onClick = onClick) else Modifier
+    val effectiveColor = if (enabled) color else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+    Row(modifier = modifier) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .then(interactionModifier)
+                .padding(vertical = KupioThemeDefaults.spacing.sm),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Box(
+                modifier = Modifier.size(18.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                androidx.compose.runtime.CompositionLocalProvider(
+                    androidx.compose.material3.LocalContentColor provides effectiveColor,
+                ) {
+                    icon()
+                }
+            }
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = effectiveColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+        if (showDividerAfter) {
+            Box(
+                modifier = Modifier
+                    .width(KupioThemeDefaults.borderWidths.thin)
+                    .height(42.dp)
+                    .background(dividerColor),
+            )
+        }
     }
 }
 

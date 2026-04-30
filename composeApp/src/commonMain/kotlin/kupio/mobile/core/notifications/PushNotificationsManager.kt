@@ -10,9 +10,11 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import kupio.mobile.core.navigation.NotificationNavigator
+import kupio.mobile.core.notifications.data.DeepLinksType
 import kupio.mobile.core.preferences.PreferencesRepository
 import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.chats.presentation.thread.ChatThreadScreen
 
 class PushNotificationManager(
     private val navigator: NotificationNavigator,
@@ -47,9 +49,15 @@ class PushNotificationManager(
     }
 
     override fun onNotificationClicked(data: PayloadData) {
-        println("Notification Clicked: $data")
-
-        // Extract data and route via Voyager
-        val type = data["type"] as? String
+        val type = DeepLinksType.from(data["type"] as String?)
+        when (type) {
+            DeepLinksType.ChatMessage -> {
+                val conversationId = data["conversationId"] as String?
+                conversationId?.let {
+                    navigator.navigateTo(ChatThreadScreen(it))
+                }
+            }
+            null -> println("Unknown notification type: ${data["type"]}")
+        }
     }
 }

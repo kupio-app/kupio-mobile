@@ -1,5 +1,7 @@
 package kupio.mobile.features.saved.presentation
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
@@ -11,10 +13,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kupio.mobile.core.presentation.SnackbarEvent
+import kupio.mobile.core.presentation.SnackbarManager
+import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.saved.domain.repository.FavouritesRepository
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.favourite_removed
+import mobile.composeapp.generated.resources.undo
+import org.jetbrains.compose.resources.getString
 
 class SavedViewModel(
     private val favouritesRepository: FavouritesRepository,
+    private val snackbarManager: SnackbarManager,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SavedState())
@@ -65,12 +75,33 @@ class SavedViewModel(
             )
         }
         viewModelScope.launch {
+            snackbarManager.show(
+                SnackbarEvent(
+                    icon = Icons.Outlined.FavoriteBorder,
+                    message = getString(Res.string.favourite_removed),
+                    actionLabel = getString(Res.string.undo),
+                    onAction = { undoRemove(listingId, previousListings) },
+                )
+            )
+        }
+        viewModelScope.launch {
             runCatching { favouritesRepository.removeFavourite(listingId) }
                 .onFailure { t ->
                     if (t is CancellationException) throw t
                     _state.update { it.copy(listings = previousListings) }
                 }
             _state.update { it.copy(removingIds = it.removingIds - listingId) }
+        }
+    }
+
+    private fun undoRemove(listingId: String, previousListings: List<Listing>) {
+        _state.update { it.copy(listings = previousListings) }
+        viewModelScope.launch {
+            runCatching { favouritesRepository.addFavourite(listingId) }
+                .onFailure { t ->
+                    if (t is CancellationException) throw t
+                    _state.update { it.copy(listings = it.listings.filter { l -> l.id != listingId }) }
+                }
         }
     }
 }

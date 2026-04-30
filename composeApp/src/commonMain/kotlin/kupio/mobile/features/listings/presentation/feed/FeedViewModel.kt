@@ -14,17 +14,27 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kupio.mobile.core.presentation.SnackbarEvent
+import kupio.mobile.core.presentation.SnackbarManager
 import kupio.mobile.features.listings.domain.model.Category
 import kupio.mobile.features.listings.domain.model.ListingFeed
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.listings.presentation.feed.FeedEffect.*
 import kupio.mobile.features.saved.domain.repository.FavouritesRepository
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.favourite_added
+import mobile.composeapp.generated.resources.favourite_removed
+import org.jetbrains.compose.resources.getString
 
 class FeedViewModel(
     private val listingsRepository: ListingsRepository,
     private val categoriesRepository: CategoriesRepository,
     private val favouritesRepository: FavouritesRepository,
+    private val snackbarManager: SnackbarManager,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(FeedState())
@@ -103,10 +113,19 @@ class FeedViewModel(
 
     private fun toggleFavourite(listingId: String) {
         val currentlyFavourited = listingId in _state.value.favouritedIds
+        val added = !currentlyFavourited
         _state.update {
             it.copy(
                 favouritedIds = if (currentlyFavourited) it.favouritedIds - listingId else it.favouritedIds + listingId,
                 togglingFavouriteIds = it.togglingFavouriteIds + listingId,
+            )
+        }
+        viewModelScope.launch {
+            snackbarManager.show(
+                SnackbarEvent(
+                    icon = if (added) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                    message = if (added) getString(Res.string.favourite_added) else getString(Res.string.favourite_removed),
+                )
             )
         }
         viewModelScope.launch {

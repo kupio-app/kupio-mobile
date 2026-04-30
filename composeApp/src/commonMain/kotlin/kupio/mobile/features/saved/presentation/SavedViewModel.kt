@@ -29,7 +29,8 @@ class SavedViewModel(
 
     fun onIntent(intent: SavedIntent) {
         when (intent) {
-            SavedIntent.Load, SavedIntent.Refresh -> load()
+            SavedIntent.Load -> load(isRefresh = false)
+            SavedIntent.Refresh -> load(isRefresh = true)
             is SavedIntent.RemoveFavourite -> removeFavourite(intent.listingId)
             is SavedIntent.OpenListing -> viewModelScope.launch {
                 effectChannel.send(SavedEffect.OpenListing(intent.listingId))
@@ -37,16 +38,20 @@ class SavedViewModel(
         }
     }
 
-    private fun load() {
-        _state.update { it.copy(isLoading = true, errorMessage = null) }
+    private fun load(isRefresh: Boolean = false) {
+        if (isRefresh) {
+            _state.update { it.copy(isRefreshing = true, errorMessage = null) }
+        } else {
+            _state.update { it.copy(isLoading = true, errorMessage = null) }
+        }
         viewModelScope.launch {
             runCatching { favouritesRepository.getFavourites() }
                 .onSuccess { feed ->
-                    _state.update { it.copy(listings = feed.listings, isLoading = false) }
+                    _state.update { it.copy(listings = feed.listings, isLoading = false, isRefreshing = false) }
                 }
                 .onFailure { t ->
                     if (t is CancellationException) throw t
-                    _state.update { it.copy(isLoading = false, errorMessage = t.message.orEmpty()) }
+                    _state.update { it.copy(isLoading = false, isRefreshing = false, errorMessage = t.message.orEmpty()) }
                 }
         }
     }

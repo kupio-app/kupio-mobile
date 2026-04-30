@@ -15,15 +15,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -78,6 +82,7 @@ class SavedScreen : Screen {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SavedContent(
     state: SavedState,
@@ -97,7 +102,9 @@ private fun SavedContent(
             )
         },
     ) { paddingValues ->
-        Box(
+        PullToRefreshBox(
+            isRefreshing = state.isRefreshing,
+            onRefresh = { onIntent(SavedIntent.Refresh) },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
@@ -111,7 +118,10 @@ private fun SavedContent(
                 }
 
                 state.errorMessage != null -> Box(
-                    modifier = Modifier.fillMaxSize().padding(spacing.lg),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(spacing.lg),
                     contentAlignment = Alignment.Center,
                 ) {
                     KupioErrorRetryRow(
@@ -121,7 +131,10 @@ private fun SavedContent(
                 }
 
                 state.listings.isEmpty() -> Box(
-                    modifier = Modifier.fillMaxSize().padding(spacing.lg),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(spacing.lg),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -169,8 +182,7 @@ private fun SavedListingRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(spacing.sm),
-            verticalAlignment = Alignment.CenterVertically,
+                .padding(12.dp),
         ) {
             Box(
                 modifier = Modifier
@@ -187,15 +199,15 @@ private fun SavedListingRow(
             ) {
                 Text(
                     text = listing.title,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = listing.formatPrice(),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )

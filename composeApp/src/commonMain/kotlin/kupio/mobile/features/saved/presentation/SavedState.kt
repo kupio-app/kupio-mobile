@@ -8,6 +8,7 @@ import kupio.mobile.features.listings.domain.model.Listing
 data class SavedState(
     val listings: List<Listing> = emptyList(),
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
     val removingIds: Set<String> = emptySet(),
 ) : UiState

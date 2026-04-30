@@ -202,7 +202,7 @@ private fun JsonObject?.toDisplayMap(): Map<String, String> {
         val text = when (value) {
             is JsonPrimitive -> value.content
             else -> value.toString()
-        }?.takeIf { it.isNotBlank() }
+        }.takeIf { it.isNotBlank() }
         text?.let { key to it }
     }.toMap()
 }

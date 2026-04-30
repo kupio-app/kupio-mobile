@@ -12,6 +12,7 @@ data class ListingDetailState(
     val seller: ListingSellerUi? = null,
     val isOwnListing: Boolean = false,
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
     val isMessageSheetVisible: Boolean = false,
     val messageDraft: String = "",
@@ -45,6 +46,7 @@ data class ListingSellerUi(
 
 sealed interface ListingDetailIntent : UiAction {
     data object Retry : ListingDetailIntent
+    data object RefreshListing : ListingDetailIntent
     data object Back : ListingDetailIntent
     data object OpenMessageSheet : ListingDetailIntent
     data object CloseMessageSheet : ListingDetailIntent

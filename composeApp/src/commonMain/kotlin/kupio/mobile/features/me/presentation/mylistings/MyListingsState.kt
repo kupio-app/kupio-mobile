@@ -10,6 +10,7 @@ data class MyListingsState(
     val listings: List<OwnedListing> = emptyList(),
     val filter: MyListingsFilter = MyListingsFilter.ACTIVE,
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
     val activeCount: Int = 0,
     val inactiveCount: Int = 0,
@@ -43,6 +44,7 @@ sealed interface MyListingsIntent : UiAction {
     data object DismissStatusChange : MyListingsIntent
     data object BackClicked : MyListingsIntent
     data object RetryLoad : MyListingsIntent
+    data object RefreshListings : MyListingsIntent
 }
 
 sealed interface MyListingsEffect : UiEffect {

@@ -46,6 +46,7 @@ class ListingDetailViewModel(
     fun onIntent(intent: ListingDetailIntent) {
         when (intent) {
             ListingDetailIntent.Retry -> load()
+            ListingDetailIntent.RefreshListing -> load(refresh = true)
             ListingDetailIntent.Back -> viewModelScope.launch {
                 effectChannel.send(ListingDetailEffect.NavigateBack)
             }
@@ -71,8 +72,14 @@ class ListingDetailViewModel(
         }
     }
 
-    private fun load() {
-        _state.update { it.copy(isLoading = true, errorMessage = null) }
+    private fun load(refresh: Boolean = false) {
+        _state.update {
+            if (refresh) {
+                it.copy(isRefreshing = true, errorMessage = null)
+            } else {
+                it.copy(isLoading = true, errorMessage = null)
+            }
+        }
         viewModelScope.launch {
             runCatching {
                 val listing = listingsRepository.getListingDetail(listingId)
@@ -97,12 +104,23 @@ class ListingDetailViewModel(
                             seller = loaded.listing.toSellerUi(),
                             isOwnListing = loaded.isOwnListing,
                             isLoading = false,
+                            isRefreshing = false,
                         )
                     }
                 }
                 .onFailure { t ->
                     if (t is CancellationException) throw t
-                    _state.update { it.copy(isLoading = false, errorMessage = t.message.orEmpty()) }
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            isRefreshing = false,
+                            errorMessage = if (refresh && it.listing != null) {
+                                null
+                            } else {
+                                t.message.orEmpty()
+                            },
+                        )
+                    }
                 }
         }
     }

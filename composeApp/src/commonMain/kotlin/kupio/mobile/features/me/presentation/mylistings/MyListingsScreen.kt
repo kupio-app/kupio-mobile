@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -96,52 +97,58 @@ private fun MyListingsRoute(state: MyListingsState, onIntent: (MyListingsIntent)
             )
         },
     ) {
-        Column(
+        PullToRefreshBox(
+            isRefreshing = state.isRefreshing,
+            onRefresh = { onIntent(MyListingsIntent.RefreshListings) },
             modifier = Modifier
                 .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
         ) {
-            FilterChipsRow(
-                selectedFilter = state.filter,
-                onFilterSelected = { onIntent(MyListingsIntent.FilterSelected(it)) },
-            )
-            when {
-                state.isLoading -> KupioLoadingScreen()
-                state.errorMessage != null && state.visibleListings.isEmpty() -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        KupioErrorRetryRow(
-                            message = stringResource(Res.string.my_listings_load_error),
-                            onRetry = { onIntent(MyListingsIntent.RetryLoad) },
-                        )
-                    }
-                }
-                state.visibleListings.isEmpty() -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(
-                            text = stringResource(Res.string.my_listings_empty),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
-                    ) {
-                        items(state.visibleListings, key = { it.id }) { listing ->
-                            OwnedListingCard(
-                                listing = listing,
-                                onClick = { onIntent(MyListingsIntent.OpenListing(listing.id)) },
-                                onEdit = { onIntent(MyListingsIntent.EditListing(listing.id)) },
-                                onBumpUp = { onIntent(MyListingsIntent.BumpUp(listing.id)) },
-                                onPromote = { onIntent(MyListingsIntent.Promote(listing.id)) },
-                                onToggleStatus = { onIntent(MyListingsIntent.ToggleActiveClicked(listing.id)) },
-                                isStatusActionEnabled =
-                                    state.updatingListingId == null && listing.status.canToggleStatus(),
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
+            ) {
+                FilterChipsRow(
+                    selectedFilter = state.filter,
+                    onFilterSelected = { onIntent(MyListingsIntent.FilterSelected(it)) },
+                )
+                when {
+                    state.isLoading -> KupioLoadingScreen()
+                    state.errorMessage != null && state.visibleListings.isEmpty() -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            KupioErrorRetryRow(
+                                message = stringResource(Res.string.my_listings_load_error),
+                                onRetry = { onIntent(MyListingsIntent.RetryLoad) },
                             )
                         }
-                        item { Spacer(modifier = Modifier.height(KupioThemeDefaults.spacing.xl)) }
+                    }
+                    state.visibleListings.isEmpty() -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = stringResource(Res.string.my_listings_empty),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
+                        ) {
+                            items(state.visibleListings, key = { it.id }) { listing ->
+                                OwnedListingCard(
+                                    listing = listing,
+                                    onClick = { onIntent(MyListingsIntent.OpenListing(listing.id)) },
+                                    onEdit = { onIntent(MyListingsIntent.EditListing(listing.id)) },
+                                    onBumpUp = { onIntent(MyListingsIntent.BumpUp(listing.id)) },
+                                    onPromote = { onIntent(MyListingsIntent.Promote(listing.id)) },
+                                    onToggleStatus = { onIntent(MyListingsIntent.ToggleActiveClicked(listing.id)) },
+                                    isStatusActionEnabled =
+                                        state.updatingListingId == null && listing.status.canToggleStatus(),
+                                )
+                            }
+                            item { Spacer(modifier = Modifier.height(KupioThemeDefaults.spacing.xl)) }
+                        }
                     }
                 }
             }

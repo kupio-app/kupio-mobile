@@ -1,6 +1,8 @@
 package kupio.mobile
 
 import android.app.Application
+import com.mmk.kmpnotifier.notification.NotifierManager
+import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfiguration
 import kupio.mobile.core.di.initKoin
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -12,5 +14,12 @@ class KupioApplication : Application() {
             androidLogger()
             androidContext(this@KupioApplication)
         }
+
+        NotifierManager.initialize(
+            configuration = NotificationPlatformConfiguration.Android(
+                notificationIconResId = R.drawable.ic_launcher_foreground,
+                showPushNotification = true,
+            )
+        )
     }
 }

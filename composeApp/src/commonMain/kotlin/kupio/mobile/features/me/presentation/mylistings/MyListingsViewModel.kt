@@ -35,7 +35,9 @@ class MyListingsViewModel(
             MyListingsIntent.BackClicked -> viewModelScope.launch {
                 effectChannel.send(MyListingsEffect.NavigateBack)
             }
-            is MyListingsIntent.EditListing -> Unit
+            is MyListingsIntent.EditListing -> viewModelScope.launch {
+                effectChannel.send(MyListingsEffect.EditListing(intent.id))
+            }
             is MyListingsIntent.BumpUp -> Unit
             is MyListingsIntent.Promote -> Unit
             is MyListingsIntent.OpenListing -> viewModelScope.launch {

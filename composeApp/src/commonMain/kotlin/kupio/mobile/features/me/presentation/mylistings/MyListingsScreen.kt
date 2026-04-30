@@ -31,6 +31,7 @@ import kupio.mobile.core.designsystem.KupioTopBarIconAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.listings.presentation.detail.ListingDetailScreen
+import kupio.mobile.features.listings.presentation.edit.EditListingScreen
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.presentation.mylistings.components.FilterChipsRow
 import kupio.mobile.features.me.presentation.mylistings.components.OwnedListingCard
@@ -63,6 +64,7 @@ class MyListingsScreen : Screen {
             when (effect) {
                 MyListingsEffect.NavigateBack -> navigator.pop()
                 is MyListingsEffect.OpenListing -> rootNavigator.push(ListingDetailScreen(effect.id))
+                is MyListingsEffect.EditListing -> rootNavigator.push(EditListingScreen(effect.id))
             }
         }
 

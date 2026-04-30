@@ -199,6 +199,8 @@
     <string name="create_open_trades_subtitle">Accept swap offers</string>
     <string name="create_save_draft">Save draft</string>
     <string name="create_publish">Publish listing</string>
+    <string name="edit_listing_save">Save changes</string>
+    <string name="edit_listing_load_error">Could not load listing.</string>
     <string name="create_error_generic">Something went wrong. Please try again.</string>
     <string name="create_error_unsupported_image">Only JPG, PNG, or WEBP photos can be uploaded.</string>
     <string name="create_error_image_limit">You can add up to %1$d photos.</string>

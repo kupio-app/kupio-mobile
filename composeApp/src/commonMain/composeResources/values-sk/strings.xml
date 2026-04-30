@@ -205,6 +205,8 @@
     <string name="create_open_trades_subtitle">Prijíma ponuky na výmenu</string>
     <string name="create_save_draft">Uložiť koncept</string>
     <string name="create_publish">Zverejniť inzerát</string>
+    <string name="edit_listing_save">Uložiť zmeny</string>
+    <string name="edit_listing_load_error">Inzerát sa nepodarilo načítať.</string>
     <string name="create_error_generic">Niečo sa pokazilo. Skús to znova.</string>
     <string name="create_error_unsupported_image">Nahrať môžeš iba fotky JPG, PNG alebo WEBP.</string>
     <string name="create_error_image_limit">Môžeš pridať najviac %1$d fotiek.</string>

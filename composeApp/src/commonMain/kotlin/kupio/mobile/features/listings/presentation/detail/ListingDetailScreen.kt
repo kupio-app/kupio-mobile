@@ -74,6 +74,7 @@ import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.model.formatPrice
 import kupio.mobile.features.listings.presentation.components.ListingFloatingIconButton
 import kupio.mobile.features.listings.presentation.components.ListingImage
+import kupio.mobile.features.listings.presentation.edit.EditListingScreen
 import kupio.mobile.features.me.presentation.mylistings.components.StatusChangeDialog
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.back
@@ -131,6 +132,7 @@ data class ListingDetailScreen(val listingId: String) : Screen {
             when (effect) {
                 ListingDetailEffect.NavigateBack -> navigator.pop()
                 is ListingDetailEffect.OpenChat -> navigator.push(ChatThreadScreen(effect.conversationId))
+                is ListingDetailEffect.OpenEdit -> navigator.replace(EditListingScreen(effect.listingId))
             }
         }
         ListingDetailContent(state = state, onIntent = viewModel::onIntent)

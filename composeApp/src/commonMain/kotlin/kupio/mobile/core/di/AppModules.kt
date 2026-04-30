@@ -40,6 +40,7 @@ import kupio.mobile.features.listings.data.repository.ListingsRepositoryImpl
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.listings.presentation.detail.ListingDetailViewModel
+import kupio.mobile.features.listings.presentation.edit.EditListingViewModel
 import kupio.mobile.features.listings.presentation.feed.FeedViewModel
 import kupio.mobile.features.me.data.remote.MeApi
 import kupio.mobile.features.me.data.repository.MeRepositoryImpl
@@ -110,5 +111,6 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::SettingsViewModel)
         viewModelOf(::UsernameViewModel)
         viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get()) }
+        viewModel { params -> EditListingViewModel(params.get(), get(), get()) }
     },
 )

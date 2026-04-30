@@ -50,4 +50,5 @@ sealed interface MyListingsIntent : UiAction {
 sealed interface MyListingsEffect : UiEffect {
     data object NavigateBack : MyListingsEffect
     data class OpenListing(val id: String) : MyListingsEffect
+    data class EditListing(val id: String) : MyListingsEffect
 }

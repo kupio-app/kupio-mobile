@@ -64,7 +64,7 @@ class ListingDetailViewModel(
             ListingDetailIntent.ToggleOwnerStatus -> prepareOwnerStatusChange()
             ListingDetailIntent.ConfirmOwnerStatusChange -> confirmOwnerStatusChange()
             ListingDetailIntent.DismissOwnerStatusChange -> _state.update { it.copy(statusChangeTarget = null) }
-            ListingDetailIntent.EditListing,
+            ListingDetailIntent.EditListing -> openEdit()
             ListingDetailIntent.PromoteListing,
             ListingDetailIntent.ReportListing,
             ListingDetailIntent.OpenSellerProfile,
@@ -214,6 +214,14 @@ class ListingDetailViewModel(
                     )
                 }
             }
+        }
+    }
+
+    private fun openEdit() {
+        val listing = _state.value.listing ?: return
+        if (!_state.value.isOwnListing) return
+        viewModelScope.launch {
+            effectChannel.send(ListingDetailEffect.OpenEdit(listing.id))
         }
     }
 

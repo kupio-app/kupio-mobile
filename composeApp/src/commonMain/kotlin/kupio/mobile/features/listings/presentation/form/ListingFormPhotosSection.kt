@@ -44,6 +44,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -101,6 +102,7 @@ fun ListingFormPhotosSection(
     val imageIds = remember(images) { images.map { it.id } }
     var selectedImageId by remember { mutableStateOf(images.firstOrNull()?.id) }
     var draggingImageId by remember { mutableStateOf<String?>(null) }
+    var dragImageIds by remember { mutableStateOf(imageIds) }
 
     LaunchedEffect(imageIds, selectedImageId) {
         val targetIndex = images.indexOfFirst { it.id == selectedImageId }
@@ -114,6 +116,12 @@ fun ListingFormPhotosSection(
 
     LaunchedEffect(pagerState.currentPage, imageIds) {
         selectedImageId = images.getOrNull(pagerState.currentPage)?.id
+    }
+
+    LaunchedEffect(imageIds, draggingImageId) {
+        if (draggingImageId == null) {
+            dragImageIds = imageIds
+        }
     }
 
     Column(modifier = modifier.fillMaxWidth()) {
@@ -223,12 +231,17 @@ fun ListingFormPhotosSection(
                         }
                     },
                     onRemove = { onRemove(image.id) },
-                    onDragStart = { draggingImageId = image.id },
+                    onDragStart = {
+                        dragImageIds = imageIds
+                        draggingImageId = image.id
+                    },
                     onDragEnd = { draggingImageId = null },
                     onMoveBy = { steps ->
-                        val currentIndex = images.indexOfFirst { it.id == image.id }
-                        val targetIndex = (currentIndex + steps).coerceIn(0, images.lastIndex)
+                        val currentOrder = dragImageIds.ifEmpty { imageIds }
+                        val currentIndex = currentOrder.indexOf(image.id)
+                        val targetIndex = (currentIndex + steps).coerceIn(0, currentOrder.lastIndex)
                         if (currentIndex >= 0 && targetIndex != currentIndex) {
+                            dragImageIds = currentOrder.move(currentIndex, targetIndex) ?: currentOrder
                             onMove(currentIndex, targetIndex)
                         }
                     },
@@ -350,6 +363,9 @@ private fun ImageTile(
 ) {
     val stepPx = with(LocalDensity.current) { (ThumbnailSize + ThumbnailSpacing).toPx() }
     var dragRemainder by remember(image.id) { mutableFloatStateOf(0f) }
+    val currentOnDragStart by rememberUpdatedState(onDragStart)
+    val currentOnDragEnd by rememberUpdatedState(onDragEnd)
+    val currentOnMoveBy by rememberUpdatedState(onMoveBy)
 
     Box(
         modifier = Modifier
@@ -365,22 +381,22 @@ private fun ImageTile(
                 detectDragGesturesAfterLongPress(
                     onDragStart = {
                         dragRemainder = 0f
-                        onDragStart()
+                        currentOnDragStart()
                     },
                     onDragEnd = {
                         dragRemainder = 0f
-                        onDragEnd()
+                        currentOnDragEnd()
                     },
                     onDragCancel = {
                         dragRemainder = 0f
-                        onDragEnd()
+                        currentOnDragEnd()
                     },
                     onDrag = { change, dragAmount ->
                         change.consume()
                         dragRemainder += dragAmount.x
                         val steps = (dragRemainder / stepPx).roundToInt()
                         if (steps != 0) {
-                            onMoveBy(steps)
+                            currentOnMoveBy(steps)
                             dragRemainder -= steps * stepPx
                         }
                     },
@@ -421,6 +437,13 @@ private fun ImageTile(
                 tint = MaterialTheme.colorScheme.onSurface,
             )
         }
+    }
+}
+
+private fun <T> List<T>.move(fromIndex: Int, toIndex: Int): List<T>? {
+    if (fromIndex !in indices || toIndex !in indices || fromIndex == toIndex) return null
+    return toMutableList().apply {
+        add(toIndex, removeAt(fromIndex))
     }
 }
 

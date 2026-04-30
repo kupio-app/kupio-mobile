@@ -110,6 +110,8 @@
     <string name="listing_detail_favourites">Obľúbené</string>
     <string name="listing_detail_chats">Chaty</string>
     <string name="listing_detail_promoted">Propagované</string>
+    <string name="listing_detail_free">Zadarmo</string>
+    <string name="listing_detail_tradable">Výmena</string>
     <string name="listing_detail_status_error">Nepodarilo sa aktualizovať stav inzerátu.</string>
     <string name="listing_detail_seller_profile">Profil</string>
     <string name="listing_detail_report">Nahlásiť inzerát</string>

@@ -104,6 +104,8 @@
     <string name="listing_detail_favourites">Favourites</string>
     <string name="listing_detail_chats">Chats</string>
     <string name="listing_detail_promoted">Promoted</string>
+    <string name="listing_detail_free">Free</string>
+    <string name="listing_detail_tradable">Trade</string>
     <string name="listing_detail_status_error">Could not update listing status.</string>
     <string name="listing_detail_seller_profile">Profile</string>
     <string name="listing_detail_report">Report listing</string>

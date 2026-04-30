@@ -582,6 +582,8 @@ class CreateViewModelTest {
             phone = null,
             contactName = null,
             isCallsDisabled = false,
+            isFree = false,
+            isTradable = false,
             customFilters = emptyMap(),
         )
     }

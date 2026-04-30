@@ -475,6 +475,8 @@ class ListingDetailViewModelTest {
             phone = phone,
             contactName = "Elena K.",
             isCallsDisabled = isCallsDisabled,
+            isFree = false,
+            isTradable = false,
             customFilters = mapOf("condition" to "Good"),
         )
 

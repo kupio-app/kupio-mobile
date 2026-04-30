@@ -60,6 +60,8 @@ class EditListingViewModelTest {
         assertFalse(state.isLoadingListing)
         assertEquals("Vintage oak desk", state.form.title)
         assertEquals("Furniture", state.form.selectedCategoryName)
+        assertFalse(state.form.isFree)
+        assertTrue(state.form.isTradable)
         assertEquals(2, state.images.size)
         assertTrue(state.images.all { it is RemoteListingImage })
     }
@@ -233,6 +235,8 @@ class EditListingViewModelTest {
             phone = "+421900111222",
             contactName = "Elena K.",
             isCallsDisabled = true,
+            isFree = false,
+            isTradable = true,
             customFilters = emptyMap(),
         )
     }

@@ -37,6 +37,8 @@ data class ListingResponseDto(
     val phone: String? = null,
     @SerialName("contact_name") val contactName: String? = null,
     @SerialName("is_calls_disabled") val isCallsDisabled: Boolean = false,
+    @SerialName("is_free") val isFree: Boolean = false,
+    @SerialName("is_tradable") val isTradable: Boolean = false,
     @SerialName("custom_filters") val customFilters: JsonObject? = null,
 )
 
@@ -147,6 +149,8 @@ fun ListingResponseDto.toDomain(): Listing {
         phone = phone,
         contactName = contactName,
         isCallsDisabled = isCallsDisabled,
+        isFree = isFree,
+        isTradable = isTradable,
         customFilters = customFilters.toDisplayMap(),
     )
 }

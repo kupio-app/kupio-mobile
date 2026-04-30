@@ -18,6 +18,8 @@ data class Listing(
     val phone: String?,
     val contactName: String?,
     val isCallsDisabled: Boolean,
+    val isFree: Boolean,
+    val isTradable: Boolean,
     val customFilters: Map<String, String>,
 )
 

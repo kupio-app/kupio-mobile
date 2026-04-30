@@ -214,6 +214,7 @@ fun ListingFormPhotosSection(
                 ImageTile(
                     image = image,
                     selected = image.id == selectedImageId,
+                    cover = index == 0,
                     dragging = image.id == draggingImageId,
                     onClick = {
                         selectedImageId = image.id
@@ -339,6 +340,7 @@ private fun ListingFormImagePreview(
 private fun ImageTile(
     image: ListingFormImage,
     selected: Boolean,
+    cover: Boolean,
     dragging: Boolean,
     onClick: () -> Unit,
     onRemove: () -> Unit,
@@ -397,7 +399,7 @@ private fun ImageTile(
             .bouncingDimClickable(shape = KupioShapes.Small, onClick = onClick),
     ) {
         ListingTileImage(image = image)
-        if (selected) {
+        if (cover) {
             CoverBadge(Modifier.align(Alignment.BottomStart).padding(5.dp))
         }
         Box(

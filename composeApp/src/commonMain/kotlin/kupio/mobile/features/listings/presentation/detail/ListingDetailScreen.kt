@@ -5,6 +5,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -84,6 +86,7 @@ import mobile.composeapp.generated.resources.listing_detail_cancel
 import mobile.composeapp.generated.resources.listing_detail_description
 import mobile.composeapp.generated.resources.listing_detail_favourite
 import mobile.composeapp.generated.resources.listing_detail_favourites
+import mobile.composeapp.generated.resources.listing_detail_free
 import mobile.composeapp.generated.resources.listing_detail_image
 import mobile.composeapp.generated.resources.listing_detail_message_empty
 import mobile.composeapp.generated.resources.listing_detail_message_placeholder
@@ -99,6 +102,7 @@ import mobile.composeapp.generated.resources.listing_detail_seller_fallback
 import mobile.composeapp.generated.resources.listing_detail_seller_profile
 import mobile.composeapp.generated.resources.listing_detail_send
 import mobile.composeapp.generated.resources.listing_detail_status_error
+import mobile.composeapp.generated.resources.listing_detail_tradable
 import mobile.composeapp.generated.resources.listing_detail_views
 import mobile.composeapp.generated.resources.my_listings_activate
 import mobile.composeapp.generated.resources.my_listings_cancel_action
@@ -382,6 +386,7 @@ private fun ListingHero(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ListingSummarySection(
     listing: Listing,
@@ -396,9 +401,10 @@ private fun ListingSummarySection(
             .padding(spacing.lg),
         verticalArrangement = Arrangement.spacedBy(spacing.sm),
     ) {
-        Row(
+        FlowRow(
             horizontalArrangement = Arrangement.spacedBy(spacing.sm),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            itemVerticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = listing.categoryName.uppercase(),
@@ -423,6 +429,12 @@ private fun ListingSummarySection(
                     text = stringResource(Res.string.listing_detail_promoted),
                     isPromoted = true,
                 )
+            }
+            if (listing.isFree) {
+                StatusChip(text = stringResource(Res.string.listing_detail_free))
+            }
+            if (listing.isTradable) {
+                StatusChip(text = stringResource(Res.string.listing_detail_tradable))
             }
         }
         Text(

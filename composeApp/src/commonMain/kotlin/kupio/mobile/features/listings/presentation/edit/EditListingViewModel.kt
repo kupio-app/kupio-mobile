@@ -279,14 +279,13 @@ private data class LoadedEditListing(
 )
 
 private fun LoadedEditListing.toFormState(): CreateState {
-    val isFree = listing.price == 0
     return CreateState(
         title = listing.title,
         description = listing.description,
         price = listing.price.toString(),
         currency = listing.currency,
-        isFree = isFree,
-        isTradable = false,
+        isFree = listing.isFree,
+        isTradable = listing.isTradable,
         categories = categories,
         selectedCategoryId = listing.categoryId,
         selectedCategoryName = listing.categoryName,

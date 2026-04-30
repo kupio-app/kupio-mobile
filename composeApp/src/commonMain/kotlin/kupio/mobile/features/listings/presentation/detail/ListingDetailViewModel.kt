@@ -164,7 +164,7 @@ class ListingDetailViewModel(
                 _state.update {
                     it.copy(
                         isSendingMessage = false,
-                        messageError = t.message ?: "Could not send message.",
+                        messageError = t.message.orEmpty(),
                     )
                 }
             }

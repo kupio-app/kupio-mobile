@@ -1,10 +1,5 @@
 package kupio.mobile.core.notifications.data
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import kupio.mobile.core.config.getPlatformName
 import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.core.notifications.NotificationsRepository

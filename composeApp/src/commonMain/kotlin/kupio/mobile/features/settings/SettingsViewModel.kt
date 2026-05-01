@@ -10,6 +10,7 @@ import kupio.mobile.core.presentation.UiState
 import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.core.analytics.AnalyticsService
+import kupio.mobile.core.analytics.NoOpAnalyticsService
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +37,7 @@ sealed interface SettingsEffect : UiEffect {
 class SettingsViewModel(
     private val preferencesRepository: PreferencesRepository,
     private val sessionManager: AuthSessionManager,
-    private val analytics: AnalyticsService,
+    private val analytics: AnalyticsService = NoOpAnalyticsService(),
 ) : ViewModel() {
     private val _state = MutableStateFlow(SettingsState())
     val state = _state.asStateFlow()

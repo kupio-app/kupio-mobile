@@ -15,11 +15,12 @@ import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.domain.repository.MeRepository
 import kupio.mobile.core.analytics.AnalyticsService
+import kupio.mobile.core.analytics.NoOpAnalyticsService
 
 class MyListingsViewModel(
     private val meRepository: MeRepository,
     private val sessionManager: AuthSessionManager,
-    private val analytics: AnalyticsService,
+    private val analytics: AnalyticsService = NoOpAnalyticsService(),
 ) : ViewModel() {
     private val _state = MutableStateFlow(MyListingsState())
     val state = _state.asStateFlow()

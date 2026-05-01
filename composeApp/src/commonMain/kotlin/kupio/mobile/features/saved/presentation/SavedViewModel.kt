@@ -18,6 +18,7 @@ import kupio.mobile.core.presentation.SnackbarManager
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.saved.domain.repository.FavouritesRepository
 import kupio.mobile.core.analytics.AnalyticsService
+import kupio.mobile.core.analytics.NoOpAnalyticsService
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.favourite_removed
 import mobile.composeapp.generated.resources.undo
@@ -26,7 +27,7 @@ import org.jetbrains.compose.resources.getString
 class SavedViewModel(
     private val favouritesRepository: FavouritesRepository,
     private val snackbarManager: SnackbarManager,
-    private val analytics: AnalyticsService,
+    private val analytics: AnalyticsService = NoOpAnalyticsService(),
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SavedState())

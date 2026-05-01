@@ -189,7 +189,7 @@ private fun ListingDetailContent(
             }
         },
     ) { paddingValues ->
-        Box(Modifier.padding(bottom = paddingValues.calculateBottomPadding())) {
+        Box {
             PullToRefreshBox(
                 isRefreshing = state.isRefreshing,
                 onRefresh = { onIntent(ListingDetailIntent.RefreshListing) },
@@ -227,7 +227,11 @@ private fun ListingDetailContent(
                     },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(horizontal = spacing.lg)
+                        .padding(
+                            start = spacing.lg,
+                            end = spacing.lg,
+                            bottom = paddingValues.calculateBottomPadding()
+                        )
                         .navigationBarsPadding(),
                 )
             }

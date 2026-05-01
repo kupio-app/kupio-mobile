@@ -17,6 +17,7 @@ import kupio.mobile.core.datetime.nowEpochMillis
 import kupio.mobile.features.chats.data.ConversationsStore
 import kupio.mobile.features.chats.domain.model.WsMessageEvent
 import kupio.mobile.features.chats.domain.repository.MessagesRepository
+import kupio.mobile.core.analytics.AnalyticsService
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val TYPING_THROTTLE_MS = 2_000L
@@ -26,6 +27,7 @@ class ChatThreadViewModel(
     private val conversationId: String,
     private val store: ConversationsStore,
     private val messagesRepo: MessagesRepository,
+    private val analytics: AnalyticsService,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ChatThreadState())
@@ -123,6 +125,7 @@ class ChatThreadViewModel(
                 .onFailure { t ->
                     if (t is CancellationException) throw t
                     _state.update { it.copy(isLoading = false, errorMessage = t.message) }
+                    analytics.recordException(t, mapOf("screen" to "chat_thread", "action" to "load"))
                 }
         }
     }
@@ -143,10 +146,12 @@ class ChatThreadViewModel(
                         state.copy(messages = messages, isSending = false)
                     }
                     store.updatePreview(conversationId, newMsg.text, newMsg.timeLabel)
+                    analytics.logEvent("send_message", mapOf("conversation_id" to conversationId))
                 }
                 .onFailure { t ->
                     if (t is CancellationException) throw t
                     _state.update { it.copy(isSending = false, draft = text) }
+                    analytics.recordException(t, mapOf("screen" to "chat_thread"))
                 }
         }
     }

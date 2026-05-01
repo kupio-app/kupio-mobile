@@ -20,10 +20,12 @@ import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.listings.presentation.form.ListingFormController
 import kupio.mobile.features.listings.presentation.form.toCreateError
 import kupio.mobile.features.listings.presentation.form.toUpload
+import kupio.mobile.core.analytics.AnalyticsService
 
 class CreateViewModel(
     private val listingsRepository: ListingsRepository,
     private val categoriesRepository: CategoriesRepository,
+    private val analytics: AnalyticsService,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CreateState())
@@ -96,13 +98,17 @@ class CreateViewModel(
             val merged = state.images + newImages.take(remainingSlots.coerceAtLeast(0))
             val hitLimit = remainingSlots <= 0 || newImages.size > remainingSlots
             val hasUnsupportedImages = supportedImages.size != images.size
+            val warning = when {
+                hasUnsupportedImages -> CreateError.UnsupportedImage
+                hitLimit -> CreateError.ImageLimitReached(MaxListingImages)
+                else -> null
+            }
+            if (hasUnsupportedImages) analytics.logEvent("image_error", mapOf("reason" to "unsupported"))
+            if (hitLimit) analytics.logEvent("image_error", mapOf("reason" to "limit_reached"))
+
             state.copy(
                 images = merged,
-                imageWarning = when {
-                    hasUnsupportedImages -> CreateError.UnsupportedImage
-                    hitLimit -> CreateError.ImageLimitReached(MaxListingImages)
-                    else -> null
-                },
+                imageWarning = warning,
             )
         }
     }
@@ -176,6 +182,10 @@ class CreateViewModel(
                         categoriesError = it.categoriesError,
                     )
                 }
+                analytics.logEvent("create_listing", mapOf(
+                    "status" to if (activate) "published" else "draft",
+                    "image_count" to images.size.toString(),
+                ))
                 effectChannel.send(CreateEffect.NavigateBack)
             }.onFailure { throwable ->
                 if (throwable is CancellationException) throw throwable
@@ -186,6 +196,7 @@ class CreateViewModel(
                         submitError = throwable.message.toCreateError(),
                     )
                 }
+                analytics.recordException(throwable, mapOf("screen" to "create_listing"))
             }
         }
     }

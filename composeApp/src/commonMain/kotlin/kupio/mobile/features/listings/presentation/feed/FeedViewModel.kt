@@ -21,12 +21,14 @@ import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.listings.presentation.feed.FeedEffect.*
 import kupio.mobile.features.saved.domain.repository.FavouritesRepository
 import kupio.mobile.features.saved.domain.ToggleFavouriteUseCase
+import kupio.mobile.core.analytics.AnalyticsService
 
 class FeedViewModel(
     private val listingsRepository: ListingsRepository,
     private val categoriesRepository: CategoriesRepository,
     private val favouritesRepository: FavouritesRepository,
     private val toggleFavouriteUseCase: ToggleFavouriteUseCase,
+    private val analytics: AnalyticsService,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(FeedState())
@@ -49,14 +51,17 @@ class FeedViewModel(
             is FeedIntent.SelectCategory -> {
                 if (intent.id == _state.value.selectedCategoryId) return
                 _state.update { it.copy(selectedCategoryId = intent.id) }
+                analytics.logEvent("select_content", mapOf("content_type" to "category", "item_id" to intent.id))
                 loadRecommended()
             }
             is FeedIntent.OpenListing -> viewModelScope.launch {
+                analytics.logEvent("select_item", mapOf("item_id" to intent.id))
                 effectChannel.send(OpenListing(intent.id))
             }
             FeedIntent.SubmitSearch -> {
                 val query = _state.value.searchQuery
                 if (query.isBlank()) return
+                analytics.logEvent("search", mapOf("search_term" to query))
                 viewModelScope.launch { effectChannel.send(OpenSearch(query)) }
             }
             FeedIntent.RetryLoadListings -> loadRecommended()
@@ -79,6 +84,7 @@ class FeedViewModel(
                 }
                 .onFailure { t ->
                     _state.update { it.copy(isLoadingListings = false, listingsError = t.message.orEmpty()) }
+                    analytics.recordException(t, mapOf("screen" to "feed"))
                 }
         }
     }
@@ -111,6 +117,8 @@ class FeedViewModel(
                 togglingFavouriteIds = it.togglingFavouriteIds + listingId,
             )
         }
+        val event = if (adding) "add_to_favourites" else "remove_from_favourites"
+        analytics.logEvent(event, mapOf("item_id" to listingId))
         viewModelScope.launch {
             toggleFavouriteUseCase(listingId, adding).onFailure {
                 _state.update {

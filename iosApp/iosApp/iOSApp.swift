@@ -1,4 +1,6 @@
 import ComposeApp
+import FirebaseCore
+import FirebaseCrashlytics
 import GoogleSignIn
 import SwiftUI
 import FirebaseCore
@@ -11,6 +13,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     ) -> Bool {
 
         FirebaseApp.configure()
+        #if DEBUG
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
+        #endif
 
         NotifierManager.shared.initialize(
             configuration: NotificationPlatformConfigurationIos(

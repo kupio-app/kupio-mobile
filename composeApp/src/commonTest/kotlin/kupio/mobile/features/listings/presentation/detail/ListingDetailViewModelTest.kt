@@ -39,10 +39,14 @@ import kupio.mobile.features.listings.domain.model.ListingImage
 import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
+import kupio.mobile.core.presentation.SnackbarManager
+import kupio.mobile.features.listings.domain.model.ListingFeed
 import kupio.mobile.features.me.domain.model.OwnedListing
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.domain.model.UserListingStats
 import kupio.mobile.features.me.domain.repository.MeRepository
+import kupio.mobile.features.saved.domain.ToggleFavouriteUseCase
+import kupio.mobile.features.saved.domain.repository.FavouritesRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ListingDetailViewModelTest {
@@ -232,6 +236,52 @@ class ListingDetailViewModelTest {
         assertTrue(dialer.openedPhones.isEmpty())
     }
 
+    @Test
+    fun `non-owner loads favourite status from repository`() = runTest(dispatcher) {
+        val favourites = FakeFavouritesRepository(favouriteIds = setOf("listing-1"))
+        val viewModel = createViewModel(favourites = favourites)
+        advanceUntilIdle()
+
+        assertTrue(viewModel.state.value.isFavourited)
+        assertEquals(1, favourites.getFavouriteIdsCalls)
+    }
+
+    @Test
+    fun `own listing skips favourite status fetch`() = runTest(dispatcher) {
+        val favourites = FakeFavouritesRepository(favouriteIds = setOf("listing-1"))
+        val viewModel = createViewModel(favourites = favourites, currentUserId = "seller-1")
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.value.isFavourited)
+        assertEquals(0, favourites.getFavouriteIdsCalls)
+    }
+
+    @Test
+    fun `toggle favourite is disabled during in-flight request`() = runTest(dispatcher) {
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        viewModel.onIntent(ListingDetailIntent.ToggleFavourite)
+
+        assertTrue(viewModel.state.value.isTogglingFavourite)
+    }
+
+    @Test
+    fun `toggle favourite reverts optimistic update on failure`() = runTest(dispatcher) {
+        val favourites = FakeFavouritesRepository(shouldFail = true)
+        val viewModel = createViewModel(favourites = favourites)
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.value.isFavourited)
+        viewModel.onIntent(ListingDetailIntent.ToggleFavourite)
+        assertTrue(viewModel.state.value.isFavourited)
+
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.value.isFavourited)
+        assertFalse(viewModel.state.value.isTogglingFavourite)
+    }
+
     private suspend fun createViewModel(
         listings: FakeListingsRepository = FakeListingsRepository(),
         me: FakeMeRepository = FakeMeRepository(),
@@ -239,6 +289,7 @@ class ListingDetailViewModelTest {
         messages: FakeMessagesRepository = FakeMessagesRepository(),
         conversationsRefresher: FakeConversationsRefresher = FakeConversationsRefresher(),
         phoneDialer: FakePhoneDialer = FakePhoneDialer(),
+        favourites: FakeFavouritesRepository = FakeFavouritesRepository(),
         currentUserId: String = "buyer-1",
     ): ListingDetailViewModel {
         val sessionManager = AuthSessionManager(
@@ -264,6 +315,8 @@ class ListingDetailViewModelTest {
             conversationsRefresher = conversationsRefresher,
             phoneDialer = phoneDialer,
             sessionManager = sessionManager,
+            favouritesRepository = favourites,
+            toggleFavouriteUseCase = ToggleFavouriteUseCase(favourites, SnackbarManager()),
         )
     }
 
@@ -396,6 +449,29 @@ class ListingDetailViewModelTest {
         override fun openDialer(phone: String): Boolean {
             openedPhones += phone
             return true
+        }
+    }
+
+    private class FakeFavouritesRepository(
+        private val favouriteIds: Set<String> = emptySet(),
+        private val shouldFail: Boolean = false,
+    ) : FavouritesRepository {
+        var getFavouriteIdsCalls = 0
+
+        override suspend fun getFavourites(limit: Int, cursor: String?): ListingFeed =
+            ListingFeed(emptyList(), null)
+
+        override suspend fun getFavouriteIds(): Set<String> {
+            getFavouriteIdsCalls++
+            return favouriteIds
+        }
+
+        override suspend fun addFavourite(listingId: String) {
+            if (shouldFail) error("add failed")
+        }
+
+        override suspend fun removeFavourite(listingId: String) {
+            if (shouldFail) error("remove failed")
         }
     }
 

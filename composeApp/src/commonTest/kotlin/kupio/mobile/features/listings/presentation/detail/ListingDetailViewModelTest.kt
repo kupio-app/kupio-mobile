@@ -40,7 +40,6 @@ import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.core.presentation.SnackbarManager
-import kupio.mobile.features.listings.domain.model.ListingFeed
 import kupio.mobile.features.me.domain.model.OwnedListing
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.domain.model.UserListingStats

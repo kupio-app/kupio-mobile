@@ -23,6 +23,8 @@ import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.me.domain.model.OwnedListing
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.domain.repository.MeRepository
+import kupio.mobile.features.saved.domain.repository.FavouritesRepository
+import kupio.mobile.features.saved.domain.ToggleFavouriteUseCase
 
 class ListingDetailViewModel(
     private val listingId: String,
@@ -33,6 +35,8 @@ class ListingDetailViewModel(
     private val conversationsRefresher: ConversationsRefresher,
     private val phoneDialer: PhoneDialer,
     private val sessionManager: AuthSessionManager,
+    private val favouritesRepository: FavouritesRepository,
+    private val toggleFavouriteUseCase: ToggleFavouriteUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ListingDetailState())
@@ -61,6 +65,7 @@ class ListingDetailViewModel(
             }
             ListingDetailIntent.SendMessage -> sendMessage()
             ListingDetailIntent.CallSeller -> callSeller()
+            ListingDetailIntent.ToggleFavourite -> toggleFavourite()
             ListingDetailIntent.ToggleOwnerStatus -> prepareOwnerStatusChange()
             ListingDetailIntent.ConfirmOwnerStatusChange -> confirmOwnerStatusChange()
             ListingDetailIntent.DismissOwnerStatusChange -> _state.update { it.copy(statusChangeTarget = null) }
@@ -86,14 +91,24 @@ class ListingDetailViewModel(
                 val currentUserId = sessionManager.currentUserId()
                 val isOwnListing = currentUserId.isNotBlank() && listing.userId == currentUserId
                 val ownerMetadata = if (isOwnListing) {
-                    runCatching { meRepository.getMyListing(listing.id)?.toOwnerMetadataUi() }.getOrNull()
+                    runCatching { meRepository.getMyListing(listing.id)?.toOwnerMetadataUi() }
+                        .onFailure { if (it is CancellationException) throw it }
+                        .getOrNull()
                 } else {
                     null
+                }
+                val isFavourited = if (!isOwnListing) {
+                    runCatching { favouritesRepository.getFavouriteIds().contains(listing.id) }
+                        .onFailure { if (it is CancellationException) throw it }
+                        .getOrDefault(false)
+                } else {
+                    false
                 }
                 LoadedListing(
                     listing = listing,
                     isOwnListing = isOwnListing,
                     ownerMetadata = ownerMetadata,
+                    isFavourited = isFavourited,
                 )
             }
                 .onSuccess { loaded ->
@@ -103,6 +118,7 @@ class ListingDetailViewModel(
                             ownerMetadata = loaded.ownerMetadata,
                             seller = loaded.listing.toSellerUi(),
                             isOwnListing = loaded.isOwnListing,
+                            isFavourited = loaded.isFavourited,
                             isLoading = false,
                             isRefreshing = false,
                         )
@@ -168,6 +184,19 @@ class ListingDetailViewModel(
                     )
                 }
             }
+        }
+    }
+
+    private fun toggleFavourite() {
+        val listing = _state.value.listing ?: return
+        if (_state.value.isOwnListing || _state.value.isTogglingFavourite) return
+        val adding = !_state.value.isFavourited
+        _state.update { it.copy(isFavourited = adding, isTogglingFavourite = true) }
+        viewModelScope.launch {
+            toggleFavouriteUseCase(listing.id, adding).onFailure {
+                _state.update { it.copy(isFavourited = !adding) }
+            }
+            _state.update { it.copy(isTogglingFavourite = false) }
         }
     }
 
@@ -238,6 +267,7 @@ private data class LoadedListing(
     val listing: Listing,
     val isOwnListing: Boolean,
     val ownerMetadata: ListingOwnerMetadataUi?,
+    val isFavourited: Boolean,
 )
 
 private fun OwnedListing.toOwnerMetadataUi(): ListingOwnerMetadataUi = ListingOwnerMetadataUi(

@@ -136,6 +136,8 @@
     <string name="chat_thread_view">VIEW</string>
     <string name="chat_day_today">Today</string>
     <string name="chat_day_yesterday">Yesterday</string>
+    <string name="date_today_time">Today, %s</string>
+    <string name="date_yesterday_time">Yesterday, %s</string>
     <string name="chat_day_n_days_ago">%1$d days ago</string>
     <string name="chat_day_date_format">%1$d %2$s</string>
     <string name="month_1">January</string>
@@ -273,4 +275,11 @@
     <string name="my_listings_stats_icon_desc">Stats counter</string>
     <string name="my_listings_empty">No listings</string>
     <string name="my_listings_load_error">Failed to load listings</string>
+    <string name="saved_subtitle">%1$d items</string>
+    <string name="saved_empty">No saved listings yet.</string>
+    <string name="saved_load_error">Couldn\'t load saved listings.</string>
+    <string name="saved_remove">Remove from saved</string>
+    <string name="favourite_added">Added to Saved.</string>
+    <string name="favourite_removed">Removed from Saved.</string>
+    <string name="undo">Undo</string>
 </resources>

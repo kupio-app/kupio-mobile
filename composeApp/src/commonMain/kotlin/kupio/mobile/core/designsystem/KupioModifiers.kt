@@ -51,6 +51,10 @@ inline fun Modifier.bouncingClickable(
         )
 }
 
+fun Modifier.bouncingClickableIf(
+    onClick: (() -> Unit)?,
+): Modifier = if (onClick != null) bouncingClickable(onClick = onClick) else this
+
 inline fun Modifier.glowClickable(
     shape: Shape = KupioShapes.Medium,
     crossinline onClick: () -> Unit

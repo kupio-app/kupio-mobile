@@ -373,7 +373,7 @@ private fun ReasonBadge(label: String) {
 }
 
 private fun String.toReportDateTimeLabel(): String {
-    val date = toLocalDate()?.toString()
+    val date = toLocalDate()?.toString() ?: take(10)
     return "$date ${toTimeLabel()}"
 }
 

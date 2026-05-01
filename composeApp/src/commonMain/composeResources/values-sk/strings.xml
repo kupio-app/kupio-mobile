@@ -277,5 +277,12 @@
     <string name="my_listings_boost">%1$dx boost</string>
     <string name="my_listings_stats_icon_desc">Počítadlo štatistík</string>
     <string name="my_listings_empty">Žiadne inzeráty</string>
-    <string name="my_listings_load_error">Nepodarilo sa načítať inzeráty</string>
+    <string name="my_listings_load_error">Nepodarilo sa načtať inzerty</string>
+    <string name="moderator_reports_title">Prehľad hlásení</string>
+    <string name="moderator_reports_filter_in_queue">V rade</string>
+    <string name="moderator_reports_filter_unseen">Nevidené</string>
+    <string name="moderator_reports_filter_no_action">Bez akcie</string>
+    <string name="moderator_reports_empty">Žiadne hlásenia pre tento filter</string>
+    <string name="moderator_reports_load_error">Nepodarilo sa načítať hlásenia</string>
+    <string name="moderator_reports_desc">%1$s · @%2$s · ID: %3$s</string>
 </resources>

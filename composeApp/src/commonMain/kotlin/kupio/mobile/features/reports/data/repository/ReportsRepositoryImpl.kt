@@ -4,6 +4,7 @@ import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.features.reports.data.remote.CreateListingReportRequestDto
 import kupio.mobile.features.reports.data.remote.ReportsApi
 import kupio.mobile.features.reports.data.remote.toDomain
+import kupio.mobile.features.reports.domain.model.ListReportsResult
 import kupio.mobile.features.reports.domain.model.ReportReason
 import kupio.mobile.features.reports.domain.repository.ReportsRepository
 
@@ -30,6 +31,19 @@ class ReportsRepositoryImpl(
                 ),
             )
         }
+    }
+
+    override suspend fun getReports(
+        status: String?,
+        seen: String?,
+        cursor: String?,
+    ): ListReportsResult = authenticatedApiClient.request { authorize ->
+        reportsApi.getReports(
+            authorize = authorize,
+            status = status,
+            seen = seen,
+            cursor = cursor,
+        ).toDomain()
     }
 }
 

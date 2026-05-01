@@ -280,4 +280,11 @@
     <string name="report_listing_additional_info_label">Additional info</string>
     <string name="report_listing_additional_info_placeholder">Any other details that may help our team…</string>
     <string name="report_listing_submit">Submit report</string>
+    <string name="moderator_reports_title">Reports Dashboard</string>
+    <string name="moderator_reports_filter_in_queue">In Queue</string>
+    <string name="moderator_reports_filter_unseen">Unseen</string>
+    <string name="moderator_reports_filter_no_action">No Action</string>
+    <string name="moderator_reports_empty">No reports for this filter</string>
+    <string name="moderator_reports_load_error">Failed to load reports</string>
+    <string name="moderator_reports_desc">%1$s · @%2$s · ID: %3$s</string>
 </resources>

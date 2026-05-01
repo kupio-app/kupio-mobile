@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 
 inline fun Modifier.bouncingClickable(
     crossinline onClick: () -> Unit

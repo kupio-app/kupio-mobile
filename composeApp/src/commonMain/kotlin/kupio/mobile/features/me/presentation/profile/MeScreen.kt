@@ -34,6 +34,7 @@ import kupio.mobile.features.me.presentation.profile.components.PaymentsSection
 import kupio.mobile.features.me.presentation.profile.components.ProfileSection
 import kupio.mobile.features.me.presentation.profile.components.ReportsDashboardCard
 import kupio.mobile.features.me.presentation.profile.components.UserInfoSection
+import kupio.mobile.features.reports.presentation.moderator.ModeratorReportsDashboardScreen
 import kupio.mobile.features.settings.SettingsScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.topbar_profile_title
@@ -56,6 +57,7 @@ class MeScreen : Screen {
                 MeEffect.NavigateToSettings -> rootNavigator.push(SettingsScreen())
                 MeEffect.NavigateToChats -> tabNavigator.current = ChatsTab
                 MeEffect.NavigateToFavourites -> tabNavigator.current = SavedTab
+                MeEffect.NavigateToReportsDashboard -> rootNavigator.push(ModeratorReportsDashboardScreen())
             }
         }
 
@@ -130,7 +132,7 @@ private fun MeRoute(state: MeState, onIntent: (MeIntent) -> Unit) {
             if (user?.role?.canModerate == true) {
                 item {
                     ReportsDashboardCard(
-                        openCount = 0,
+                        openCount = state.reportsDashboardUnseenCount,
                         onClick = { onIntent(MeIntent.ReportsDashboardClicked) },
                     )
                 }

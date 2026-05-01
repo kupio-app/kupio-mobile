@@ -287,4 +287,27 @@
     <string name="favourite_added">Pridané do uložených.</string>
     <string name="favourite_removed">Odstránené z uložených.</string>
     <string name="undo">Späť</string>
+    <string name="moderator_reports_title">Prehľad hlásení</string>
+    <string name="moderator_reports_filter_in_queue">V rade</string>
+    <string name="moderator_reports_filter_unseen">Nepozreté</string>
+    <string name="moderator_reports_filter_no_action">Bez akcie</string>
+    <string name="moderator_reports_empty">Žiadne hlásenia pre tento filter</string>
+    <string name="moderator_reports_load_error">Nepodarilo sa načítať hlásenia</string>
+    <string name="moderator_reports_desc">%1$s · @%2$s · ID: %3$s</string>
+    <string name="moderator_report_detail_listing_label">Popis inzerátu</string>
+    <string name="moderator_report_detail_title">Hlásenie #%1$d</string>
+    <string name="moderator_report_detail_added">pridané %1$s</string>
+    <string name="moderator_report_detail_load_error">Nepodarilo sa načítať hlásenie</string>
+    <string name="moderator_report_detail_reporter_note_label">Poznámka nahlasovateľa</string>
+    <string name="moderator_report_detail_decision_label">Vyber rozhodnutie</string>
+    <string name="moderator_report_detail_decision_decline">Zamietnuť</string>
+    <string name="moderator_report_detail_decision_remove_listing">Odstrániť inzerát</string>
+    <string name="moderator_report_detail_decision_ban_user">Zablokovať používateľa</string>
+    <string name="moderator_report_detail_comment_label">Komentár moderátora (voliteľné)</string>
+    <string name="moderator_report_detail_comment_placeholder">Pridaj internú poznámku k rozhodnutiu…</string>
+    <string name="moderator_report_detail_submit">Odoslať rozhodnutie</string>
+    <string name="moderator_report_detail_error_select_decision">Vyber rozhodnutie</string>
+    <string name="moderator_report_detail_error_submit_failed">Nepodarilo sa odoslať rozhodnutie</string>
+    <string name="moderator_report_detail_view_listing">Zobraziť inzerát</string>
+    <string name="moderator_report_detail_seller_registered">Registrovaný %1$s</string>
 </resources>

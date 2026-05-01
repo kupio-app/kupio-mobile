@@ -286,6 +286,8 @@
     <string name="moderator_reports_load_error">Nepodarilo sa načítať hlásenia</string>
     <string name="moderator_reports_desc">%1$s · @%2$s · ID: %3$s</string>
     <string name="moderator_report_detail_listing_label">Popis inzerátu</string>
+    <string name="moderator_report_detail_title">Hlásenie #%1$d</string>
+    <string name="moderator_report_detail_added">pridané %1$s</string>
     <string name="moderator_report_detail_reporter_note_label">Poznámka nahlasovateľa</string>
     <string name="moderator_report_detail_decision_label">Vyber rozhodnutie</string>
     <string name="moderator_report_detail_decision_decline">Zamietnuť</string>
@@ -295,7 +297,5 @@
     <string name="moderator_report_detail_comment_placeholder">Pridaj internú poznámku k rozhodnutiu…</string>
     <string name="moderator_report_detail_submit">Odoslať rozhodnutie</string>
     <string name="moderator_report_detail_view_listing">Zobraziť inzerát</string>
-    <string name="moderator_report_detail_seller_label">Nahlásené %1$s</string>
-    <string name="moderator_report_detail_listing_id">ID: %1$s</string>
     <string name="moderator_report_detail_seller_registered">Registrovaný %1$s</string>
 </resources>

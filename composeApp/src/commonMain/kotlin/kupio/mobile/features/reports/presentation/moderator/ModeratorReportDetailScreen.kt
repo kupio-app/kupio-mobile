@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.OpenInNew
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Delete
@@ -53,6 +53,7 @@ import kupio.mobile.features.listings.presentation.components.ListingImage
 import kupio.mobile.features.listings.presentation.detail.ListingDetailScreen
 import kupio.mobile.features.reports.domain.model.ReportDetail
 import kupio.mobile.features.reports.domain.model.formatPrice
+import kupio.mobile.features.userprofile.presentation.UserPublicProfileScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.moderator_report_detail_comment_label
 import mobile.composeapp.generated.resources.moderator_report_detail_comment_placeholder
@@ -60,10 +61,10 @@ import mobile.composeapp.generated.resources.moderator_report_detail_decision_ba
 import mobile.composeapp.generated.resources.moderator_report_detail_decision_decline
 import mobile.composeapp.generated.resources.moderator_report_detail_decision_label
 import mobile.composeapp.generated.resources.moderator_report_detail_decision_remove_listing
+import mobile.composeapp.generated.resources.moderator_report_detail_added
 import mobile.composeapp.generated.resources.moderator_report_detail_listing_label
-import mobile.composeapp.generated.resources.moderator_report_detail_listing_id
 import mobile.composeapp.generated.resources.moderator_report_detail_reporter_note_label
-import mobile.composeapp.generated.resources.moderator_report_detail_seller_label
+import mobile.composeapp.generated.resources.moderator_report_detail_title
 import mobile.composeapp.generated.resources.moderator_report_detail_seller_registered
 import mobile.composeapp.generated.resources.moderator_report_detail_submit
 import mobile.composeapp.generated.resources.topbar_back
@@ -91,6 +92,7 @@ data class ModeratorReportDetailScreen(val reportId: Int) : Screen {
             state = state,
             onIntent = viewModel::onIntent,
             onViewListing = { listingId -> navigator.push(ListingDetailScreen(listingId)) },
+            onViewSeller = { sellerId, label -> navigator.push(UserPublicProfileScreen(sellerId, label)) },
         )
     }
 }
@@ -100,17 +102,28 @@ private fun ModeratorReportDetailContent(
     state: ModeratorReportDetailState,
     onIntent: (ModeratorReportDetailIntent) -> Unit,
     onViewListing: (String) -> Unit,
+    onViewSeller: (String, String) -> Unit,
 ) {
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             KupioTopNavbar(
-                title = "Report #${ state.report?.id ?: "" }",
+                title = state.report?.let {
+                    stringResource(Res.string.moderator_report_detail_title, it.id)
+                }.orEmpty(),
+                subtitle = state.report?.createdAt?.let {
+                    stringResource(Res.string.moderator_report_detail_added, it.toReportDateTime())
+                },
                 leadingContent = {
                     KupioTopBarBackAction(
                         contentDescription = stringResource(Res.string.topbar_back),
                         onClick = { onIntent(ModeratorReportDetailIntent.BackClicked) },
                     )
+                },
+                trailingContent = {
+                    state.report?.let { report ->
+                        ReasonBadge(label = report.reasonTitle)
+                    }
                 },
             )
         },
@@ -141,6 +154,12 @@ private fun ModeratorReportDetailContent(
                 paddingValues = paddingValues,
                 onIntent = onIntent,
                 onViewListing = { onViewListing(state.report.listing.id) },
+                onViewSeller = {
+                    onViewSeller(
+                        state.report.sellerId,
+                        state.sellerDisplayName(),
+                    )
+                },
             )
         }
     }
@@ -153,6 +172,7 @@ private fun ReportDetailBody(
     paddingValues: PaddingValues,
     onIntent: (ModeratorReportDetailIntent) -> Unit,
     onViewListing: () -> Unit,
+    onViewSeller: () -> Unit,
 ) {
     val spacing = KupioThemeDefaults.spacing
     LazyColumn(
@@ -164,6 +184,7 @@ private fun ReportDetailBody(
                 report = report,
                 sellerProfile = state.sellerProfile,
                 onViewListing = onViewListing,
+                onViewSeller = onViewSeller,
             )
         }
         item {
@@ -211,6 +232,7 @@ private fun ListingPreviewCard(
     report: ReportDetail,
     sellerProfile: ReportSellerProfileUi?,
     onViewListing: () -> Unit,
+    onViewSeller: () -> Unit,
 ) {
     val spacing = KupioThemeDefaults.spacing
     val listing = report.listing
@@ -233,22 +255,27 @@ private fun ListingPreviewCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(160.dp)
+                .height(152.dp)
                 .padding(spacing.md),
             horizontalArrangement = Arrangement.spacedBy(spacing.md),
         ) {
             ListingImage(
                 imageUrl = listing.primaryImageUrl,
                 contentDescription = listing.title,
-                modifier = Modifier.size(128.dp),
+                modifier = Modifier
+                    .size(120.dp)
+                    .bouncingClickable(onClick = onViewListing),
                 shape = KupioShapes.Medium,
             )
             Column(
                 modifier = Modifier
                     .weight(1f),
-                verticalArrangement = Arrangement.SpaceBetween,
+                verticalArrangement = Arrangement.spacedBy(spacing.sm),
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(spacing.xs)) {
+                Column(
+                    modifier = Modifier.bouncingClickable(onClick = onViewListing),
+                    verticalArrangement = Arrangement.spacedBy(spacing.xs),
+                ) {
                     Text(
                         text = listing.title,
                         style = MaterialTheme.typography.bodyMedium,
@@ -263,77 +290,76 @@ private fun ListingPreviewCard(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
-                    Surface(
-                        shape = KupioShapes.Small,
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                    ) {
-                        Text(
-                            text = report.reasonTitle.uppercase(),
-                            modifier = Modifier.padding(horizontal = spacing.sm, vertical = 2.dp),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                    }
                 }
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .bouncingClickable(onClick = onViewSeller),
+                    shape = KupioShapes.Small,
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.72f),
+                ) {
                     Row(
+                        modifier = Modifier.padding(horizontal = spacing.sm, vertical = spacing.sm),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(spacing.xs),
+                        horizontalArrangement = Arrangement.spacedBy(spacing.sm),
                     ) {
                         KupioUserAvatar(initials = sellerInitials, size = 20.dp)
-                        Text(
-                            text = sellerName,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(1.dp),
+                        ) {
+                            Text(
+                                text = sellerName,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            sellerRegisteredAt?.let { registeredAt ->
+                                Text(
+                                    text = stringResource(Res.string.moderator_report_detail_seller_registered, registeredAt),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        }
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                    sellerRegisteredAt?.let { registeredAt ->
-                        Text(
-                            text = stringResource(Res.string.moderator_report_detail_seller_registered, registeredAt),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    Text(
-                        text = stringResource(
-                            Res.string.moderator_report_detail_seller_label,
-                            report.createdAt.take(10),
-                        ),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Text(
-                        text = stringResource(
-                            Res.string.moderator_report_detail_listing_id,
-                            listing.id.takeLast(8),
-                        ),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-            Surface(
-                modifier = Modifier
-                    .size(32.dp)
-                    .bouncingClickable(onClick = onViewListing),
-                shape = KupioShapes.Small,
-                color = MaterialTheme.colorScheme.onSurface,
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.OpenInNew,
-                        contentDescription = null,
-                        modifier = Modifier.size(15.dp),
-                        tint = MaterialTheme.colorScheme.surface,
-                    )
                 }
             }
         }
     }
 }
+
+@Composable
+private fun ReasonBadge(label: String) {
+    val spacing = KupioThemeDefaults.spacing
+    Surface(
+        shape = KupioShapes.Small,
+        color = MaterialTheme.colorScheme.primaryContainer,
+    ) {
+        Text(
+            text = label.uppercase(),
+            modifier = Modifier.padding(horizontal = spacing.md, vertical = spacing.sm),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+private fun String.toReportDateTime(): String =
+    take(16).replace('T', ' ')
 
 @Composable
 private fun TextSection(label: String, text: String) {

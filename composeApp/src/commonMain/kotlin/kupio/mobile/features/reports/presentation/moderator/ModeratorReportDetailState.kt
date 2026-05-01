@@ -22,6 +22,14 @@ data class ReportSellerProfileUi(
     val createdAt: String?,
 )
 
+fun ModeratorReportDetailState.sellerDisplayName(): String {
+    val report = report ?: return ""
+    return sellerProfile?.displayName?.takeIf { it.isNotBlank() }
+        ?: report.sellerDisplayName.takeIf { it.isNotBlank() }
+        ?: sellerProfile?.username?.takeIf { it.isNotBlank() }
+        ?: report.sellerUsername
+}
+
 enum class ReportDecision {
     DECLINE, REMOVE_LISTING, BAN_USER;
 

@@ -49,7 +49,7 @@ import kupio.mobile.core.designsystem.KupioTopNavbar
 import kupio.mobile.core.designsystem.KupioUserAvatar
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.presentation.CollectEffect
-import kupio.mobile.features.listings.presentation.components.ListingThumbnail
+import kupio.mobile.features.listings.presentation.components.ListingImage
 import kupio.mobile.features.listings.presentation.detail.ListingDetailScreen
 import kupio.mobile.features.reports.domain.model.ReportDetail
 import kupio.mobile.features.reports.domain.model.formatPrice
@@ -60,8 +60,11 @@ import mobile.composeapp.generated.resources.moderator_report_detail_decision_ba
 import mobile.composeapp.generated.resources.moderator_report_detail_decision_decline
 import mobile.composeapp.generated.resources.moderator_report_detail_decision_label
 import mobile.composeapp.generated.resources.moderator_report_detail_decision_remove_listing
+import mobile.composeapp.generated.resources.moderator_report_detail_listing_label
+import mobile.composeapp.generated.resources.moderator_report_detail_listing_id
 import mobile.composeapp.generated.resources.moderator_report_detail_reporter_note_label
 import mobile.composeapp.generated.resources.moderator_report_detail_seller_label
+import mobile.composeapp.generated.resources.moderator_report_detail_seller_registered
 import mobile.composeapp.generated.resources.moderator_report_detail_submit
 import mobile.composeapp.generated.resources.topbar_back
 import org.jetbrains.compose.resources.stringResource
@@ -159,14 +162,21 @@ private fun ReportDetailBody(
         item {
             ListingPreviewCard(
                 report = report,
+                sellerProfile = state.sellerProfile,
                 onViewListing = onViewListing,
+            )
+        }
+        item {
+            TextSection(
+                label = stringResource(Res.string.moderator_report_detail_listing_label),
+                text = report.listing.description,
             )
         }
         if (!report.additionalInfo.isNullOrBlank()) {
             item {
-                ReporterNoteSection(
+                TextSection(
                     label = stringResource(Res.string.moderator_report_detail_reporter_note_label),
-                    note = report.additionalInfo,
+                    text = report.additionalInfo,
                 )
             }
         }
@@ -196,16 +206,21 @@ private fun ReportDetailBody(
     }
 }
 
-// 1. Listing preview card — thumbnail + info + View button
 @Composable
 private fun ListingPreviewCard(
     report: ReportDetail,
+    sellerProfile: ReportSellerProfileUi?,
     onViewListing: () -> Unit,
 ) {
     val spacing = KupioThemeDefaults.spacing
     val listing = report.listing
-    val sellerName = report.sellerDisplayName.takeIf { it.isNotBlank() } ?: report.sellerUsername
+    val sellerName = sellerProfile?.displayName?.takeIf { it.isNotBlank() }
+        ?: report.sellerDisplayName.takeIf { it.isNotBlank() }
+        ?: sellerProfile?.username?.takeIf { it.isNotBlank() }
+        ?: report.sellerUsername
     val sellerInitials = sellerName.take(2).uppercase()
+    val sellerRegisteredAt = sellerProfile?.createdAt?.take(10)
+        ?: report.sellerCreatedAt?.take(10)
 
     Surface(
         modifier = Modifier
@@ -215,35 +230,25 @@ private fun ListingPreviewCard(
         color = MaterialTheme.colorScheme.surface,
         border = KupioThemeDefaults.defaultBorder,
     ) {
-        Column {
-            Row(
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(160.dp)
+                .padding(spacing.md),
+            horizontalArrangement = Arrangement.spacedBy(spacing.md),
+        ) {
+            ListingImage(
+                imageUrl = listing.primaryImageUrl,
+                contentDescription = listing.title,
+                modifier = Modifier.size(128.dp),
+                shape = KupioShapes.Medium,
+            )
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(spacing.md),
-                horizontalArrangement = Arrangement.spacedBy(spacing.md),
-                verticalAlignment = Alignment.Top,
+                    .weight(1f),
+                verticalArrangement = Arrangement.SpaceBetween,
             ) {
-                ListingThumbnail(
-                    imageUrl = listing.primaryImageUrl,
-                    contentDescription = listing.title,
-                    modifier = Modifier.size(80.dp),
-                )
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(spacing.xs),
-                ) {
-                    Surface(
-                        shape = KupioShapes.Small,
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                    ) {
-                        Text(
-                            text = report.reasonTitle.uppercase(),
-                            modifier = Modifier.padding(horizontal = spacing.sm, vertical = 2.dp),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                    }
+                Column(verticalArrangement = Arrangement.spacedBy(spacing.xs)) {
                     Text(
                         text = listing.title,
                         style = MaterialTheme.typography.bodyMedium,
@@ -258,6 +263,20 @@ private fun ListingPreviewCard(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
+                    Surface(
+                        shape = KupioShapes.Small,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                    ) {
+                        Text(
+                            text = report.reasonTitle.uppercase(),
+                            modifier = Modifier.padding(horizontal = spacing.sm, vertical = 2.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(spacing.xs),
@@ -271,41 +290,53 @@ private fun ListingPreviewCard(
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
+                    sellerRegisteredAt?.let { registeredAt ->
+                        Text(
+                            text = stringResource(Res.string.moderator_report_detail_seller_registered, registeredAt),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                     Text(
                         text = stringResource(
                             Res.string.moderator_report_detail_seller_label,
                             report.createdAt.take(10),
+                        ),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = stringResource(
+                            Res.string.moderator_report_detail_listing_id,
                             listing.id.takeLast(8),
                         ),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                // Black "view" icon button in top-right corner
-                Surface(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .bouncingClickable(onClick = onViewListing),
-                    shape = KupioShapes.Small,
-                    color = MaterialTheme.colorScheme.onSurface,
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.OpenInNew,
-                            contentDescription = null,
-                            modifier = Modifier.size(15.dp),
-                            tint = MaterialTheme.colorScheme.surface,
-                        )
-                    }
+            }
+            Surface(
+                modifier = Modifier
+                    .size(32.dp)
+                    .bouncingClickable(onClick = onViewListing),
+                shape = KupioShapes.Small,
+                color = MaterialTheme.colorScheme.onSurface,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.OpenInNew,
+                        contentDescription = null,
+                        modifier = Modifier.size(15.dp),
+                        tint = MaterialTheme.colorScheme.surface,
+                    )
                 }
             }
         }
     }
 }
 
-// 2. Reporter note with white/surface background
 @Composable
-private fun ReporterNoteSection(label: String, note: String) {
+private fun TextSection(label: String, text: String) {
     val spacing = KupioThemeDefaults.spacing
     Column(
         modifier = Modifier
@@ -321,7 +352,7 @@ private fun ReporterNoteSection(label: String, note: String) {
             border = KupioThemeDefaults.defaultBorder,
         ) {
             Text(
-                text = note,
+                text = text,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(spacing.md),

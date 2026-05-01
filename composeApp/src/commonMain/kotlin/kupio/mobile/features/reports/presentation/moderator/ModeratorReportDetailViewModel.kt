@@ -10,11 +10,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kupio.mobile.core.network.AuthenticatedApiClient
+import kupio.mobile.features.chats.data.remote.UserApi
 import kupio.mobile.features.reports.domain.repository.ReportsRepository
 
 class ModeratorReportDetailViewModel(
     private val reportId: Int,
     private val reportsRepository: ReportsRepository,
+    private val userApi: UserApi,
+    private val authenticatedApiClient: AuthenticatedApiClient,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ModeratorReportDetailState())
@@ -50,11 +54,13 @@ class ModeratorReportDetailViewModel(
                     it.copy(
                         isLoading = false,
                         report = report,
+                        sellerProfile = null,
                         errorMessage = null,
                         // pre-fill moderator comment if already moderated
                         moderatorComment = report.moderatorComment.orEmpty(),
                     )
                 }
+                loadSellerProfile(report.sellerId)
             }.onFailure { t ->
                 if (t is CancellationException) throw t
                 _state.update {
@@ -63,6 +69,28 @@ class ModeratorReportDetailViewModel(
                         errorMessage = t.message ?: "Unknown error",
                     )
                 }
+            }
+        }
+    }
+
+    private fun loadSellerProfile(sellerId: String) {
+        viewModelScope.launch {
+            runCatching {
+                authenticatedApiClient.request { authorize ->
+                    userApi.getUserById(authorize, sellerId)
+                }
+            }.onSuccess { seller ->
+                _state.update {
+                    it.copy(
+                        sellerProfile = ReportSellerProfileUi(
+                            displayName = seller.displayName,
+                            username = seller.username,
+                            createdAt = seller.createdAt,
+                        ),
+                    )
+                }
+            }.onFailure { t ->
+                if (t is CancellationException) throw t
             }
         }
     }

@@ -38,4 +38,3 @@ sealed interface ModeratorReportsDashboardEffect : UiEffect {
     data object NavigateBack : ModeratorReportsDashboardEffect
     data class NavigateToReportDetail(val reportId: Int) : ModeratorReportsDashboardEffect
 }
-

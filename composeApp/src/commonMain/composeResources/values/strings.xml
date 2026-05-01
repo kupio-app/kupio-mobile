@@ -297,5 +297,7 @@
     <string name="moderator_report_detail_comment_placeholder">Add an internal note about your decision…</string>
     <string name="moderator_report_detail_submit">Submit Decision</string>
     <string name="moderator_report_detail_view_listing">View listing</string>
-    <string name="moderator_report_detail_seller_label">Reported %1$s · ID: %2$s</string>
+    <string name="moderator_report_detail_seller_label">Reported %1$s</string>
+    <string name="moderator_report_detail_listing_id">ID: %1$s</string>
+    <string name="moderator_report_detail_seller_registered">Registered %1$s</string>
 </resources>

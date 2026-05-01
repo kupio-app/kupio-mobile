@@ -120,7 +120,7 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::SettingsViewModel)
         viewModelOf(::UsernameViewModel)
         viewModelOf(::ModeratorReportsDashboardViewModel)
-        viewModel { params -> ModeratorReportDetailViewModel(params.get(), get()) }
+        viewModel { params -> ModeratorReportDetailViewModel(params.get(), get(), get(), get()) }
         viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get()) }
         viewModel { params -> EditListingViewModel(params.get(), get(), get()) }
         viewModel { params -> CreateReportViewModel(params.get(), params.get(), params.get(), params.get(), get()) }

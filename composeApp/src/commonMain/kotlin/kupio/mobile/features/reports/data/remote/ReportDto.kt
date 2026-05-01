@@ -63,6 +63,7 @@ data class ReportSellerSummaryDto(
     val id: String,
     val username: String? = null,
     @SerialName("display_name") val displayName: String? = null,
+    @SerialName("created_at") val createdAt: String? = null,
 )
 
 @Serializable
@@ -169,6 +170,8 @@ fun ReportDetailResponseDto.toDomain(): ReportDetail = ReportDetail(
     listing = listing.toDomain(),
     sellerUsername = seller.username.orEmpty(),
     sellerDisplayName = seller.displayName.orEmpty(),
+    sellerId = seller.id,
+    sellerCreatedAt = seller.createdAt,
     moderatedAt = moderatedAt,
     moderatorComment = moderatorComment,
 )

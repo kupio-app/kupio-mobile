@@ -11,9 +11,16 @@ data class ModeratorReportDetailState(
     val errorMessage: String? = null,
     val submitError: String? = null,
     val report: ReportDetail? = null,
+    val sellerProfile: ReportSellerProfileUi? = null,
     val selectedDecision: ReportDecision? = null,
     val moderatorComment: String = "",
 ) : UiState
+
+data class ReportSellerProfileUi(
+    val displayName: String?,
+    val username: String?,
+    val createdAt: String?,
+)
 
 enum class ReportDecision {
     DECLINE, REMOVE_LISTING, BAN_USER;

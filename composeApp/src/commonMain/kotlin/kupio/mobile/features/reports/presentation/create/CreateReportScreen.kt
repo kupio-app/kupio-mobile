@@ -1,10 +1,10 @@
 package kupio.mobile.features.reports.presentation.create
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -36,7 +35,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kupio.mobile.core.designsystem.KupioCardSurface
 import kupio.mobile.core.designsystem.KupioErrorRetryRow
 import kupio.mobile.core.designsystem.KupioLoadingScreen
 import kupio.mobile.core.designsystem.KupioShapes
@@ -46,7 +44,7 @@ import kupio.mobile.core.designsystem.KupioTopBarBackAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.presentation.CollectEffect
-import kupio.mobile.features.listings.presentation.components.ListingThumbnail
+import kupio.mobile.features.listings.presentation.components.ListingPreviewStrip
 import kupio.mobile.features.reports.domain.model.ReportReason
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.back
@@ -213,42 +211,14 @@ private fun ListingHeroCard(
     priceFormatted: String,
 ) {
     val spacing = KupioThemeDefaults.spacing
-    KupioCardSurface(
+    ListingPreviewStrip(
+        title = title,
+        imageUrl = imageUrl.takeIf { it.isNotBlank() },
+        priceFormatted = priceFormatted,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = spacing.md, vertical = spacing.sm),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(spacing.sm),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            ListingThumbnail(
-                imageUrl = imageUrl.takeIf { it.isNotBlank() },
-                contentDescription = title,
-                modifier = Modifier.size(52.dp),
-            )
-            Spacer(Modifier.width(spacing.sm))
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 2,
-                modifier = Modifier.weight(1f),
-            )
-            if (priceFormatted.isNotBlank()) {
-                Spacer(Modifier.width(spacing.sm))
-                Text(
-                    text = priceFormatted,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
-        }
-    }
+    )
 }
 
 @Composable

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -35,7 +37,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import kupio.mobile.core.designsystem.KupioCardSurface
 import kupio.mobile.core.designsystem.KupioErrorRetryRow
 import kupio.mobile.core.designsystem.KupioLoadingScreen
-import kupio.mobile.core.designsystem.KupioScaffold
 import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.KupioTopBarBackAction
@@ -96,7 +97,8 @@ private fun ModeratorReportsDashboardRoute(
 ) {
     val spacing = KupioThemeDefaults.spacing
 
-    KupioScaffold(
+    Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             KupioTopNavbar(
                 title = stringResource(Res.string.moderator_reports_title),
@@ -108,14 +110,18 @@ private fun ModeratorReportsDashboardRoute(
                 },
             )
         },
-    ) {
+    ) { paddingValues ->
         PullToRefreshBox(
             isRefreshing = state.isRefreshing,
             onRefresh = { onIntent(ModeratorReportsDashboardIntent.Refresh) },
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
         ) {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = spacing.sm),
                 verticalArrangement = Arrangement.spacedBy(spacing.md),
             ) {
                 ReportsFilterStatsRow(
@@ -154,7 +160,7 @@ private fun ModeratorReportsDashboardRoute(
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.spacedBy(spacing.md),
                             contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                                horizontal = spacing.md,
+                                horizontal = spacing.lg,
                                 vertical = spacing.sm,
                             ),
                         ) {
@@ -209,7 +215,7 @@ private fun ReportsFilterStatsRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = spacing.md),
+            .padding(horizontal = spacing.lg),
         horizontalArrangement = Arrangement.spacedBy(spacing.sm),
     ) {
         filters.forEach { (filter, label, count) ->

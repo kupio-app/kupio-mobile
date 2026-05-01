@@ -25,6 +25,8 @@ data class ReportDetail(
     val listing: ReportListingDetail,
     val sellerUsername: String,
     val sellerDisplayName: String,
+    val sellerId: String,
+    val sellerCreatedAt: String?,
     val moderatedAt: String?,
     val moderatorComment: String?,
 )

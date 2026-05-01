@@ -91,12 +91,16 @@ class ListingDetailViewModel(
                 val currentUserId = sessionManager.currentUserId()
                 val isOwnListing = currentUserId.isNotBlank() && listing.userId == currentUserId
                 val ownerMetadata = if (isOwnListing) {
-                    runCatching { meRepository.getMyListing(listing.id)?.toOwnerMetadataUi() }.getOrNull()
+                    runCatching { meRepository.getMyListing(listing.id)?.toOwnerMetadataUi() }
+                        .onFailure { if (it is CancellationException) throw it }
+                        .getOrNull()
                 } else {
                     null
                 }
                 val isFavourited = if (!isOwnListing) {
-                    runCatching { favouritesRepository.getFavouriteIds().contains(listing.id) }.getOrDefault(false)
+                    runCatching { favouritesRepository.getFavouriteIds().contains(listing.id) }
+                        .onFailure { if (it is CancellationException) throw it }
+                        .getOrDefault(false)
                 } else {
                     false
                 }

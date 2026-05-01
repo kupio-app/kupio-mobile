@@ -127,6 +127,6 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::SavedViewModel)
         viewModelOf(::UsernameViewModel)
         viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
-        viewModel { params -> EditListingViewModel(params.get(), get(), get()) }
+        viewModel { params -> EditListingViewModel(params.get(), get(), get(), get()) }
     },
 )

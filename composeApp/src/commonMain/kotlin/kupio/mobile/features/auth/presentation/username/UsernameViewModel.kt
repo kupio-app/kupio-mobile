@@ -12,6 +12,7 @@ import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.auth.domain.validation.AuthValidator
+import kupio.mobile.core.analytics.AnalyticsService
 import kupio.mobile.features.auth.presentation.auth.AuthField
 import kupio.mobile.features.auth.presentation.auth.mapFieldError
 import kupio.mobile.features.auth.presentation.auth.toAuthFormError
@@ -20,6 +21,7 @@ class UsernameViewModel(
     private val authRepository: AuthRepository,
     private val authValidator: AuthValidator,
     private val sessionManager: AuthSessionManager,
+    private val analytics: AnalyticsService,
 ) : ViewModel() {
     private val _state = MutableStateFlow(
         UsernameState(
@@ -74,6 +76,7 @@ class UsernameViewModel(
                 authRepository.setUsername(username)
             }.onSuccess { user ->
                 sessionManager.updateAuthenticatedUser(user)
+                analytics.logEvent("set_username")
                 _state.update { it.copy(isSubmitting = false) }
             }.onFailure { throwable ->
                 if (throwable is AuthSessionExpiredException) {
@@ -98,6 +101,7 @@ class UsernameViewModel(
                         isSubmitting = false,
                     )
                 }
+                analytics.recordException(throwable, mapOf("screen" to "username_setup"))
             }
         }
     }

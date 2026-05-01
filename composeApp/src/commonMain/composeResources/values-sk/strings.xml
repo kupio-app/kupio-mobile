@@ -142,6 +142,8 @@
     <string name="chat_thread_view">ZOBRAZIŤ</string>
     <string name="chat_day_today">Dnes</string>
     <string name="chat_day_yesterday">Včera</string>
+    <string name="date_today_time">Dnes, %s</string>
+    <string name="date_yesterday_time">Včera, %s</string>
     <string name="chat_day_n_days_ago">Pred %1$d dňami</string>
     <string name="chat_day_date_format">%1$d. %2$s</string>
     <string name="month_1">januára</string>

@@ -69,6 +69,7 @@ import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.KupioUserAvatar
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.bouncingDimClickable
+import kupio.mobile.core.datetime.formatPostedAt
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.chats.presentation.thread.ChatThreadScreen
 import kupio.mobile.features.listings.domain.model.Listing
@@ -462,7 +463,7 @@ private fun ListingSummarySection(
         )
         if (showPostedAt) {
             Text(
-                text = stringResource(Res.string.listing_detail_posted, listing.createdAt.take(10)),
+                text = stringResource(Res.string.listing_detail_posted, listing.createdAt.formatPostedAt()),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

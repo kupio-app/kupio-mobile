@@ -165,6 +165,7 @@ private fun FeedContent(
                     else -> recommendedGrid(
                         listings = state.listings,
                         favouritedIds = state.favouritedIds,
+                        togglingFavouriteIds = state.togglingFavouriteIds,
                         onOpen = { id -> onIntent(FeedIntent.OpenListing(id)) },
                         onToggleFavourite = { id -> onIntent(FeedIntent.ToggleFavourite(id)) },
                     )
@@ -177,6 +178,7 @@ private fun FeedContent(
 private fun LazyListScope.recommendedGrid(
     listings: List<Listing>,
     favouritedIds: Set<String>,
+    togglingFavouriteIds: Set<String>,
     onOpen: (String) -> Unit,
     onToggleFavourite: (String) -> Unit,
 ) {
@@ -192,7 +194,9 @@ private fun LazyListScope.recommendedGrid(
                     modifier = Modifier.weight(1f),
                     onClick = { onOpen(listing.id) },
                     isFavourited = listing.id in favouritedIds,
-                    onFavouriteClick = { onToggleFavourite(listing.id) },
+                    onFavouriteClick = if (listing.id in togglingFavouriteIds) null else {
+                        { onToggleFavourite(listing.id) }
+                    },
                 )
             }
             if (row.size < 2) {

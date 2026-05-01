@@ -18,6 +18,7 @@ import kupio.mobile.features.chats.data.ConversationsStore
 import kupio.mobile.features.chats.domain.model.WsMessageEvent
 import kupio.mobile.features.chats.domain.repository.MessagesRepository
 import kupio.mobile.core.analytics.AnalyticsService
+import kupio.mobile.core.analytics.NoOpAnalyticsService
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val TYPING_THROTTLE_MS = 2_000L
@@ -27,7 +28,7 @@ class ChatThreadViewModel(
     private val conversationId: String,
     private val store: ConversationsStore,
     private val messagesRepo: MessagesRepository,
-    private val analytics: AnalyticsService,
+    private val analytics: AnalyticsService = NoOpAnalyticsService(),
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ChatThreadState())

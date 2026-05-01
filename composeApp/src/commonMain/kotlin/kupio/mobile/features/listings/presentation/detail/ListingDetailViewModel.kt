@@ -27,6 +27,7 @@ import kupio.mobile.features.me.domain.repository.MeRepository
 import kupio.mobile.features.saved.domain.repository.FavouritesRepository
 import kupio.mobile.features.saved.domain.ToggleFavouriteUseCase
 import kupio.mobile.core.analytics.AnalyticsService
+import kupio.mobile.core.analytics.NoOpAnalyticsService
 
 class ListingDetailViewModel(
     private val listingId: String,
@@ -39,7 +40,7 @@ class ListingDetailViewModel(
     private val sessionManager: AuthSessionManager,
     private val favouritesRepository: FavouritesRepository,
     private val toggleFavouriteUseCase: ToggleFavouriteUseCase,
-    private val analytics: AnalyticsService,
+    private val analytics: AnalyticsService = NoOpAnalyticsService(),
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ListingDetailState())

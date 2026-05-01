@@ -22,13 +22,14 @@ import kupio.mobile.features.listings.presentation.feed.FeedEffect.*
 import kupio.mobile.features.saved.domain.repository.FavouritesRepository
 import kupio.mobile.features.saved.domain.ToggleFavouriteUseCase
 import kupio.mobile.core.analytics.AnalyticsService
+import kupio.mobile.core.analytics.NoOpAnalyticsService
 
 class FeedViewModel(
     private val listingsRepository: ListingsRepository,
     private val categoriesRepository: CategoriesRepository,
     private val favouritesRepository: FavouritesRepository,
     private val toggleFavouriteUseCase: ToggleFavouriteUseCase,
-    private val analytics: AnalyticsService,
+    private val analytics: AnalyticsService = NoOpAnalyticsService(),
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(FeedState())

@@ -74,6 +74,7 @@ expect val platformModule: Module
 val kupioAppModules: List<Module> = listOf(
     platformModule,
     notificationModule,
+    analyticsModule,
     module {
         single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
         single { SnackbarManager() }

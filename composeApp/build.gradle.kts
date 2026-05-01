@@ -83,6 +83,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            export(libs.kmpnotifier)
         }
     }
 
@@ -124,7 +125,7 @@ kotlin {
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.tab.navigator)
             implementation(compose.materialIconsExtended)
-            api("io.github.mirzemehdi:kmpnotifier:${libs.versions.kmpnotifier.get()}")
+            api(libs.kmpnotifier)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

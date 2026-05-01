@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Message
 import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
@@ -48,7 +49,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -68,7 +73,14 @@ import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.KupioUserAvatar
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.bouncingDimClickable
+import kupio.mobile.core.datetime.formatPostedAt
+import kupio.mobile.core.designsystem.KupioSnackbar
 import kupio.mobile.core.presentation.CollectEffect
+import kupio.mobile.core.presentation.SnackbarEvent
+import kupio.mobile.core.presentation.SnackbarManager
+import kotlinx.coroutines.delay
+import kupio.mobile.core.designsystem.borderTop
+import kotlin.time.Duration.Companion.milliseconds
 import kupio.mobile.features.chats.presentation.thread.ChatThreadScreen
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.ListingStatus
@@ -103,6 +115,7 @@ import mobile.composeapp.generated.resources.listing_detail_seller_profile
 import mobile.composeapp.generated.resources.listing_detail_send
 import mobile.composeapp.generated.resources.listing_detail_status_error
 import mobile.composeapp.generated.resources.listing_detail_tradable
+import mobile.composeapp.generated.resources.listing_detail_unfavourite
 import mobile.composeapp.generated.resources.listing_detail_views
 import mobile.composeapp.generated.resources.my_listings_activate
 import mobile.composeapp.generated.resources.my_listings_cancel_action
@@ -121,6 +134,7 @@ import mobile.composeapp.generated.resources.my_listings_filter_planned
 import mobile.composeapp.generated.resources.my_listings_filter_sold
 import mobile.composeapp.generated.resources.my_listings_promote
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -156,6 +170,23 @@ private fun ListingDetailContent(
     state: ListingDetailState,
     onIntent: (ListingDetailIntent) -> Unit,
 ) {
+    val snackbarManager = koinInject<SnackbarManager>()
+    var currentEvent by remember { mutableStateOf<SnackbarEvent?>(null) }
+    var displayEvent by remember { mutableStateOf<SnackbarEvent?>(null) }
+
+    LaunchedEffect(Unit) {
+        snackbarManager.events.collect { event ->
+            displayEvent = event
+            currentEvent = event
+        }
+    }
+    LaunchedEffect(currentEvent) {
+        if (currentEvent != null) {
+            delay(2500.milliseconds)
+            currentEvent = null
+        }
+    }
+
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
@@ -168,26 +199,51 @@ private fun ListingDetailContent(
             }
         },
     ) { paddingValues ->
-        PullToRefreshBox(
-            isRefreshing = state.isRefreshing,
-            onRefresh = { onIntent(ListingDetailIntent.RefreshListing) },
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background),
-        ) {
-            when {
-                state.isLoading -> KupioLoadingScreen()
-                state.errorMessage != null -> Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    KupioErrorRetryRow(
-                        message = state.errorMessage,
-                        onRetry = { onIntent(ListingDetailIntent.Retry) },
-                    )
+        Box {
+            PullToRefreshBox(
+                isRefreshing = state.isRefreshing,
+                onRefresh = { onIntent(ListingDetailIntent.RefreshListing) },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.background),
+            ) {
+                when {
+                    state.isLoading -> KupioLoadingScreen()
+                    state.errorMessage != null -> Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        KupioErrorRetryRow(
+                            message = state.errorMessage,
+                            onRetry = { onIntent(ListingDetailIntent.Retry) },
+                        )
+                    }
+                    state.listing != null -> DetailBody(state = state, onIntent = onIntent)
                 }
-                state.listing != null -> DetailBody(state = state, onIntent = onIntent)
+            }
+
+            val spacing = KupioThemeDefaults.spacing
+            if (displayEvent != null) {
+                KupioSnackbar(
+                    visible = currentEvent != null,
+                    icon = displayEvent!!.icon,
+                    message = displayEvent!!.message,
+                    actionLabel = displayEvent!!.actionLabel,
+                    onAction = {
+                        val action = displayEvent!!.onAction
+                        currentEvent = null
+                        action?.invoke()
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(
+                            start = spacing.lg,
+                            end = spacing.lg,
+                            bottom = paddingValues.calculateBottomPadding()
+                        )
+                        .navigationBarsPadding(),
+                )
             }
         }
     }
@@ -236,7 +292,10 @@ private fun DetailBody(
             ListingHero(
                 listing = listing,
                 showFavourite = !state.isOwnListing,
+                isFavourited = state.isFavourited,
+                isTogglingFavourite = state.isTogglingFavourite,
                 onBack = { onIntent(ListingDetailIntent.Back) },
+                onFavouriteClick = { onIntent(ListingDetailIntent.ToggleFavourite) },
             )
         }
         item {
@@ -244,7 +303,7 @@ private fun DetailBody(
                 listing = listing,
                 ownerMetadata = state.ownerMetadata,
                 showStatus = state.isOwnListing,
-                showSeenCount = !state.isOwnListing,
+                showPostedAt = !state.isOwnListing,
             )
         }
         if (state.isOwnListing) {
@@ -283,7 +342,10 @@ private fun DetailBody(
 private fun ListingHero(
     listing: Listing,
     showFavourite: Boolean,
+    isFavourited: Boolean,
+    isTogglingFavourite: Boolean,
     onBack: () -> Unit,
+    onFavouriteClick: () -> Unit,
 ) {
     val imageUrls = listing.imageUrls.ifEmpty {
         listing.primaryImageUrl
@@ -327,13 +389,17 @@ private fun ListingHero(
             }
             if (showFavourite) {
                 ListingFloatingIconButton(
-                    onClick = {},
-                    contentDescription = stringResource(Res.string.listing_detail_favourite),
+                    onClick = onFavouriteClick,
+                    contentDescription = stringResource(
+                        if (isFavourited) Res.string.listing_detail_unfavourite
+                        else Res.string.listing_detail_favourite,
+                    ),
+                    enabled = !isTogglingFavourite,
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.FavoriteBorder,
+                        imageVector = if (isFavourited) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
+                        tint = if (isFavourited) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
@@ -400,7 +466,7 @@ private fun ListingSummarySection(
     listing: Listing,
     ownerMetadata: ListingOwnerMetadataUi?,
     showStatus: Boolean,
-    showSeenCount: Boolean,
+    showPostedAt: Boolean,
 ) {
     val spacing = KupioThemeDefaults.spacing
     Column(
@@ -457,23 +523,12 @@ private fun ListingSummarySection(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        if (showSeenCount) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Visibility,
-                    contentDescription = null,
-                    modifier = Modifier.size(14.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = stringResource(Res.string.listing_detail_seen_count, listing.seenCount),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+        if (showPostedAt) {
+            Text(
+                text = stringResource(Res.string.listing_detail_posted, listing.createdAt.formatPostedAt()),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
@@ -788,11 +843,22 @@ private fun ListingFooter(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = stringResource(Res.string.listing_detail_posted, listing.createdAt.take(10)),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Visibility,
+                contentDescription = null,
+                modifier = Modifier.size(14.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = stringResource(Res.string.listing_detail_seen_count, listing.seenCount),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         Row(
             modifier = Modifier.bouncingDimClickable(onClick = onReport),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -823,7 +889,7 @@ private fun DetailActionBar(
     val canCall = state.seller?.let { !it.isCallsDisabled && !it.phone.isNullOrBlank() } == true
     Surface(
         color = MaterialTheme.colorScheme.background,
-        border = KupioThemeDefaults.defaultBorder,
+        modifier = Modifier.borderTop(KupioThemeDefaults.borderWidths.regular, KupioThemeDefaults.navDividerColor)
     ) {
         Row(
             modifier = Modifier
@@ -882,7 +948,7 @@ private fun OwnerActionBar(
     val canToggle = ownerStatus.canToggleOwnerStatus() && !state.isUpdatingStatus
     Surface(
         color = MaterialTheme.colorScheme.background,
-        border = KupioThemeDefaults.defaultBorder,
+        modifier = Modifier.borderTop(KupioThemeDefaults.borderWidths.regular, KupioThemeDefaults.navDividerColor)
     ) {
         Row(
             modifier = Modifier

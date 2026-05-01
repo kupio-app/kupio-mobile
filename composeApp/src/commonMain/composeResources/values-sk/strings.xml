@@ -142,6 +142,8 @@
     <string name="chat_thread_view">ZOBRAZIŤ</string>
     <string name="chat_day_today">Dnes</string>
     <string name="chat_day_yesterday">Včera</string>
+    <string name="date_today_time">Dnes, %s</string>
+    <string name="date_yesterday_time">Včera, %s</string>
     <string name="chat_day_n_days_ago">Pred %1$d dňami</string>
     <string name="chat_day_date_format">%1$d. %2$s</string>
     <string name="month_1">januára</string>
@@ -278,6 +280,13 @@
     <string name="my_listings_stats_icon_desc">Počítadlo štatistík</string>
     <string name="my_listings_empty">Žiadne inzeráty</string>
     <string name="my_listings_load_error">Nepodarilo sa načítať inzeráty</string>
+    <string name="saved_subtitle">%1$d položiek</string>
+    <string name="saved_empty">Zatiaľ žiadne uložené inzeráty.</string>
+    <string name="saved_load_error">Uložené inzeráty sa nepodarilo načítať.</string>
+    <string name="saved_remove">Odstrániť z uložených</string>
+    <string name="favourite_added">Pridané do uložených.</string>
+    <string name="favourite_removed">Odstránené z uložených.</string>
+    <string name="undo">Späť</string>
     <string name="moderator_reports_title">Prehľad hlásení</string>
     <string name="moderator_reports_filter_in_queue">V rade</string>
     <string name="moderator_reports_filter_unseen">Nepozreté</string>

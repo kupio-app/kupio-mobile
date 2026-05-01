@@ -5,9 +5,12 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
 import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.date_today_time
+import mobile.composeapp.generated.resources.date_yesterday_time
 import mobile.composeapp.generated.resources.month_1
 import mobile.composeapp.generated.resources.month_10
 import mobile.composeapp.generated.resources.month_11
@@ -76,6 +79,18 @@ private fun String.parseLocalDateOrNull(): LocalDate? =
 private fun String.fallbackTimeLabel(): String {
     val tIndex = indexOf('T').takeIf { it >= 0 } ?: return this
     return substring(tIndex + 1, minOf(tIndex + 6, length))
+}
+
+@Composable
+fun String.formatPostedAt(): String {
+    val date = toLocalDate() ?: return take(10)
+    val todayDate = today()
+    val diff = (todayDate.toEpochDays() - date.toEpochDays()).toInt()
+    return when {
+        diff <= 0 -> stringResource(Res.string.date_today_time, toTimeLabel())
+        diff == 1 -> stringResource(Res.string.date_yesterday_time, toTimeLabel())
+        else -> "${date.day} ${monthName(date.month.number)} ${date.year}"
+    }
 }
 
 @Composable

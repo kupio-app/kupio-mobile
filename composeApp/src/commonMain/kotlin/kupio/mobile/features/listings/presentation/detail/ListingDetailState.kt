@@ -14,6 +14,8 @@ data class ListingDetailState(
     val isLoading: Boolean = true,
     val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
+    val isFavourited: Boolean = false,
+    val isTogglingFavourite: Boolean = false,
     val isMessageSheetVisible: Boolean = false,
     val messageDraft: String = "",
     val isSendingMessage: Boolean = false,
@@ -58,6 +60,7 @@ sealed interface ListingDetailIntent : UiAction {
     data object ToggleOwnerStatus : ListingDetailIntent
     data object ConfirmOwnerStatusChange : ListingDetailIntent
     data object DismissOwnerStatusChange : ListingDetailIntent
+    data object ToggleFavourite : ListingDetailIntent
     data object ReportListing : ListingDetailIntent
     data object OpenSellerProfile : ListingDetailIntent
 }

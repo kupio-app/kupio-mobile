@@ -149,7 +149,7 @@ private fun ModeratorReportDetailContent(
                 contentAlignment = Alignment.Center,
             ) {
                 KupioErrorRetryRow(
-                    message = state.errorMessage.takeUnless { it.isNullOrBlank() }
+                    message = state.errorMessage.takeUnless { it.isBlank() }
                         ?: stringResource(Res.string.moderator_report_detail_load_error),
                     onRetry = { onIntent(ModeratorReportDetailIntent.Retry) },
                 )

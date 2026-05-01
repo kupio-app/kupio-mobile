@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 
 inline fun Modifier.bouncingClickable(
     crossinline onClick: () -> Unit
@@ -50,6 +49,10 @@ inline fun Modifier.bouncingClickable(
             onClick = { onClick() }
         )
 }
+
+fun Modifier.bouncingClickableIf(
+    onClick: (() -> Unit)?,
+): Modifier = if (onClick != null) bouncingClickable(onClick = onClick) else this
 
 inline fun Modifier.glowClickable(
     shape: Shape = KupioShapes.Medium,

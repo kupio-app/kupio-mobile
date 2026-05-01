@@ -67,7 +67,14 @@ class ModeratorReportsDashboardViewModel(
             loadJob?.cancel()
             nextCursor = null
             if (!isRefresh) {
-                _state.update { it.copy(isLoading = true, errorMessage = null) }
+                _state.update {
+                    it.copy(
+                        reports = emptyList(),
+                        isLoading = true,
+                        errorMessage = null,
+                        hasMore = false,
+                    )
+                }
             }
         }
 

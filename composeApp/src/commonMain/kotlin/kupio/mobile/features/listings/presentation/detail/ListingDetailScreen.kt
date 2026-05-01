@@ -240,7 +240,7 @@ private fun DetailBody(
                 listing = listing,
                 ownerMetadata = state.ownerMetadata,
                 showStatus = state.isOwnListing,
-                showSeenCount = !state.isOwnListing,
+                showPostedAt = !state.isOwnListing,
             )
         }
         if (state.isOwnListing) {
@@ -403,7 +403,7 @@ private fun ListingSummarySection(
     listing: Listing,
     ownerMetadata: ListingOwnerMetadataUi?,
     showStatus: Boolean,
-    showSeenCount: Boolean,
+    showPostedAt: Boolean,
 ) {
     val spacing = KupioThemeDefaults.spacing
     Column(
@@ -460,23 +460,12 @@ private fun ListingSummarySection(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        if (showSeenCount) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Visibility,
-                    contentDescription = null,
-                    modifier = Modifier.size(14.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = stringResource(Res.string.listing_detail_seen_count, listing.seenCount),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+        if (showPostedAt) {
+            Text(
+                text = stringResource(Res.string.listing_detail_posted, listing.createdAt.take(10)),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
@@ -791,11 +780,22 @@ private fun ListingFooter(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = stringResource(Res.string.listing_detail_posted, listing.createdAt.take(10)),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Visibility,
+                contentDescription = null,
+                modifier = Modifier.size(14.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = stringResource(Res.string.listing_detail_seen_count, listing.seenCount),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         Row(
             modifier = Modifier.bouncingDimClickable(onClick = onReport),
             horizontalArrangement = Arrangement.spacedBy(4.dp),

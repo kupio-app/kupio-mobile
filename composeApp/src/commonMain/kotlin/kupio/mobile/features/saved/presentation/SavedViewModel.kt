@@ -67,7 +67,10 @@ class SavedViewModel(
     }
 
     private fun removeFavourite(listingId: String) {
-        val previousListings = _state.value.listings
+        val currentListings = _state.value.listings
+        val removedIndex = currentListings.indexOfFirst { it.id == listingId }
+        if (removedIndex < 0) return
+        val removedListing = currentListings[removedIndex]
         _state.update {
             it.copy(
                 listings = it.listings.filter { l -> l.id != listingId },
@@ -80,7 +83,7 @@ class SavedViewModel(
                     icon = Icons.Outlined.FavoriteBorder,
                     message = getString(Res.string.favourite_removed),
                     actionLabel = getString(Res.string.undo),
-                    onAction = { undoRemove(listingId, previousListings) },
+                    onAction = { undoRemove(listingId, removedListing, removedIndex) },
                 )
             )
         }
@@ -88,14 +91,20 @@ class SavedViewModel(
             runCatching { favouritesRepository.removeFavourite(listingId) }
                 .onFailure { t ->
                     if (t is CancellationException) throw t
-                    _state.update { it.copy(listings = previousListings) }
+                    _state.update {
+                        val insertIndex = removedIndex.coerceAtMost(it.listings.size)
+                        it.copy(listings = it.listings.toMutableList().also { list -> list.add(insertIndex, removedListing) })
+                    }
                 }
             _state.update { it.copy(removingIds = it.removingIds - listingId) }
         }
     }
 
-    private fun undoRemove(listingId: String, previousListings: List<Listing>) {
-        _state.update { it.copy(listings = previousListings) }
+    private fun undoRemove(listingId: String, removedListing: Listing, removedIndex: Int) {
+        _state.update {
+            val insertIndex = removedIndex.coerceAtMost(it.listings.size)
+            it.copy(listings = it.listings.toMutableList().also { list -> list.add(insertIndex, removedListing) })
+        }
         viewModelScope.launch {
             runCatching { favouritesRepository.addFavourite(listingId) }
                 .onFailure { t ->

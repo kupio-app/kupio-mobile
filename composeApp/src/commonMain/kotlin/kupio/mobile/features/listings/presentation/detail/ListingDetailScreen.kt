@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Message
 import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
@@ -49,7 +50,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -103,6 +103,7 @@ import mobile.composeapp.generated.resources.listing_detail_seller_profile
 import mobile.composeapp.generated.resources.listing_detail_send
 import mobile.composeapp.generated.resources.listing_detail_status_error
 import mobile.composeapp.generated.resources.listing_detail_tradable
+import mobile.composeapp.generated.resources.listing_detail_unfavourite
 import mobile.composeapp.generated.resources.listing_detail_views
 import mobile.composeapp.generated.resources.my_listings_activate
 import mobile.composeapp.generated.resources.my_listings_cancel_action
@@ -228,7 +229,10 @@ private fun DetailBody(
             ListingHero(
                 listing = listing,
                 showFavourite = !state.isOwnListing,
+                isFavourited = state.isFavourited,
+                isTogglingFavourite = state.isTogglingFavourite,
                 onBack = { onIntent(ListingDetailIntent.Back) },
+                onFavouriteClick = { onIntent(ListingDetailIntent.ToggleFavourite) },
             )
         }
         item {
@@ -275,7 +279,10 @@ private fun DetailBody(
 private fun ListingHero(
     listing: Listing,
     showFavourite: Boolean,
+    isFavourited: Boolean,
+    isTogglingFavourite: Boolean,
     onBack: () -> Unit,
+    onFavouriteClick: () -> Unit,
 ) {
     val imageUrls = listing.imageUrls.ifEmpty {
         listing.primaryImageUrl
@@ -319,13 +326,17 @@ private fun ListingHero(
             }
             if (showFavourite) {
                 ListingFloatingIconButton(
-                    onClick = {},
-                    contentDescription = stringResource(Res.string.listing_detail_favourite),
+                    onClick = onFavouriteClick,
+                    contentDescription = stringResource(
+                        if (isFavourited) Res.string.listing_detail_unfavourite
+                        else Res.string.listing_detail_favourite,
+                    ),
+                    enabled = !isTogglingFavourite,
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.FavoriteBorder,
+                        imageVector = if (isFavourited) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
+                        tint = if (isFavourited) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }

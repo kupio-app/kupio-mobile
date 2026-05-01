@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notif_unread_title">Neprečítané správy</string>
+    <plurals name="notif_unread_body">
+        <item quantity="one">Máte 1 neprečítanú správu</item>
+        <item quantity="few">Máte %d neprečítané správy</item>
+        <item quantity="many">Máte %d neprečítaných správ</item>
+        <item quantity="other">Máte %d neprečítaných správ</item>
+    </plurals>
+</resources>

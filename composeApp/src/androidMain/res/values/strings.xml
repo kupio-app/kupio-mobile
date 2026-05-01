@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">mobile</string>
+    <string name="notif_unread_title">Unread messages</string>
+    <plurals name="notif_unread_body">
+        <item quantity="one">You have 1 unread message</item>
+        <item quantity="other">You have %d unread messages</item>
+    </plurals>
 </resources>

@@ -51,6 +51,7 @@ import kupio.mobile.features.saved.presentation.SavedViewModel
 import kupio.mobile.features.saved.data.remote.FavouritesApi
 import kupio.mobile.features.saved.data.repository.FavouritesRepositoryImpl
 import kupio.mobile.features.saved.domain.repository.FavouritesRepository
+import kupio.mobile.features.saved.domain.ToggleFavouriteUseCase
 import kupio.mobile.features.settings.SettingsViewModel
 import kupio.mobile.core.navigation.RootNavigationViewModel
 import kupio.mobile.core.presentation.SnackbarManager
@@ -86,6 +87,7 @@ val kupioAppModules: List<Module> = listOf(
         single { UserApi(get()) }
         single { FavouritesApi(get()) }
         single<FavouritesRepository> { FavouritesRepositoryImpl(get(), get()) }
+        single { ToggleFavouriteUseCase(get(), get()) }
         single { MeApi(get()) }
         single<MeRepository> { MeRepositoryImpl(get(), get()) }
         single<ChatsRepository> { ChatsRepositoryImpl(get(), get()) }
@@ -120,7 +122,7 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::SettingsViewModel)
         viewModelOf(::SavedViewModel)
         viewModelOf(::UsernameViewModel)
-        viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get()) }
+        viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
         viewModel { params -> EditListingViewModel(params.get(), get(), get()) }
     },
 )

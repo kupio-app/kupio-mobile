@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.bouncingClickable
 
 @Composable
 fun ListingFloatingIconButton(
@@ -24,16 +25,15 @@ fun ListingFloatingIconButton(
 ) {
     Surface(
         modifier = modifier
-            .size(40.dp)
+            .size(48.dp)
             .alpha(if (enabled) 1f else 0.65f)
-            .semantics { this.contentDescription = contentDescription },
+            .semantics { this.contentDescription = contentDescription }
+            .let { if (enabled) it.bouncingClickable(onClick) else it },
         shape = CircleShape,
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
     ) {
-        IconButton(onClick = onClick, enabled = enabled) {
-            Box(contentAlignment = Alignment.Center) {
-                icon()
-            }
+        Box(contentAlignment = Alignment.Center) {
+            icon()
         }
     }
 }

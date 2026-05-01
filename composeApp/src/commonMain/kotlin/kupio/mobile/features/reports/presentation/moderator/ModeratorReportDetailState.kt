@@ -9,7 +9,7 @@ data class ModeratorReportDetailState(
     val isLoading: Boolean = true,
     val isSubmitting: Boolean = false,
     val errorMessage: String? = null,
-    val submitError: String? = null,
+    val submitError: ModeratorReportDetailSubmitError? = null,
     val report: ReportDetail? = null,
     val sellerProfile: ReportSellerProfileUi? = null,
     val selectedDecision: ReportDecision? = null,
@@ -40,6 +40,11 @@ enum class ReportDecision {
     }
 }
 
+enum class ModeratorReportDetailSubmitError {
+    SELECT_DECISION,
+    SUBMIT_FAILED,
+}
+
 sealed interface ModeratorReportDetailIntent : UiAction {
     data object BackClicked : ModeratorReportDetailIntent
     data object Retry : ModeratorReportDetailIntent
@@ -50,5 +55,5 @@ sealed interface ModeratorReportDetailIntent : UiAction {
 
 sealed interface ModeratorReportDetailEffect : UiEffect {
     data object NavigateBack : ModeratorReportDetailEffect
-    data class ShowSuccess(val message: String) : ModeratorReportDetailEffect
+    data object ShowSuccess : ModeratorReportDetailEffect
 }

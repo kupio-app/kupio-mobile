@@ -63,8 +63,11 @@ import mobile.composeapp.generated.resources.moderator_report_detail_decision_ba
 import mobile.composeapp.generated.resources.moderator_report_detail_decision_decline
 import mobile.composeapp.generated.resources.moderator_report_detail_decision_label
 import mobile.composeapp.generated.resources.moderator_report_detail_decision_remove_listing
+import mobile.composeapp.generated.resources.moderator_report_detail_error_select_decision
+import mobile.composeapp.generated.resources.moderator_report_detail_error_submit_failed
 import mobile.composeapp.generated.resources.moderator_report_detail_added
 import mobile.composeapp.generated.resources.moderator_report_detail_listing_label
+import mobile.composeapp.generated.resources.moderator_report_detail_load_error
 import mobile.composeapp.generated.resources.moderator_report_detail_reporter_note_label
 import mobile.composeapp.generated.resources.moderator_report_detail_title
 import mobile.composeapp.generated.resources.moderator_report_detail_seller_registered
@@ -86,7 +89,7 @@ data class ModeratorReportDetailScreen(val reportId: Int) : Screen {
         CollectEffect(viewModel.effects) { effect ->
             when (effect) {
                 ModeratorReportDetailEffect.NavigateBack -> navigator.pop()
-                is ModeratorReportDetailEffect.ShowSuccess -> navigator.pop()
+                ModeratorReportDetailEffect.ShowSuccess -> navigator.pop()
             }
         }
 
@@ -146,7 +149,8 @@ private fun ModeratorReportDetailContent(
                 contentAlignment = Alignment.Center,
             ) {
                 KupioErrorRetryRow(
-                    message = state.errorMessage,
+                    message = state.errorMessage.takeUnless { it.isNullOrBlank() }
+                        ?: stringResource(Res.string.moderator_report_detail_load_error),
                     onRetry = { onIntent(ModeratorReportDetailIntent.Retry) },
                 )
             }
@@ -218,7 +222,7 @@ private fun ReportDetailBody(
         if (state.submitError != null) {
             item {
                 Text(
-                    text = state.submitError,
+                    text = state.submitError.localizedMessage(),
                     modifier = Modifier.padding(horizontal = spacing.lg),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
@@ -227,6 +231,14 @@ private fun ReportDetailBody(
         }
         item { Spacer(Modifier.height(spacing.md)) }
     }
+}
+
+@Composable
+private fun ModeratorReportDetailSubmitError.localizedMessage(): String = when (this) {
+    ModeratorReportDetailSubmitError.SELECT_DECISION ->
+        stringResource(Res.string.moderator_report_detail_error_select_decision)
+    ModeratorReportDetailSubmitError.SUBMIT_FAILED ->
+        stringResource(Res.string.moderator_report_detail_error_submit_failed)
 }
 
 @Composable

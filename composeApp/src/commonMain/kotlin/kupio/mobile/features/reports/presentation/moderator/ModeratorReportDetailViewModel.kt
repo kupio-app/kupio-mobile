@@ -66,7 +66,7 @@ class ModeratorReportDetailViewModel(
                 _state.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = t.message ?: "Unknown error",
+                        errorMessage = t.message.orEmpty(),
                     )
                 }
             }
@@ -98,7 +98,9 @@ class ModeratorReportDetailViewModel(
     private fun submitDecision() {
         val decision = _state.value.selectedDecision
         if (decision == null) {
-            _state.update { it.copy(submitError = "Please select a decision") }
+            _state.update {
+                it.copy(submitError = ModeratorReportDetailSubmitError.SELECT_DECISION)
+            }
             return
         }
         _state.update { it.copy(isSubmitting = true, submitError = null) }
@@ -118,13 +120,13 @@ class ModeratorReportDetailViewModel(
                         submitError = null,
                     )
                 }
-                emitEffect(ModeratorReportDetailEffect.ShowSuccess("Decision submitted"))
+                emitEffect(ModeratorReportDetailEffect.ShowSuccess)
             }.onFailure { t ->
                 if (t is CancellationException) throw t
                 _state.update {
                     it.copy(
                         isSubmitting = false,
-                        submitError = t.message ?: "Failed to submit decision",
+                        submitError = ModeratorReportDetailSubmitError.SUBMIT_FAILED,
                     )
                 }
             }

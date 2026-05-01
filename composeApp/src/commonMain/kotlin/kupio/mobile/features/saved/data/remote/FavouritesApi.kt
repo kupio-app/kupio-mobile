@@ -12,7 +12,7 @@ import kupio.mobile.features.listings.data.remote.ListListingsResponseDto
 
 @Serializable
 data class FavouriteIdsResponseDto(
-    @SerialName("listing_ids") val listingIds: List<String>,
+    @SerialName("listings_ids") val listingsIds: List<String>,
 )
 
 class FavouritesApi(private val httpClient: HttpClient) {

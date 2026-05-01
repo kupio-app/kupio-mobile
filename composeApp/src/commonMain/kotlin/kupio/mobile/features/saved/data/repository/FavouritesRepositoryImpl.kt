@@ -19,7 +19,7 @@ class FavouritesRepositoryImpl(
     override suspend fun getFavouriteIds(): Set<String> =
         authenticatedApiClient.request { authorize ->
             favouritesApi.getFavouriteIds(authorize)
-        }.listingIds.toSet()
+        }.listingsIds.toSet()
 
     override suspend fun addFavourite(listingId: String) {
         authenticatedApiClient.request { authorize ->

@@ -48,6 +48,8 @@ import kupio.mobile.core.designsystem.KupioTopBarBackAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
 import kupio.mobile.core.designsystem.KupioUserAvatar
 import kupio.mobile.core.designsystem.bouncingClickable
+import kupio.mobile.core.datetime.toLocalDate
+import kupio.mobile.core.datetime.toTimeLabel
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.listings.presentation.components.ListingImage
 import kupio.mobile.features.listings.presentation.detail.ListingDetailScreen
@@ -112,7 +114,7 @@ private fun ModeratorReportDetailContent(
                     stringResource(Res.string.moderator_report_detail_title, it.id)
                 }.orEmpty(),
                 subtitle = state.report?.createdAt?.let {
-                    stringResource(Res.string.moderator_report_detail_added, it.toReportDateTime())
+                    stringResource(Res.string.moderator_report_detail_added, it.toReportDateTimeLabel())
                 },
                 leadingContent = {
                     KupioTopBarBackAction(
@@ -358,8 +360,10 @@ private fun ReasonBadge(label: String) {
     }
 }
 
-private fun String.toReportDateTime(): String =
-    take(16).replace('T', ' ')
+private fun String.toReportDateTimeLabel(): String {
+    val date = toLocalDate()?.toString()
+    return "$date ${toTimeLabel()}"
+}
 
 @Composable
 private fun TextSection(label: String, text: String) {

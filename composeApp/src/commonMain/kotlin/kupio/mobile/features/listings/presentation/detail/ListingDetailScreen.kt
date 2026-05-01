@@ -79,6 +79,7 @@ import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.core.presentation.SnackbarEvent
 import kupio.mobile.core.presentation.SnackbarManager
 import kotlinx.coroutines.delay
+import kupio.mobile.core.designsystem.borderTop
 import kotlin.time.Duration.Companion.milliseconds
 import kupio.mobile.features.chats.presentation.thread.ChatThreadScreen
 import kupio.mobile.features.listings.domain.model.Listing
@@ -879,7 +880,7 @@ private fun DetailActionBar(
     val canCall = state.seller?.let { !it.isCallsDisabled && !it.phone.isNullOrBlank() } == true
     Surface(
         color = MaterialTheme.colorScheme.background,
-        border = KupioThemeDefaults.defaultBorder,
+        modifier = Modifier.borderTop(KupioThemeDefaults.borderWidths.regular, KupioThemeDefaults.navDividerColor)
     ) {
         Row(
             modifier = Modifier
@@ -938,7 +939,7 @@ private fun OwnerActionBar(
     val canToggle = ownerStatus.canToggleOwnerStatus() && !state.isUpdatingStatus
     Surface(
         color = MaterialTheme.colorScheme.background,
-        border = KupioThemeDefaults.defaultBorder,
+        modifier = Modifier.borderTop(KupioThemeDefaults.borderWidths.regular, KupioThemeDefaults.navDividerColor)
     ) {
         Row(
             modifier = Modifier

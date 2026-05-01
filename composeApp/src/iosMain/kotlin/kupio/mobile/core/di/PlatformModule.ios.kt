@@ -7,6 +7,8 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kupio.mobile.core.config.BackendConfig
 import kupio.mobile.core.preferences.KupioPreferencesFileName
 import kupio.mobile.core.preferences.createPreferencesDataStore
+import kupio.mobile.core.notifications.BackgroundSyncScheduler
+import kupio.mobile.core.notifications.BackgroundSyncSchedulerImpl
 import org.koin.dsl.module
 import platform.Foundation.NSApplicationSupportDirectory
 import platform.Foundation.NSFileManager
@@ -32,6 +34,7 @@ actual val platformModule = module {
             }
         }
     }
+    single<BackgroundSyncScheduler> { BackgroundSyncSchedulerImpl() }
     single { KVault("kupio.mobile.secure_store") }
     single<DataStore<Preferences>> {
         createPreferencesDataStore(

@@ -17,6 +17,7 @@ import kupio.mobile.core.presentation.SnackbarEvent
 import kupio.mobile.core.presentation.SnackbarManager
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.saved.domain.repository.FavouritesRepository
+import kupio.mobile.core.analytics.AnalyticsService
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.favourite_removed
 import mobile.composeapp.generated.resources.undo
@@ -25,6 +26,7 @@ import org.jetbrains.compose.resources.getString
 class SavedViewModel(
     private val favouritesRepository: FavouritesRepository,
     private val snackbarManager: SnackbarManager,
+    private val analytics: AnalyticsService,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SavedState())
@@ -62,6 +64,7 @@ class SavedViewModel(
                 .onFailure { t ->
                     if (t is CancellationException) throw t
                     _state.update { it.copy(isLoading = false, isRefreshing = false, errorMessage = t.message.orEmpty()) }
+                    analytics.recordException(t, mapOf("screen" to "saved"))
                 }
         }
     }
@@ -77,6 +80,7 @@ class SavedViewModel(
                 removingIds = it.removingIds + listingId,
             )
         }
+        analytics.logEvent("remove_from_favourites", mapOf("item_id" to listingId))
         viewModelScope.launch {
             snackbarManager.show(
                 SnackbarEvent(

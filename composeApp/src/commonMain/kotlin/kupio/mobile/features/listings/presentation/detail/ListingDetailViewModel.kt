@@ -26,6 +26,7 @@ import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.domain.repository.MeRepository
 import kupio.mobile.features.saved.domain.repository.FavouritesRepository
 import kupio.mobile.features.saved.domain.ToggleFavouriteUseCase
+import kupio.mobile.core.analytics.AnalyticsService
 
 class ListingDetailViewModel(
     private val listingId: String,
@@ -38,6 +39,7 @@ class ListingDetailViewModel(
     private val sessionManager: AuthSessionManager,
     private val favouritesRepository: FavouritesRepository,
     private val toggleFavouriteUseCase: ToggleFavouriteUseCase,
+    private val analytics: AnalyticsService,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ListingDetailState())
@@ -124,6 +126,7 @@ class ListingDetailViewModel(
                             isRefreshing = false,
                         )
                     }
+                    analytics.logEvent("view_item", mapOf("item_id" to loaded.listing.id))
                 }
                 .onFailure { t ->
                     if (t is CancellationException) throw t
@@ -138,6 +141,7 @@ class ListingDetailViewModel(
                             },
                         )
                     }
+                    analytics.recordException(t, mapOf("screen" to "listing_detail", "listing_id" to listingId))
                 }
         }
     }
@@ -175,6 +179,7 @@ class ListingDetailViewModel(
                         messageDraft = "",
                     )
                 }
+                analytics.logEvent("contact_seller", mapOf("item_id" to listing.id, "method" to "message"))
                 effectChannel.send(ListingDetailEffect.OpenChat(conversation.id))
             }.onFailure { t ->
                 if (t is CancellationException) throw t
@@ -184,6 +189,7 @@ class ListingDetailViewModel(
                         messageError = t.message.orEmpty(),
                     )
                 }
+                analytics.recordException(t, mapOf("action" to "send_message"))
             }
         }
     }
@@ -193,6 +199,8 @@ class ListingDetailViewModel(
         if (_state.value.isOwnListing || _state.value.isTogglingFavourite) return
         val adding = !_state.value.isFavourited
         _state.update { it.copy(isFavourited = adding, isTogglingFavourite = true) }
+        val event = if (adding) "add_to_favourites" else "remove_from_favourites"
+        analytics.logEvent(event, mapOf("item_id" to listing.id))
         viewModelScope.launch {
             toggleFavouriteUseCase(listing.id, adding).onFailure {
                 _state.update { it.copy(isFavourited = !adding) }
@@ -202,10 +210,12 @@ class ListingDetailViewModel(
     }
 
     private fun callSeller() {
+        val listing = _state.value.listing ?: return
         if (_state.value.isOwnListing) return
         val seller = _state.value.seller ?: return
         if (seller.isCallsDisabled) return
         val phone = seller.phone?.takeIf { it.isNotBlank() } ?: return
+        analytics.logEvent("contact_seller", mapOf("item_id" to listing.id, "method" to "phone"))
         phoneDialer.openDialer(phone)
     }
 
@@ -235,6 +245,7 @@ class ListingDetailViewModel(
                         statusError = null,
                     )
                 }
+                analytics.logEvent("update_listing_status", mapOf("item_id" to listing.id, "new_status" to targetStatus.name))
             }.onFailure { t ->
                 if (t is CancellationException) throw t
                 _state.update {

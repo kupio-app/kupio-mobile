@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kupio.mobile.core.network.ApiException
+import kupio.mobile.core.analytics.AnalyticsService
 import kupio.mobile.features.auth.domain.model.AuthSession
+import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.auth.domain.validation.AuthValidator
@@ -19,6 +21,7 @@ class AuthViewModel(
     private val authRepository: AuthRepository,
     private val authValidator: AuthValidator,
     private val sessionManager: AuthSessionManager,
+    private val analytics: AnalyticsService,
 ) : ViewModel() {
     private val _state = MutableStateFlow(AuthState())
     val state = _state.asStateFlow()
@@ -193,10 +196,12 @@ class AuthViewModel(
                     },
                     onComplete = {
                         _state.update { it.copy(isSubmitting = false) }
+                        analytics.logEvent("sign_up".takeIf { mode == AuthMode.REGISTER } ?: "login", mapOf("method" to "email"))
                     },
                 )
             }.onFailure { throwable ->
                 applyApiError(throwable)
+                analytics.recordException(throwable, mapOf("screen" to "auth", "mode" to mode.name))
             }
         }
     }
@@ -231,6 +236,7 @@ class AuthViewModel(
                 isGoogleSubmitting = false,
             )
         }
+        analytics.logEvent("auth_error", mapOf("error_code" to errorCode))
     }
 
     private fun submitGoogleIdToken(
@@ -252,6 +258,7 @@ class AuthViewModel(
                     },
                     onComplete = {
                         _state.update { it.copy(isGoogleSubmitting = false) }
+                        analytics.logEvent("login", mapOf("method" to "google"))
                     },
                 )
             }.onFailure { throwable ->
@@ -261,6 +268,7 @@ class AuthViewModel(
                         isGoogleSubmitting = false,
                     )
                 }
+                analytics.recordException(throwable, mapOf("method" to "google"))
             }
         }
     }
@@ -273,6 +281,7 @@ class AuthViewModel(
         runCatching {
             sessionManager.establishSession(session)
         }.onSuccess {
+            analytics.setUserId(sessionManager.currentUserId())
             onComplete()
         }.onFailure { throwable ->
             onFailure(throwable.toAuthFormError(useInvalidCredentials = false))

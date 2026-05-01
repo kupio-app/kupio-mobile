@@ -41,7 +41,7 @@ class FavouritesApi(private val httpClient: HttpClient) {
     ) {
         httpClient.post("/api/listings/favourites/$listingId") {
             authorize()
-        }
+        }.bodyOrThrow<Unit>()
     }
 
     suspend fun removeFavourite(
@@ -50,6 +50,6 @@ class FavouritesApi(private val httpClient: HttpClient) {
     ) {
         httpClient.delete("/api/listings/favourites/$listingId") {
             authorize()
-        }
+        }.bodyOrThrow<Unit>()
     }
 }

@@ -35,5 +35,21 @@ class ReportsApi(private val httpClient: HttpClient) {
         if (cursor != null) parameter("cursor", cursor)
         parameter("limit", limit)
     }.bodyOrThrow()
+
+    suspend fun getReportDetail(
+        authorize: HttpRequestBuilder.() -> Unit,
+        reportId: Int,
+    ): ReportDetailResponseDto = httpClient.get("/api/reports/$reportId") {
+        authorize()
+    }.bodyOrThrow()
+
+    suspend fun submitDecision(
+        authorize: HttpRequestBuilder.() -> Unit,
+        reportId: Int,
+        request: ModerateReportRequestDto,
+    ): ReportDetailResponseDto = httpClient.post("/api/reports/$reportId/decision") {
+        authorize()
+        setBody(request)
+    }.bodyOrThrow()
 }
 

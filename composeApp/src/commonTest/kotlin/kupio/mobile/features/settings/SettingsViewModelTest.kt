@@ -90,6 +90,7 @@ class SettingsViewModelTest {
 
     private class FakePreferencesRepository : PreferencesRepository {
         override val themeMode = MutableStateFlow(ThemeMode.SYSTEM)
+        override val pushToken = MutableStateFlow<String?>(null)
 
         override suspend fun setThemeMode(mode: ThemeMode) {
             themeMode.value = mode
@@ -98,6 +99,10 @@ class SettingsViewModelTest {
         override fun chatLastSeenEpochMillis(conversationId: String) = MutableStateFlow<Long?>(null)
 
         override suspend fun markChatSeen(conversationId: String, epochMillis: Long) = Unit
+
+        override fun savePushToken(token: String) {
+            pushToken.value = token
+        }
     }
 
     private class FakeSecureSessionStore(

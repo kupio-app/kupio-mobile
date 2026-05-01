@@ -2,9 +2,11 @@ package kupio.mobile.features.reports.data.repository
 
 import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.features.reports.data.remote.CreateListingReportRequestDto
+import kupio.mobile.features.reports.data.remote.ModerateReportRequestDto
 import kupio.mobile.features.reports.data.remote.ReportsApi
 import kupio.mobile.features.reports.data.remote.toDomain
 import kupio.mobile.features.reports.domain.model.ListReportsResult
+import kupio.mobile.features.reports.domain.model.ReportDetail
 import kupio.mobile.features.reports.domain.model.ReportReason
 import kupio.mobile.features.reports.domain.repository.ReportsRepository
 
@@ -45,5 +47,21 @@ class ReportsRepositoryImpl(
             cursor = cursor,
         ).toDomain()
     }
-}
 
+    override suspend fun getReportDetail(reportId: Int): ReportDetail =
+        authenticatedApiClient.request { authorize ->
+            reportsApi.getReportDetail(authorize, reportId).toDomain()
+        }
+
+    override suspend fun submitDecision(reportId: Int, action: String, comment: String?): ReportDetail =
+        authenticatedApiClient.request { authorize ->
+            reportsApi.submitDecision(
+                authorize = authorize,
+                reportId = reportId,
+                request = ModerateReportRequestDto(
+                    action = action,
+                    comment = comment?.takeIf { it.isNotBlank() },
+                ),
+            ).toDomain()
+        }
+}

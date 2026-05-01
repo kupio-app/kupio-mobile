@@ -46,6 +46,7 @@ import kupio.mobile.features.reports.data.remote.ReportsApi
 import kupio.mobile.features.reports.data.repository.ReportsRepositoryImpl
 import kupio.mobile.features.reports.domain.repository.ReportsRepository
 import kupio.mobile.features.reports.presentation.create.CreateReportViewModel
+import kupio.mobile.features.reports.presentation.moderator.ModeratorReportDetailViewModel
 import kupio.mobile.features.reports.presentation.moderator.ModeratorReportsDashboardViewModel
 import kupio.mobile.features.me.data.remote.MeApi
 import kupio.mobile.features.me.data.repository.MeRepositoryImpl
@@ -119,6 +120,7 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::SettingsViewModel)
         viewModelOf(::UsernameViewModel)
         viewModelOf(::ModeratorReportsDashboardViewModel)
+        viewModel { params -> ModeratorReportDetailViewModel(params.get(), get()) }
         viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get()) }
         viewModel { params -> EditListingViewModel(params.get(), get(), get()) }
         viewModel { params -> CreateReportViewModel(params.get(), params.get(), params.get(), params.get(), get()) }

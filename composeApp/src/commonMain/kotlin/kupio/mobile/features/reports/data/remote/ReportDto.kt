@@ -2,7 +2,11 @@ package kupio.mobile.features.reports.data.remote
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kupio.mobile.features.listings.data.remote.CurrencyDto
+import kupio.mobile.features.listings.data.remote.toDomain
 import kupio.mobile.features.reports.domain.model.ListReportsResult
+import kupio.mobile.features.reports.domain.model.ReportDetail
+import kupio.mobile.features.reports.domain.model.ReportListingDetail
 import kupio.mobile.features.reports.domain.model.ReportListItem
 import kupio.mobile.features.reports.domain.model.ReportReason
 import kupio.mobile.features.reports.domain.model.ReportsDashboardStats
@@ -111,4 +115,60 @@ fun ListReportsResponseDto.toDomain(): ListReportsResult = ListReportsResult(
     ),
     reports = reports.map { it.toDomain() },
     nextCursor = nextCursor,
+)
+
+@Serializable
+data class ReportListingDetailDto(
+    val id: String,
+    val title: String,
+    val description: String,
+    val price: Int,
+    val currency: CurrencyDto,
+    val status: String,
+    @SerialName("primary_image_url") val primaryImageUrl: String? = null,
+)
+
+@Serializable
+data class ReportDetailResponseDto(
+    val id: Int,
+    val status: String,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("updated_at") val updatedAt: String,
+    @SerialName("additional_info") val additionalInfo: String? = null,
+    val reason: ReportReasonSummaryDto,
+    val listing: ReportListingDetailDto,
+    val seller: ReportSellerSummaryDto,
+    @SerialName("seen_at") val seenAt: String? = null,
+    @SerialName("moderated_at") val moderatedAt: String? = null,
+    @SerialName("moderator_comment") val moderatorComment: String? = null,
+)
+
+@Serializable
+data class ModerateReportRequestDto(
+    val action: String,
+    val comment: String? = null,
+)
+
+fun ReportListingDetailDto.toDomain(): ReportListingDetail = ReportListingDetail(
+    id = id,
+    title = title,
+    description = description,
+    price = price,
+    currency = currency.toDomain(),
+    status = status,
+    primaryImageUrl = primaryImageUrl,
+)
+
+fun ReportDetailResponseDto.toDomain(): ReportDetail = ReportDetail(
+    id = id,
+    status = ReportStatus.fromString(status),
+    createdAt = createdAt,
+    additionalInfo = additionalInfo,
+    reasonTitle = reason.title,
+    reasonDescription = reason.description,
+    listing = listing.toDomain(),
+    sellerUsername = seller.username.orEmpty(),
+    sellerDisplayName = seller.displayName.orEmpty(),
+    moderatedAt = moderatedAt,
+    moderatorComment = moderatorComment,
 )

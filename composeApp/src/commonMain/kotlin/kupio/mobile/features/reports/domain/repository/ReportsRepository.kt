@@ -1,6 +1,7 @@
 package kupio.mobile.features.reports.domain.repository
 
 import kupio.mobile.features.reports.domain.model.ListReportsResult
+import kupio.mobile.features.reports.domain.model.ReportDetail
 import kupio.mobile.features.reports.domain.model.ReportReason
 
 interface ReportsRepository {
@@ -15,5 +16,7 @@ interface ReportsRepository {
         seen: String? = null,
         cursor: String? = null,
     ): ListReportsResult
+    suspend fun getReportDetail(reportId: Int): ReportDetail
+    suspend fun submitDecision(reportId: Int, action: String, comment: String?): ReportDetail
 }
 

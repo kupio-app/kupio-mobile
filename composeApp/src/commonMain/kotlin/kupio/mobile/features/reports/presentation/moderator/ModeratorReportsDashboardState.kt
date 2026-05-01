@@ -21,8 +21,8 @@ enum class ReportsDashboardFilter { IN_QUEUE, UNSEEN, NO_ACTION }
 
 fun ReportsDashboardFilter.toApiParams(): Pair<String?, String?> = when (this) {
     ReportsDashboardFilter.IN_QUEUE -> Pair("pending", null)
-    ReportsDashboardFilter.UNSEEN -> Pair(null, "unseen")
-    ReportsDashboardFilter.NO_ACTION -> Pair("declined", null)
+    ReportsDashboardFilter.UNSEEN -> Pair("pending", "unseen")
+    ReportsDashboardFilter.NO_ACTION -> Pair("pending", "seen")
 }
 
 sealed interface ModeratorReportsDashboardIntent : UiAction {
@@ -36,5 +36,6 @@ sealed interface ModeratorReportsDashboardIntent : UiAction {
 
 sealed interface ModeratorReportsDashboardEffect : UiEffect {
     data object NavigateBack : ModeratorReportsDashboardEffect
+    data class NavigateToReportDetail(val reportId: Int) : ModeratorReportsDashboardEffect
 }
 

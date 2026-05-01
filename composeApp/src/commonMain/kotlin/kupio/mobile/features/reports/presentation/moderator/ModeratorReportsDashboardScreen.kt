@@ -19,11 +19,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -41,6 +45,7 @@ import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.listings.presentation.components.ListingThumbnail
 import kupio.mobile.features.reports.domain.model.ReportListItem
+import kupio.mobile.features.reports.domain.model.ReportsDashboardStats
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.moderator_reports_desc
 import mobile.composeapp.generated.resources.moderator_reports_empty
@@ -60,9 +65,20 @@ class ModeratorReportsDashboardScreen : Screen {
         val viewModel = koinViewModel<ModeratorReportsDashboardViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
 
+        val isFirstResume = remember { mutableStateOf(true) }
+        LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+            if (isFirstResume.value) {
+                isFirstResume.value = false
+            } else {
+                viewModel.onIntent(ModeratorReportsDashboardIntent.Refresh)
+            }
+        }
+
         CollectEffect(viewModel.effects) { effect ->
             when (effect) {
                 ModeratorReportsDashboardEffect.NavigateBack -> navigator.pop()
+                is ModeratorReportsDashboardEffect.NavigateToReportDetail ->
+                    navigator.push(ModeratorReportDetailScreen(effect.reportId))
             }
         }
 
@@ -181,12 +197,12 @@ private fun ModeratorReportsDashboardRoute(
 @Composable
 private fun ReportsFilterStatsRow(
     selectedFilter: ReportsDashboardFilter,
-    stats: kupio.mobile.features.reports.domain.model.ReportsDashboardStats?,
+    stats: ReportsDashboardStats?,
     onFilterSelected: (ReportsDashboardFilter) -> Unit,
 ) {
     val spacing = KupioThemeDefaults.spacing
     val filters = listOf(
-        Triple(ReportsDashboardFilter.IN_QUEUE, stringResource(Res.string.moderator_reports_filter_in_queue), stats?.newToday ?: 0),
+        Triple(ReportsDashboardFilter.IN_QUEUE, stringResource(Res.string.moderator_reports_filter_in_queue), stats?.inQueue ?: 0),
         Triple(ReportsDashboardFilter.UNSEEN, stringResource(Res.string.moderator_reports_filter_unseen), stats?.unseen ?: 0),
         Triple(ReportsDashboardFilter.NO_ACTION, stringResource(Res.string.moderator_reports_filter_no_action), stats?.noAction ?: 0),
     )
@@ -300,4 +316,3 @@ private fun ReportCard(
         }
     }
 }
-

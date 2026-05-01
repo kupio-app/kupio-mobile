@@ -49,7 +49,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -70,7 +74,12 @@ import kupio.mobile.core.designsystem.KupioUserAvatar
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.core.datetime.formatPostedAt
+import kupio.mobile.core.designsystem.KupioSnackbar
 import kupio.mobile.core.presentation.CollectEffect
+import kupio.mobile.core.presentation.SnackbarEvent
+import kupio.mobile.core.presentation.SnackbarManager
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 import kupio.mobile.features.chats.presentation.thread.ChatThreadScreen
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.ListingStatus
@@ -123,8 +132,10 @@ import mobile.composeapp.generated.resources.my_listings_filter_planned
 import mobile.composeapp.generated.resources.my_listings_filter_sold
 import mobile.composeapp.generated.resources.my_listings_promote
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.invoke
 
 data class ListingDetailScreen(val listingId: String) : Screen {
     @Composable
@@ -150,6 +161,23 @@ private fun ListingDetailContent(
     state: ListingDetailState,
     onIntent: (ListingDetailIntent) -> Unit,
 ) {
+    val snackbarManager = koinInject<SnackbarManager>()
+    var currentEvent by remember { mutableStateOf<SnackbarEvent?>(null) }
+    var displayEvent by remember { mutableStateOf<SnackbarEvent?>(null) }
+
+    LaunchedEffect(Unit) {
+        snackbarManager.events.collect { event ->
+            displayEvent = event
+            currentEvent = event
+        }
+    }
+    LaunchedEffect(currentEvent) {
+        if (currentEvent != null) {
+            delay(2500.milliseconds)
+            currentEvent = null
+        }
+    }
+
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
@@ -162,26 +190,47 @@ private fun ListingDetailContent(
             }
         },
     ) { paddingValues ->
-        PullToRefreshBox(
-            isRefreshing = state.isRefreshing,
-            onRefresh = { onIntent(ListingDetailIntent.RefreshListing) },
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background),
-        ) {
-            when {
-                state.isLoading -> KupioLoadingScreen()
-                state.errorMessage != null -> Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    KupioErrorRetryRow(
-                        message = state.errorMessage,
-                        onRetry = { onIntent(ListingDetailIntent.Retry) },
-                    )
+        Box(Modifier.padding(bottom = paddingValues.calculateBottomPadding())) {
+            PullToRefreshBox(
+                isRefreshing = state.isRefreshing,
+                onRefresh = { onIntent(ListingDetailIntent.RefreshListing) },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.background),
+            ) {
+                when {
+                    state.isLoading -> KupioLoadingScreen()
+                    state.errorMessage != null -> Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        KupioErrorRetryRow(
+                            message = state.errorMessage,
+                            onRetry = { onIntent(ListingDetailIntent.Retry) },
+                        )
+                    }
+                    state.listing != null -> DetailBody(state = state, onIntent = onIntent)
                 }
-                state.listing != null -> DetailBody(state = state, onIntent = onIntent)
+            }
+
+            val spacing = KupioThemeDefaults.spacing
+            if (displayEvent != null) {
+                KupioSnackbar(
+                    visible = currentEvent != null,
+                    icon = displayEvent!!.icon,
+                    message = displayEvent!!.message,
+                    actionLabel = displayEvent!!.actionLabel,
+                    onAction = {
+                        val action = displayEvent!!.onAction
+                        currentEvent = null
+                        action?.invoke()
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(horizontal = spacing.lg)
+                        .navigationBarsPadding(),
+                )
             }
         }
     }

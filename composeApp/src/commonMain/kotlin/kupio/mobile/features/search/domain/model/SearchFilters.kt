@@ -21,14 +21,6 @@ enum class SearchSortBy {
     RECOMMENDED, NEWEST_FIRST, PRICE_LOW_HIGH, PRICE_HIGH_LOW
 }
 
-fun SearchFilters.hasActiveFilters(): Boolean =
-    categoryId != null ||
-        minPrice != null ||
-        maxPrice != null ||
-        dealType != DealType.ANY ||
-        onlyWithPhotos ||
-        customFilters.isNotEmpty()
-
 fun SearchFilters.toApiParams(): Triple<Boolean?, Boolean?, Map<String, String>> {
     val isFree = when (dealType) {
         DealType.FREE -> true

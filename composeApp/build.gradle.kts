@@ -52,6 +52,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 val validateReleaseRuntimeConfig by tasks.registering(ValidateReleaseRuntimeConfigTask::class) {
@@ -126,6 +127,8 @@ kotlin {
             implementation(libs.voyager.tab.navigator)
             implementation(compose.materialIconsExtended)
             api(libs.kmpnotifier)
+            implementation(libs.firebase.analytics)
+            implementation(libs.firebase.crashlytics)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -160,6 +163,7 @@ android {
     }
     buildTypes {
         getByName("debug") {
+            manifestPlaceholders["crashlyticsCollectionEnabled"] = "false"
             buildConfigField(
                 "String",
                 "KUPIO_BACKEND_BASE_URL",
@@ -179,6 +183,7 @@ android {
         }
         getByName("release") {
             isMinifyEnabled = false
+            manifestPlaceholders["crashlyticsCollectionEnabled"] = "true"
             buildConfigField(
                 "String",
                 "KUPIO_BACKEND_BASE_URL",

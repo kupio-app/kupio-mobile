@@ -64,6 +64,7 @@ import kupio.mobile.core.presentation.SnackbarManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kupio.mobile.core.analytics.AnalyticsService
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -74,14 +75,17 @@ expect val platformModule: Module
 val kupioAppModules: List<Module> = listOf(
     platformModule,
     notificationModule,
+    analyticsModule,
     module {
         single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
         single { SnackbarManager() }
         single<HttpClient> {
             val config = get<BackendConfig>()
+            val analyticsService = get<AnalyticsService>()
             createKupioHttpClient(
                 baseUrl = config.baseUrl,
                 isDebug = config.isDebug,
+                analyticsService = analyticsService,
             )
         }
         single { AuthApi(get()) }
@@ -105,7 +109,7 @@ val kupioAppModules: List<Module> = listOf(
         single { ConversationsStore(get(), get(), get(), get(), get(), get()) }
         single<ConversationsRefresher> { get<ConversationsStore>() }
         viewModelOf(::ChatsListViewModel)
-        viewModel { params -> ChatThreadViewModel(params.get(), get(), get()) }
+        viewModel { params -> ChatThreadViewModel(params.get(), get(), get(), get()) }
         single<AuthClock> { SystemAuthClock() }
         single { AuthTokenProvider(get(), get(), get(), get()) }
         single<AuthenticatedApiClient> {
@@ -131,9 +135,15 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::SavedViewModel)
         viewModelOf(::UsernameViewModel)
         viewModelOf(::ModeratorReportsDashboardViewModel)
+        viewModel { params -> ModeratorReportDetailViewModel(params.get(), get(), get(), get(), get()) }
+        viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+        viewModel { params -> EditListingViewModel(params.get(), get(), get(), get()) }
+        viewModel { params -> CreateReportViewModel(params.get(), params.get(), params.get(), params.get(), get(), get()) }
         viewModel { params -> ModeratorReportDetailViewModel(params.get(), get(), get(), get()) }
         viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
         viewModel { params -> EditListingViewModel(params.get(), get(), get()) }
         viewModel { params -> CreateReportViewModel(params.get(), params.get(), params.get(), params.get(), get()) }
+        viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+        viewModel { params -> EditListingViewModel(params.get(), get(), get(), get()) }
     },
 )

@@ -26,6 +26,7 @@ import kupio.mobile.core.designsystem.KupioBottomNav
 import kupio.mobile.core.designsystem.KupioBottomNavItem
 import kupio.mobile.core.designsystem.KupioSnackbar
 import kupio.mobile.core.designsystem.KupioThemeDefaults
+import kupio.mobile.core.analytics.AnalyticsService
 import kupio.mobile.core.presentation.SnackbarEvent
 import kupio.mobile.core.presentation.SnackbarManager
 import kupio.mobile.features.chats.data.ConversationsStore
@@ -72,6 +73,16 @@ class MainTabsScreen : Screen {
         }
 
         TabNavigator(HomeTab) { tabNavigator ->
+            val analytics = koinInject<AnalyticsService>()
+            val currentTab = tabNavigator.current
+            LaunchedEffect(currentTab) {
+                val screenClass = currentTab::class.simpleName ?: "UnknownTab"
+                analytics.logEvent("screen_view", mapOf(
+                    "screen_name" to screenClass,
+                    "screen_class" to screenClass
+                ))
+            }
+
             val tabs = listOf(HomeTab, SavedTab, ChatsTab, MeTab)
             val selectedIndex = tabs.indexOfFirst { it == tabNavigator.current }.coerceAtLeast(0)
             val spacing = KupioThemeDefaults.spacing

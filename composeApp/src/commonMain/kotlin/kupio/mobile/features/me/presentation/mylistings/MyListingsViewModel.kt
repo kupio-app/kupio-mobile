@@ -14,10 +14,13 @@ import kupio.mobile.features.auth.domain.model.AuthSessionExpiredException
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.domain.repository.MeRepository
+import kupio.mobile.core.analytics.AnalyticsService
+import kupio.mobile.core.analytics.NoOpAnalyticsService
 
 class MyListingsViewModel(
     private val meRepository: MeRepository,
     private val sessionManager: AuthSessionManager,
+    private val analytics: AnalyticsService = NoOpAnalyticsService(),
 ) : ViewModel() {
     private val _state = MutableStateFlow(MyListingsState())
     val state = _state.asStateFlow()
@@ -97,6 +100,7 @@ class MyListingsViewModel(
                         updatingListingId = null,
                     )
                 }
+                analytics.logEvent("update_listing_status", mapOf("item_id" to confirmation.listingId, "new_status" to confirmation.targetStatus.name, "source" to "my_listings"))
             }.onFailure { throwable ->
                 if (throwable is CancellationException) throw throwable
                 if (throwable is AuthSessionExpiredException) {
@@ -146,6 +150,7 @@ class MyListingsViewModel(
                             errorMessage = t.message,
                         )
                     }
+                    analytics.recordException(t, mapOf("screen" to "my_listings"))
                 }
         }
     }

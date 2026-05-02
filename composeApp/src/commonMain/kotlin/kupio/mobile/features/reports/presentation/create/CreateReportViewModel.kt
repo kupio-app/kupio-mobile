@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kupio.mobile.core.analytics.AnalyticsService
+import kupio.mobile.core.analytics.NoOpAnalyticsService
 import kupio.mobile.features.reports.domain.repository.ReportsRepository
 
 class CreateReportViewModel(
@@ -19,6 +21,7 @@ class CreateReportViewModel(
     private val listingImageUrl: String,
     private val listingPriceFormatted: String,
     private val reportsRepository: ReportsRepository,
+    private val analytics: AnalyticsService = NoOpAnalyticsService(),
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(
@@ -66,6 +69,7 @@ class CreateReportViewModel(
                 _state.update {
                     it.copy(isLoadingReasons = false, reasonsError = throwable.message)
                 }
+                analytics.recordException(throwable, mapOf("screen" to "create_report", "action" to "load_reasons"))
             }
         }
     }
@@ -83,6 +87,7 @@ class CreateReportViewModel(
                     additionalInfo = _state.value.additionalInfo.trim().takeIf { it.isNotBlank() },
                 )
             }.onSuccess {
+                analytics.logEvent("report_listing", mapOf("item_id" to listingId, "reason_id" to reasonId.toString()))
                 _state.update { it.copy(isSubmitting = false) }
                 effectChannel.send(CreateReportEffect.NavigateBack)
             }.onFailure { throwable ->
@@ -90,6 +95,7 @@ class CreateReportViewModel(
                 _state.update {
                     it.copy(isSubmitting = false, submitError = throwable.message)
                 }
+                analytics.recordException(throwable, mapOf("screen" to "create_report", "item_id" to listingId))
             }
         }
     }

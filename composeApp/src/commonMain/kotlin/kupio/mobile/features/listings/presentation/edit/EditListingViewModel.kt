@@ -33,11 +33,14 @@ import kupio.mobile.features.listings.presentation.form.LocalListingImage
 import kupio.mobile.features.listings.presentation.form.RemoteListingImage
 import kupio.mobile.features.listings.presentation.form.toCreateError
 import kupio.mobile.features.listings.presentation.form.toUpload
+import kupio.mobile.core.analytics.AnalyticsService
+import kupio.mobile.core.analytics.NoOpAnalyticsService
 
 class EditListingViewModel(
     private val listingId: String,
     private val listingsRepository: ListingsRepository,
     private val categoriesRepository: CategoriesRepository,
+    private val analytics: AnalyticsService = NoOpAnalyticsService(),
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(EditListingState())
@@ -284,6 +287,7 @@ class EditListingViewModel(
                 }
             }.onSuccess {
                 _state.update { it.copy(isSaving = false) }
+                analytics.logEvent("edit_listing", mapOf("item_id" to listingId))
                 effectChannel.send(EditListingEffect.OpenListing(listingId))
             }.onFailure { throwable ->
                 if (throwable is CancellationException) throw throwable

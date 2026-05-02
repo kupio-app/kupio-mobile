@@ -1,6 +1,7 @@
 package kupio.mobile.core.network
 
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -12,10 +13,12 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import kupio.mobile.core.analytics.AnalyticsService
 
 fun createKupioHttpClient(
     baseUrl: String,
     isDebug: Boolean,
+    analyticsService: AnalyticsService,
 ): HttpClient {
     return HttpClient {
         expectSuccess = false
@@ -44,6 +47,16 @@ fun createKupioHttpClient(
             url(baseUrl)
             contentType(ContentType.Application.Json)
             headers.append(HttpHeaders.Accept, ContentType.Application.Json.toString())
+        }
+
+        HttpResponseValidator {
+            handleResponseExceptionWithRequest { exception, request ->
+                analyticsService.log("API error: ${request.url} -> ${exception.message}")
+                analyticsService.recordException(
+                    exception,
+                    mapOf("url" to request.url.toString())
+                )
+            }
         }
     }
 }

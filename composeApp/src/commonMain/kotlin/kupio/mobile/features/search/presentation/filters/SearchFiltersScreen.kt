@@ -35,6 +35,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,9 +64,12 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
+import kupio.mobile.core.designsystem.KupioTopBarBackAction
+import kupio.mobile.core.designsystem.KupioTopNavbar
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.core.designsystem.borderBottom
+import kupio.mobile.core.designsystem.borderTop
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.listings.domain.model.FilterDefinition
 import kupio.mobile.features.listings.domain.model.FilterType
@@ -143,11 +147,13 @@ private fun SearchFiltersContent(
     state: SearchFiltersState,
     onIntent: (SearchFiltersIntent) -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        FiltersTopBar(state = state, onIntent = onIntent)
-
-        LazyColumn(
-            modifier = Modifier.weight(1f),
+    Scaffold(
+        topBar = { FiltersTopBar(state = state, onIntent = onIntent) },
+        bottomBar = { FiltersBottomBar(onIntent = onIntent) },
+        modifier = Modifier.fillMaxSize(),
+    ) { paddingValues ->
+        LazyColumn (
+            modifier = Modifier.fillMaxSize().padding(paddingValues)
         ) {
             item { FilterSectionLabel(stringResource(Res.string.search_filters_section_query)) }
             item { QuerySection(state = state, onIntent = onIntent) }
@@ -175,7 +181,10 @@ private fun SearchFiltersContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = KupioThemeDefaults.spacing.lg, vertical = KupioThemeDefaults.spacing.sm),
+                            .padding(
+                                horizontal = KupioThemeDefaults.spacing.lg,
+                                vertical = KupioThemeDefaults.spacing.sm
+                            ),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
@@ -189,7 +198,13 @@ private fun SearchFiltersContent(
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
-                                .bouncingClickable { onIntent(SearchFiltersIntent.CategorySelected(state.draft.categoryId ?: return@bouncingClickable)) }
+                                .bouncingClickable {
+                                    onIntent(
+                                        SearchFiltersIntent.CategorySelected(
+                                            state.draft.categoryId ?: return@bouncingClickable
+                                        )
+                                    )
+                                }
                                 .padding(KupioThemeDefaults.spacing.sm),
                         )
                     }
@@ -212,8 +227,6 @@ private fun SearchFiltersContent(
 
             item { Spacer(Modifier.height(KupioThemeDefaults.spacing.xl)) }
         }
-
-        FiltersBottomBar(onIntent = onIntent)
     }
 }
 
@@ -223,49 +236,19 @@ private fun FiltersTopBar(
     onIntent: (SearchFiltersIntent) -> Unit,
 ) {
     val spacing = KupioThemeDefaults.spacing
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .borderBottom(KupioThemeDefaults.borderWidths.thin, KupioThemeDefaults.navDividerColor),
-        color = MaterialTheme.colorScheme.background,
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .padding(start = spacing.md, end = spacing.lg, top = spacing.md, bottom = spacing.md),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .bouncingClickable { onIntent(SearchFiltersIntent.Back) },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ChevronLeft,
-                    contentDescription = stringResource(Res.string.back),
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(24.dp),
-                )
-            }
-            Spacer(Modifier.width(spacing.sm))
-            Column {
-                Text(
-                    text = stringResource(Res.string.search_filters_title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                if (state.resultCount != null) {
-                    Text(
-                        text = stringResource(Res.string.search_filters_results_match, state.resultCount),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-            Spacer(Modifier.weight(1f))
+    val subtitle = state.resultCount?.let {
+        stringResource(Res.string.search_filters_results_match, state.resultCount)
+    }
+    KupioTopNavbar(
+        title = stringResource(Res.string.search_filters_title),
+        subtitle = subtitle,
+        leadingContent = {
+            KupioTopBarBackAction(
+                contentDescription = stringResource(Res.string.back),
+                onClick = { onIntent(SearchFiltersIntent.Back) },
+            )
+        },
+        trailingContent = {
             Text(
                 text = stringResource(Res.string.search_filters_clear_all),
                 style = MaterialTheme.typography.labelMedium,
@@ -275,8 +258,8 @@ private fun FiltersTopBar(
                     .bouncingClickable { onIntent(SearchFiltersIntent.ClearAll) }
                     .padding(spacing.sm),
             )
-        }
-    }
+        },
+    )
 }
 
 @Composable
@@ -575,11 +558,17 @@ private fun SearchFilterItem(
                         singleLine = true,
                         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                         textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
-                        keyboardOptions = if (filter.type == FilterType.TEXT) KeyboardOptions.Default else KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = if (filter.type == FilterType.TEXT) KeyboardOptions.Default else KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
                         decorationBox = { inner ->
                             Box(contentAlignment = Alignment.CenterStart) {
                                 if ((value as? SearchFilterInput.Text)?.value.isNullOrEmpty()) {
-                                    Text(filter.label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(
+                                        filter.label,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
                                 }
                                 inner()
                             }
@@ -587,6 +576,7 @@ private fun SearchFilterItem(
                     )
                 }
             }
+
             FilterType.BOOLEAN -> {
                 @OptIn(ExperimentalLayoutApi::class)
                 FlowRow(
@@ -595,12 +585,22 @@ private fun SearchFilterItem(
                 ) {
                     val boolVal = (value as? SearchFilterInput.BooleanValue)?.value
                     if (!filter.isRequired) {
-                        FilterChoiceChip(text = "—", selected = boolVal == null, onClick = { onIntent(SearchFiltersIntent.FilterBooleanChanged(filter.slug, null)) })
+                        FilterChoiceChip(
+                            text = "—",
+                            selected = boolVal == null,
+                            onClick = { onIntent(SearchFiltersIntent.FilterBooleanChanged(filter.slug, null)) })
                     }
-                    FilterChoiceChip(text = "Yes", selected = boolVal == true, onClick = { onIntent(SearchFiltersIntent.FilterBooleanChanged(filter.slug, true)) })
-                    FilterChoiceChip(text = "No", selected = boolVal == false, onClick = { onIntent(SearchFiltersIntent.FilterBooleanChanged(filter.slug, false)) })
+                    FilterChoiceChip(
+                        text = "Yes",
+                        selected = boolVal == true,
+                        onClick = { onIntent(SearchFiltersIntent.FilterBooleanChanged(filter.slug, true)) })
+                    FilterChoiceChip(
+                        text = "No",
+                        selected = boolVal == false,
+                        onClick = { onIntent(SearchFiltersIntent.FilterBooleanChanged(filter.slug, false)) })
                 }
             }
+
             FilterType.SELECT -> {
                 @OptIn(ExperimentalLayoutApi::class)
                 FlowRow(
@@ -704,7 +704,8 @@ private fun KupioSwitch(
     onToggle: () -> Unit,
 ) {
     val thumbX by animateDpAsState(targetValue = if (checked) 20.dp else 2.dp)
-    val trackColor = if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
+    val trackColor =
+        if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
 
     Box(
         modifier = Modifier
@@ -889,15 +890,20 @@ private fun FiltersBottomBar(
 ) {
     val spacing = KupioThemeDefaults.spacing
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .borderTop(KupioThemeDefaults.borderWidths.thin, KupioThemeDefaults.navDividerColor),
         color = MaterialTheme.colorScheme.background,
-        border = BorderStroke(KupioThemeDefaults.borderWidths.thin, KupioThemeDefaults.navDividerColor),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(spacing.lg)
-                .padding(top = spacing.md),
+                .padding(
+                    start = spacing.lg,
+                    end = spacing.lg,
+                    bottom = spacing.lg,
+                    top = spacing.md
+                ),
             horizontalArrangement = Arrangement.spacedBy(spacing.sm),
         ) {
             Surface(
@@ -1000,6 +1006,7 @@ private fun SearchCategoryPicker(
                 ) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                 }
+
                 state.subcategoriesError != null -> Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -1021,6 +1028,7 @@ private fun SearchCategoryPicker(
                         }.padding(spacing.sm),
                     )
                 }
+
                 displayCategories.isNotEmpty() -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     displayCategories.forEach { cat ->
                         PickerCategoryRow(

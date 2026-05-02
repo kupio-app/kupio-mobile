@@ -28,6 +28,7 @@ import kupio.mobile.features.chats.data.remote.UserApi
 import kupio.mobile.features.chats.data.repository.ChatsRepositoryImpl
 import kupio.mobile.features.chats.data.repository.MessagesRepositoryImpl
 import kupio.mobile.features.chats.domain.repository.ChatsRepository
+import kupio.mobile.features.chats.domain.repository.ConversationsRefresher
 import kupio.mobile.features.chats.domain.repository.MessagesRepository
 import kupio.mobile.features.chats.presentation.list.ChatsListViewModel
 import kupio.mobile.features.chats.presentation.thread.ChatThreadViewModel
@@ -39,17 +40,31 @@ import kupio.mobile.features.listings.data.repository.ListingsRepositoryImpl
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.listings.presentation.detail.ListingDetailViewModel
+import kupio.mobile.features.listings.presentation.edit.EditListingViewModel
 import kupio.mobile.features.listings.presentation.feed.FeedViewModel
+import kupio.mobile.features.reports.data.remote.ReportsApi
+import kupio.mobile.features.reports.data.repository.ReportsRepositoryImpl
+import kupio.mobile.features.reports.domain.repository.ReportsRepository
+import kupio.mobile.features.reports.presentation.create.CreateReportViewModel
+import kupio.mobile.features.reports.presentation.moderator.ModeratorReportDetailViewModel
+import kupio.mobile.features.reports.presentation.moderator.ModeratorReportsDashboardViewModel
 import kupio.mobile.features.me.data.remote.MeApi
 import kupio.mobile.features.me.data.repository.MeRepositoryImpl
 import kupio.mobile.features.me.domain.repository.MeRepository
 import kupio.mobile.features.me.presentation.mylistings.MyListingsViewModel
 import kupio.mobile.features.me.presentation.profile.MeViewModel
+import kupio.mobile.features.saved.presentation.SavedViewModel
+import kupio.mobile.features.saved.data.remote.FavouritesApi
+import kupio.mobile.features.saved.data.repository.FavouritesRepositoryImpl
+import kupio.mobile.features.saved.domain.repository.FavouritesRepository
+import kupio.mobile.features.saved.domain.ToggleFavouriteUseCase
 import kupio.mobile.features.settings.SettingsViewModel
 import kupio.mobile.core.navigation.RootNavigationViewModel
+import kupio.mobile.core.presentation.SnackbarManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kupio.mobile.core.analytics.AnalyticsService
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -60,13 +75,17 @@ expect val platformModule: Module
 val kupioAppModules: List<Module> = listOf(
     platformModule,
     notificationModule,
+    analyticsModule,
     module {
         single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
+        single { SnackbarManager() }
         single<HttpClient> {
             val config = get<BackendConfig>()
+            val analyticsService = get<AnalyticsService>()
             createKupioHttpClient(
                 baseUrl = config.baseUrl,
                 isDebug = config.isDebug,
+                analyticsService = analyticsService,
             )
         }
         single { AuthApi(get()) }
@@ -76,15 +95,21 @@ val kupioAppModules: List<Module> = listOf(
         single<CategoriesRepository> { CategoriesRepositoryImpl(get()) }
         single { ChatApi(get()) }
         single { UserApi(get()) }
+        single { FavouritesApi(get()) }
+        single<FavouritesRepository> { FavouritesRepositoryImpl(get(), get()) }
+        single { ToggleFavouriteUseCase(get(), get()) }
         single { MeApi(get()) }
         single<MeRepository> { MeRepositoryImpl(get(), get()) }
+        single { ReportsApi(get()) }
+        single<ReportsRepository> { ReportsRepositoryImpl(get(), get()) }
         single<ChatsRepository> { ChatsRepositoryImpl(get(), get()) }
         single { ChatWebSocket(get(), get(), get(), get()) }
         single<MessagesRepository> { MessagesRepositoryImpl(get(), get(), get(), get()) }
         single { SessionCleaner(get(), get()) }
         single { ConversationsStore(get(), get(), get(), get(), get(), get()) }
+        single<ConversationsRefresher> { get<ConversationsStore>() }
         viewModelOf(::ChatsListViewModel)
-        viewModel { params -> ChatThreadViewModel(params.get(), get(), get()) }
+        viewModel { params -> ChatThreadViewModel(params.get(), get(), get(), get()) }
         single<AuthClock> { SystemAuthClock() }
         single { AuthTokenProvider(get(), get(), get(), get()) }
         single<AuthenticatedApiClient> {
@@ -107,7 +132,18 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::MeViewModel)
         viewModelOf(::MyListingsViewModel)
         viewModelOf(::SettingsViewModel)
+        viewModelOf(::SavedViewModel)
         viewModelOf(::UsernameViewModel)
-        viewModel { params -> ListingDetailViewModel(params.get(), get()) }
+        viewModelOf(::ModeratorReportsDashboardViewModel)
+        viewModel { params -> ModeratorReportDetailViewModel(params.get(), get(), get(), get(), get()) }
+        viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+        viewModel { params -> EditListingViewModel(params.get(), get(), get(), get()) }
+        viewModel { params -> CreateReportViewModel(params.get(), params.get(), params.get(), params.get(), get(), get()) }
+        viewModel { params -> ModeratorReportDetailViewModel(params.get(), get(), get(), get()) }
+        viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+        viewModel { params -> EditListingViewModel(params.get(), get(), get()) }
+        viewModel { params -> CreateReportViewModel(params.get(), params.get(), params.get(), params.get(), get()) }
+        viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+        viewModel { params -> EditListingViewModel(params.get(), get(), get(), get()) }
     },
 )

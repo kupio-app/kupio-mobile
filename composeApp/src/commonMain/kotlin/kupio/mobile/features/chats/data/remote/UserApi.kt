@@ -13,6 +13,8 @@ data class UserPublicDto(
     val username: String,
     @SerialName("display_name") val displayName: String? = null,
     @SerialName("avatar_url") val avatarUrl: String? = null,
+    @SerialName("created_at") val createdAt: String? = null,
+    val phone: String? = null,
 )
 
 class UserApi(private val httpClient: HttpClient) {
@@ -27,7 +29,7 @@ class UserApi(private val httpClient: HttpClient) {
     suspend fun getUserById(
         authorize: HttpRequestBuilder.() -> Unit,
         userId: String,
-    ): UserPublicDto = httpClient.get("/api/users/$userId") {
+    ): UserPublicDto = httpClient.get("/api/users/id/$userId") {
         authorize()
     }.bodyOrThrow()
 }

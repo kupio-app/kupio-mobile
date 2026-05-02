@@ -6,10 +6,27 @@ data class Listing(
     val description: String,
     val price: Int,
     val currency: Currency,
+    val status: ListingStatus,
     val primaryImageUrl: String?,
+    val images: List<ListingImage>,
+    val imageUrls: List<String>,
     val createdAt: String,
+    val userId: String,
     val categoryId: Int,
     val categoryName: String,
+    val seenCount: Int,
+    val phone: String?,
+    val contactName: String?,
+    val isCallsDisabled: Boolean,
+    val isFree: Boolean,
+    val isTradable: Boolean,
+    val customFilters: Map<String, String>,
+)
+
+data class ListingImage(
+    val id: String,
+    val url: String,
+    val sortOrder: Int,
 )
 
 data class ListingFeed(

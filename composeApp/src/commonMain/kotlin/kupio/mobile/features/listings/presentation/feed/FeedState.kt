@@ -22,6 +22,8 @@ data class FeedState(
     val isLoadingListings: Boolean = true,
     val listingsError: String? = null,
     val isRefreshing: Boolean = false,
+    val favouritedIds: Set<String> = emptySet(),
+    val togglingFavouriteIds: Set<String> = emptySet(),
 ) : UiState
 
 data class FeedCategoryItem(
@@ -61,6 +63,7 @@ sealed interface FeedIntent : UiAction {
     data object RetryLoadListings : FeedIntent
     data object RetryLoadCategories : FeedIntent
     data object RefreshFeed : FeedIntent
+    data class ToggleFavourite(val listingId: String) : FeedIntent
 }
 
 sealed interface FeedEffect : UiEffect {

@@ -12,6 +12,7 @@ data class MeState(
     val user: AuthenticatedUser? = null,
     val stats: UserListingStats? = null,
     val isLoadingStats: Boolean = false,
+    val reportsDashboardUnseenCount: Int = 0,
 ) : UiState
 
 sealed interface MeIntent : UiAction {
@@ -32,4 +33,5 @@ sealed interface MeEffect : UiEffect {
     data object NavigateToSettings : MeEffect
     data object NavigateToChats : MeEffect
     data object NavigateToFavourites : MeEffect
+    data object NavigateToReportsDashboard : MeEffect
 }

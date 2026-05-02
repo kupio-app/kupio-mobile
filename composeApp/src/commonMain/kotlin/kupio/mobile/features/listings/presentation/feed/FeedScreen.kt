@@ -52,11 +52,12 @@ class FeedScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val rootNavigator = generateSequence(navigator) { it.parent }.last()
         val viewModel = koinViewModel<FeedViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         CollectEffect(viewModel.effects) { effect ->
             when (effect) {
-                is FeedEffect.OpenListing -> navigator.push(ListingDetailScreen(effect.id))
+                is FeedEffect.OpenListing -> rootNavigator.push(ListingDetailScreen(effect.id))
                 is FeedEffect.OpenSearch -> navigator.push(SearchScreen(effect.query))
             }
         }
@@ -161,7 +162,13 @@ private fun FeedContent(
                         )
                     }
 
-                    else -> recommendedGrid(state.listings) { id -> onIntent(FeedIntent.OpenListing(id)) }
+                    else -> recommendedGrid(
+                        listings = state.listings,
+                        favouritedIds = state.favouritedIds,
+                        togglingFavouriteIds = state.togglingFavouriteIds,
+                        onOpen = { id -> onIntent(FeedIntent.OpenListing(id)) },
+                        onToggleFavourite = { id -> onIntent(FeedIntent.ToggleFavourite(id)) },
+                    )
                 }
             }
         }
@@ -170,7 +177,10 @@ private fun FeedContent(
 
 private fun LazyListScope.recommendedGrid(
     listings: List<Listing>,
+    favouritedIds: Set<String>,
+    togglingFavouriteIds: Set<String>,
     onOpen: (String) -> Unit,
+    onToggleFavourite: (String) -> Unit,
 ) {
     items(listings.chunked(2), key = { row -> row.first().id }) { row ->
         val spacing = KupioThemeDefaults.spacing
@@ -183,6 +193,10 @@ private fun LazyListScope.recommendedGrid(
                     listing = listing,
                     modifier = Modifier.weight(1f),
                     onClick = { onOpen(listing.id) },
+                    isFavourited = listing.id in favouritedIds,
+                    onFavouriteClick = if (listing.id in togglingFavouriteIds) null else {
+                        { onToggleFavourite(listing.id) }
+                    },
                 )
             }
             if (row.size < 2) {
@@ -191,4 +205,3 @@ private fun LazyListScope.recommendedGrid(
         }
     }
 }
-

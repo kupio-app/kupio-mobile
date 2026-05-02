@@ -2,6 +2,7 @@ package kupio.mobile.features.listings.data.remote
 
 import io.ktor.client.HttpClient
 import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
@@ -20,8 +21,12 @@ class ListingsApi(private val httpClient: HttpClient) {
     suspend fun getListing(
         authorize: HttpRequestBuilder.() -> Unit,
         id: String,
+        countSeen: Boolean = false,
     ): ListingResponseDto = httpClient.get("/api/listings/$id") {
         authorize()
+        url {
+            parameters.append("count_seen", countSeen.toString())
+        }
     }.bodyOrThrow()
 
     suspend fun getListings(
@@ -42,6 +47,15 @@ class ListingsApi(private val httpClient: HttpClient) {
         authorize: HttpRequestBuilder.() -> Unit,
         request: ListingRequestDto,
     ): ListingResponseDto = httpClient.post("/api/listings") {
+        authorize()
+        setBody(request)
+    }.bodyOrThrow()
+
+    suspend fun updateListing(
+        authorize: HttpRequestBuilder.() -> Unit,
+        listingId: String,
+        request: ListingRequestDto,
+    ): ListingResponseDto = httpClient.put("/api/listings/$listingId") {
         authorize()
         setBody(request)
     }.bodyOrThrow()
@@ -82,6 +96,27 @@ class ListingsApi(private val httpClient: HttpClient) {
             ),
         )
     }.bodyOrThrow()
+
+    suspend fun deleteListingImage(
+        authorize: HttpRequestBuilder.() -> Unit,
+        listingId: String,
+        imageId: String,
+    ) {
+        httpClient.delete("/api/listings/$listingId/images/$imageId") {
+            authorize()
+        }.bodyOrThrow<Unit>()
+    }
+
+    suspend fun updateListingImagesOrder(
+        authorize: HttpRequestBuilder.() -> Unit,
+        listingId: String,
+        request: UpdateListingImagesOrderRequestDto,
+    ) {
+        httpClient.put("/api/listings/$listingId/images/order") {
+            authorize()
+            setBody(request)
+        }.bodyOrThrow<Unit>()
+    }
 }
 
 private fun String.safeMultipartFileName(): String {

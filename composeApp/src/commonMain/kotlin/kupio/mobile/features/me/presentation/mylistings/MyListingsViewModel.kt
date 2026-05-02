@@ -14,10 +14,13 @@ import kupio.mobile.features.auth.domain.model.AuthSessionExpiredException
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.domain.repository.MeRepository
+import kupio.mobile.core.analytics.AnalyticsService
+import kupio.mobile.core.analytics.NoOpAnalyticsService
 
 class MyListingsViewModel(
     private val meRepository: MeRepository,
     private val sessionManager: AuthSessionManager,
+    private val analytics: AnalyticsService = NoOpAnalyticsService(),
 ) : ViewModel() {
     private val _state = MutableStateFlow(MyListingsState())
     val state = _state.asStateFlow()
@@ -35,13 +38,19 @@ class MyListingsViewModel(
             MyListingsIntent.BackClicked -> viewModelScope.launch {
                 effectChannel.send(MyListingsEffect.NavigateBack)
             }
-            is MyListingsIntent.EditListing -> Unit
+            is MyListingsIntent.EditListing -> viewModelScope.launch {
+                effectChannel.send(MyListingsEffect.EditListing(intent.id))
+            }
             is MyListingsIntent.BumpUp -> Unit
             is MyListingsIntent.Promote -> Unit
+            is MyListingsIntent.OpenListing -> viewModelScope.launch {
+                effectChannel.send(MyListingsEffect.OpenListing(intent.id))
+            }
             is MyListingsIntent.ToggleActiveClicked -> prepareStatusChange(intent.id)
             MyListingsIntent.ConfirmStatusChange -> confirmStatusChange()
             MyListingsIntent.DismissStatusChange -> _state.update { it.copy(statusChangeConfirmation = null) }
             MyListingsIntent.RetryLoad -> loadListings()
+            MyListingsIntent.RefreshListings -> loadListings(refresh = true)
         }
     }
 
@@ -91,6 +100,7 @@ class MyListingsViewModel(
                         updatingListingId = null,
                     )
                 }
+                analytics.logEvent("update_listing_status", mapOf("item_id" to confirmation.listingId, "new_status" to confirmation.targetStatus.name, "source" to "my_listings"))
             }.onFailure { throwable ->
                 if (throwable is CancellationException) throw throwable
                 if (throwable is AuthSessionExpiredException) {
@@ -108,8 +118,14 @@ class MyListingsViewModel(
         }
     }
 
-    private fun loadListings() {
-        _state.update { it.copy(isLoading = true, errorMessage = null) }
+    private fun loadListings(refresh: Boolean = false) {
+        _state.update {
+            if (refresh) {
+                it.copy(isRefreshing = true, errorMessage = null)
+            } else {
+                it.copy(isLoading = true, errorMessage = null)
+            }
+        }
         viewModelScope.launch {
             runCatching { meRepository.getMyListings() }
                 .onSuccess { listings ->
@@ -121,12 +137,20 @@ class MyListingsViewModel(
                             activeCount = active,
                             inactiveCount = inactive,
                             isLoading = false,
+                            isRefreshing = false,
                         )
                     }
                 }
                 .onFailure { t ->
                     if (t is CancellationException) throw t
-                    _state.update { it.copy(isLoading = false, errorMessage = t.message) }
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            isRefreshing = false,
+                            errorMessage = t.message,
+                        )
+                    }
+                    analytics.recordException(t, mapOf("screen" to "my_listings"))
                 }
         }
     }
@@ -140,4 +164,3 @@ private fun OwnedListingStatus.nextToggleStatus(): OwnedListingStatus? = when (t
     OwnedListingStatus.SOLD,
     -> null
 }
-

@@ -3,7 +3,6 @@ package kupio.mobile.features.listings.presentation.create
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,18 +11,22 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kupio.mobile.core.network.ApiException
 import kupio.mobile.features.listings.data.image.MaxListingImages
 import kupio.mobile.features.listings.data.image.isSupportedListingImageMimeType
-import kupio.mobile.features.listings.domain.model.Category
-import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
+import kupio.mobile.features.listings.presentation.form.ListingFormController
+import kupio.mobile.features.listings.presentation.form.move
+import kupio.mobile.features.listings.presentation.form.toCreateError
+import kupio.mobile.features.listings.presentation.form.toUpload
+import kupio.mobile.core.analytics.AnalyticsService
+import kupio.mobile.core.analytics.NoOpAnalyticsService
 
 class CreateViewModel(
     private val listingsRepository: ListingsRepository,
     private val categoriesRepository: CategoriesRepository,
+    private val analytics: AnalyticsService = NoOpAnalyticsService(),
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CreateState())
@@ -32,13 +35,18 @@ class CreateViewModel(
     private val effectChannel = Channel<CreateEffect>(Channel.BUFFERED)
     val effects: Flow<CreateEffect> = effectChannel.receiveAsFlow()
 
-    private var filtersJob: Job? = null
-    private var subcategoriesJob: Job? = null
     private var pendingCreatedListingId: String? = null
     private var uploadedImagesListingId: String? = null
+    private val formController = ListingFormController(
+        categoriesRepository = categoriesRepository,
+        scope = viewModelScope,
+        currentState = { _state.value },
+        updateState = { transform -> _state.update(transform) },
+        onFormChanged = ::resetPendingSubmission,
+    )
 
     init {
-        loadCategories()
+        formController.loadCategories()
     }
 
     fun onIntent(intent: CreateIntent) {
@@ -58,39 +66,22 @@ class CreateViewModel(
                     )
                 }
             }
-            is CreateIntent.TitleChanged -> updateField(CreateField.TITLE) { it.copy(title = intent.value) }
-            is CreateIntent.DescriptionChanged -> updateField(CreateField.DESCRIPTION) {
-                it.copy(description = intent.value)
-            }
-            is CreateIntent.PriceChanged -> updateField(CreateField.PRICE) { it.copy(price = intent.value) }
-            is CreateIntent.CurrencyChanged -> {
-                resetPendingSubmission()
-                _state.update { it.copy(currency = intent.value) }
-            }
-            is CreateIntent.CategorySelected -> selectCategory(intent.id)
-            CreateIntent.CategoryPickerReset -> resetCategoryPicker()
-            CreateIntent.CategoryPickerBack -> navigateCategoryPickerBack()
-            CreateIntent.RetrySubcategories -> _state.value.categoryPath.lastOrNull()?.id?.let {
-                loadSubcategories(it, forceRefresh = true)
-            }
-            is CreateIntent.FilterTextChanged -> updateFilterText(intent.slug, intent.value)
-            is CreateIntent.FilterBooleanChanged -> updateFilterBoolean(intent.slug, intent.value)
-            CreateIntent.ToggleFree -> {
-                resetPendingSubmission()
-                _state.update {
-                    it.copy(
-                        isFree = !it.isFree,
-                        price = if (!it.isFree) "0" else it.price,
-                        fieldErrors = it.fieldErrors - CreateField.PRICE,
-                    )
-                }
-            }
-            CreateIntent.ToggleTradable -> {
-                resetPendingSubmission()
-                _state.update { it.copy(isTradable = !it.isTradable) }
-            }
-            CreateIntent.RetryCategories -> loadCategories()
-            CreateIntent.RetryFilters -> _state.value.selectedCategoryId?.let { loadFilters(it, forceRefresh = true) }
+            is CreateIntent.MoveImage -> moveImage(intent.fromIndex, intent.toIndex)
+            is CreateIntent.TitleChanged,
+            is CreateIntent.DescriptionChanged,
+            is CreateIntent.PriceChanged,
+            is CreateIntent.CurrencyChanged,
+            is CreateIntent.CategorySelected,
+            CreateIntent.CategoryPickerReset,
+            CreateIntent.CategoryPickerBack,
+            CreateIntent.RetrySubcategories,
+            is CreateIntent.FilterTextChanged,
+            is CreateIntent.FilterBooleanChanged,
+            CreateIntent.ToggleFree,
+            CreateIntent.ToggleTradable,
+            CreateIntent.RetryCategories,
+            CreateIntent.RetryFilters,
+            -> formController.handle(intent)
             CreateIntent.SaveDraft -> submit(activate = false)
             CreateIntent.Publish -> submit(activate = true)
             CreateIntent.Back -> viewModelScope.launch { effectChannel.send(CreateEffect.NavigateBack) }
@@ -108,206 +99,26 @@ class CreateViewModel(
             val merged = state.images + newImages.take(remainingSlots.coerceAtLeast(0))
             val hitLimit = remainingSlots <= 0 || newImages.size > remainingSlots
             val hasUnsupportedImages = supportedImages.size != images.size
+            val warning = when {
+                hasUnsupportedImages -> CreateError.UnsupportedImage
+                hitLimit -> CreateError.ImageLimitReached(MaxListingImages)
+                else -> null
+            }
+            if (hasUnsupportedImages) analytics.logEvent("image_error", mapOf("reason" to "unsupported"))
+            if (hitLimit) analytics.logEvent("image_error", mapOf("reason" to "limit_reached"))
+
             state.copy(
                 images = merged,
-                imageWarning = when {
-                    hasUnsupportedImages -> CreateError.UnsupportedImage
-                    hitLimit -> CreateError.ImageLimitReached(MaxListingImages)
-                    else -> null
-                },
+                imageWarning = warning,
             )
         }
     }
 
-    private fun updateField(
-        field: CreateField,
-        transform: (CreateState) -> CreateState,
-    ) {
+    private fun moveImage(fromIndex: Int, toIndex: Int) {
         resetPendingSubmission()
         _state.update { state ->
-            transform(state).copy(
-                fieldErrors = state.fieldErrors - field,
-                submitError = null,
-            )
-        }
-    }
-
-    private fun updateFilterText(slug: String, value: String) {
-        resetPendingSubmission()
-        _state.update { state ->
-            state.copy(
-                filterValues = state.filterValues + (slug to CreateFilterInput.Text(value)),
-                filterErrors = state.filterErrors - slug,
-                submitError = null,
-            )
-        }
-    }
-
-    private fun updateFilterBoolean(slug: String, value: Boolean?) {
-        resetPendingSubmission()
-        _state.update { state ->
-            state.copy(
-                filterValues = state.filterValues + (slug to CreateFilterInput.BooleanValue(value)),
-                filterErrors = state.filterErrors - slug,
-                submitError = null,
-            )
-        }
-    }
-
-    private fun selectCategory(categoryId: Int) {
-        resetPendingSubmission()
-        val state = _state.value
-        val category = state.findKnownCategory(categoryId)
-        val categoryPath = category?.let { state.pathTo(it) } ?: emptyList()
-        val isSameCategory = state.selectedCategoryId == categoryId
-        _state.update {
-            it.copy(
-                selectedCategoryId = categoryId,
-                selectedCategoryName = category?.name,
-                categoryPath = categoryPath,
-                visibleSubcategories = emptyList(),
-                isLoadingSubcategories = false,
-                subcategoriesError = null,
-                filters = if (isSameCategory) it.filters else emptyList(),
-                filterValues = if (isSameCategory) it.filterValues else emptyMap(),
-                filterErrors = if (isSameCategory) it.filterErrors else emptyMap(),
-                fieldErrors = it.fieldErrors - CreateField.CATEGORY - CreateField.CUSTOM_FILTERS,
-                filtersError = if (isSameCategory) it.filtersError else null,
-                submitError = null,
-            )
-        }
-        if (!isSameCategory) {
-            loadFilters(categoryId)
-        }
-        loadSubcategories(categoryId)
-    }
-
-    private fun navigateCategoryPickerBack() {
-        val path = _state.value.categoryPath
-        if (path.size <= 1) {
-            resetCategoryPicker()
-        } else {
-            selectCategory(path[path.lastIndex - 1].id)
-        }
-    }
-
-    private fun resetCategoryPicker() {
-        subcategoriesJob?.cancel()
-        _state.update {
-            it.copy(
-                categoryPath = emptyList(),
-                visibleSubcategories = emptyList(),
-                isLoadingSubcategories = false,
-                subcategoriesError = null,
-            )
-        }
-    }
-
-    private fun loadCategories() {
-        _state.update {
-            it.copy(
-                isLoadingCategories = true,
-                categoriesError = null,
-                categoryPath = emptyList(),
-                visibleSubcategories = emptyList(),
-                subcategoriesError = null,
-            )
-        }
-        viewModelScope.launch {
-            runCatching { categoriesRepository.getRootCategories(limit = 100) }
-                .onSuccess { categories ->
-                    _state.update {
-                        it.copy(
-                            categories = categories,
-                            isLoadingCategories = false,
-                            categoriesError = null,
-                        )
-                    }
-                }
-                .onFailure { throwable ->
-                    if (throwable is CancellationException) throw throwable
-                    _state.update {
-                        it.copy(
-                            isLoadingCategories = false,
-                            categoriesError = throwable.message.orGenericError(),
-                        )
-                    }
-                }
-        }
-    }
-
-    private fun loadSubcategories(
-        categoryId: Int,
-        forceRefresh: Boolean = false,
-    ) {
-        subcategoriesJob?.cancel()
-        _state.update {
-            it.copy(
-                isLoadingSubcategories = true,
-                subcategoriesError = null,
-            )
-        }
-        subcategoriesJob = viewModelScope.launch {
-            runCatching {
-                categoriesRepository.getSubcategories(
-                    categoryId = categoryId,
-                    limit = 100,
-                    forceRefresh = forceRefresh,
-                )
-            }.onSuccess { subcategories ->
-                _state.update { state ->
-                    if (state.selectedCategoryId != categoryId) {
-                        state
-                    } else {
-                        state.copy(
-                            visibleSubcategories = subcategories,
-                            isLoadingSubcategories = false,
-                            subcategoriesError = null,
-                        )
-                    }
-                }
-            }.onFailure { throwable ->
-                if (throwable is CancellationException) throw throwable
-                _state.update { state ->
-                    if (state.selectedCategoryId != categoryId) {
-                        state
-                    } else {
-                        state.copy(
-                            isLoadingSubcategories = false,
-                            subcategoriesError = throwable.message.orGenericError(),
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun loadFilters(
-        categoryId: Int,
-        forceRefresh: Boolean = false,
-    ) {
-        filtersJob?.cancel()
-        _state.update { it.copy(isLoadingFilters = true, filtersError = null) }
-        filtersJob = viewModelScope.launch {
-            runCatching { categoriesRepository.getCategoryFilters(categoryId, forceRefresh = forceRefresh) }
-                .onSuccess { filters ->
-                    _state.update {
-                        it.copy(
-                            filters = filters,
-                            isLoadingFilters = false,
-                            filtersError = null,
-                        )
-                    }
-                }
-                .onFailure { throwable ->
-                    if (throwable is CancellationException) throw throwable
-                    _state.update {
-                        it.copy(
-                            isLoadingFilters = false,
-                            filtersError = throwable.message.orGenericError(),
-                        )
-                    }
-                }
+            val images = state.images.move(fromIndex, toIndex) ?: return@update state
+            state.copy(images = images, imageWarning = null)
         }
     }
 
@@ -372,6 +183,10 @@ class CreateViewModel(
                         categoriesError = it.categoriesError,
                     )
                 }
+                analytics.logEvent("create_listing", mapOf(
+                    "status" to if (activate) "published" else "draft",
+                    "image_count" to images.size.toString(),
+                ))
                 effectChannel.send(CreateEffect.NavigateBack)
             }.onFailure { throwable ->
                 if (throwable is CancellationException) throw throwable
@@ -379,9 +194,10 @@ class CreateViewModel(
                     it.copy(
                         isSubmitting = false,
                         fieldErrors = throwable.fieldErrors(),
-                        submitError = throwable.message.orGenericError(),
+                        submitError = throwable.message.toCreateError(),
                     )
                 }
+                analytics.recordException(throwable, mapOf("screen" to "create_listing"))
             }
         }
     }
@@ -391,45 +207,3 @@ class CreateViewModel(
         uploadedImagesListingId = null
     }
 }
-
-private fun CreateState.findKnownCategory(categoryId: Int): Category? =
-    categories.firstOrNull { it.id == categoryId }
-        ?: categoryPath.firstOrNull { it.id == categoryId }
-        ?: visibleSubcategories.firstOrNull { it.id == categoryId }
-
-private fun CreateState.pathTo(category: Category): List<Category> {
-    val existingPathIndex = categoryPath.indexOfFirst { it.id == category.id }
-    if (existingPathIndex >= 0) return categoryPath.take(existingPathIndex + 1)
-
-    return if (category.parentId == categoryPath.lastOrNull()?.id) {
-        categoryPath + category
-    } else {
-        listOf(category)
-    }
-}
-
-private fun SelectedListingImage.toUpload(): ListingImageUpload = ListingImageUpload(
-    fileName = fileName,
-    mimeType = mimeType,
-    bytes = bytes,
-)
-
-private fun Throwable.fieldErrors(): Map<CreateField, CreateError> {
-    val apiException = this as? ApiException ?: return emptyMap()
-    return apiException.fieldErrors.mapNotNull { error ->
-        val field = when (error.field) {
-            "title" -> CreateField.TITLE
-            "description" -> CreateField.DESCRIPTION
-            "price" -> CreateField.PRICE
-            "category_id" -> CreateField.CATEGORY
-            "custom_filters" -> CreateField.CUSTOM_FILTERS
-            else -> null
-        }
-        field?.let { it to CreateError.ServerMessage(error.message) }
-    }.toMap()
-}
-
-private fun String?.orGenericError(): CreateError =
-    takeUnless { it.isNullOrBlank() }
-        ?.let { CreateError.ServerMessage(it) }
-        ?: CreateError.Generic

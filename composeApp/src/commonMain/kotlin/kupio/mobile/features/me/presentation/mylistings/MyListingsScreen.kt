@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,6 +30,8 @@ import kupio.mobile.core.designsystem.KupioTopBarBackAction
 import kupio.mobile.core.designsystem.KupioTopBarIconAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
 import kupio.mobile.core.presentation.CollectEffect
+import kupio.mobile.features.listings.presentation.detail.ListingDetailScreen
+import kupio.mobile.features.listings.presentation.edit.EditListingScreen
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.presentation.mylistings.components.FilterChipsRow
 import kupio.mobile.features.me.presentation.mylistings.components.OwnedListingCard
@@ -53,12 +56,15 @@ class MyListingsScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val rootNavigator = generateSequence(navigator) { it.parent }.last()
         val viewModel = koinViewModel<MyListingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
 
         CollectEffect(viewModel.effects) { effect ->
             when (effect) {
                 MyListingsEffect.NavigateBack -> navigator.pop()
+                is MyListingsEffect.OpenListing -> rootNavigator.push(ListingDetailScreen(effect.id))
+                is MyListingsEffect.EditListing -> rootNavigator.push(EditListingScreen(effect.id))
             }
         }
 
@@ -93,51 +99,58 @@ private fun MyListingsRoute(state: MyListingsState, onIntent: (MyListingsIntent)
             )
         },
     ) {
-        Column(
+        PullToRefreshBox(
+            isRefreshing = state.isRefreshing,
+            onRefresh = { onIntent(MyListingsIntent.RefreshListings) },
             modifier = Modifier
                 .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
         ) {
-            FilterChipsRow(
-                selectedFilter = state.filter,
-                onFilterSelected = { onIntent(MyListingsIntent.FilterSelected(it)) },
-            )
-            when {
-                state.isLoading -> KupioLoadingScreen()
-                state.errorMessage != null && state.visibleListings.isEmpty() -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        KupioErrorRetryRow(
-                            message = stringResource(Res.string.my_listings_load_error),
-                            onRetry = { onIntent(MyListingsIntent.RetryLoad) },
-                        )
-                    }
-                }
-                state.visibleListings.isEmpty() -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(
-                            text = stringResource(Res.string.my_listings_empty),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
-                    ) {
-                        items(state.visibleListings, key = { it.id }) { listing ->
-                            OwnedListingCard(
-                                listing = listing,
-                                onEdit = { onIntent(MyListingsIntent.EditListing(listing.id)) },
-                                onBumpUp = { onIntent(MyListingsIntent.BumpUp(listing.id)) },
-                                onPromote = { onIntent(MyListingsIntent.Promote(listing.id)) },
-                                onToggleStatus = { onIntent(MyListingsIntent.ToggleActiveClicked(listing.id)) },
-                                isStatusActionEnabled =
-                                    state.updatingListingId == null && listing.status.canToggleStatus(),
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
+            ) {
+                FilterChipsRow(
+                    selectedFilter = state.filter,
+                    onFilterSelected = { onIntent(MyListingsIntent.FilterSelected(it)) },
+                )
+                when {
+                    state.isLoading -> KupioLoadingScreen()
+                    state.errorMessage != null && state.visibleListings.isEmpty() -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            KupioErrorRetryRow(
+                                message = stringResource(Res.string.my_listings_load_error),
+                                onRetry = { onIntent(MyListingsIntent.RetryLoad) },
                             )
                         }
-                        item { Spacer(modifier = Modifier.height(KupioThemeDefaults.spacing.xl)) }
+                    }
+                    state.visibleListings.isEmpty() -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = stringResource(Res.string.my_listings_empty),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
+                        ) {
+                            items(state.visibleListings, key = { it.id }) { listing ->
+                                OwnedListingCard(
+                                    listing = listing,
+                                    onClick = { onIntent(MyListingsIntent.OpenListing(listing.id)) },
+                                    onEdit = { onIntent(MyListingsIntent.EditListing(listing.id)) },
+                                    onBumpUp = { onIntent(MyListingsIntent.BumpUp(listing.id)) },
+                                    onPromote = { onIntent(MyListingsIntent.Promote(listing.id)) },
+                                    onToggleStatus = { onIntent(MyListingsIntent.ToggleActiveClicked(listing.id)) },
+                                    isStatusActionEnabled =
+                                        state.updatingListingId == null && listing.status.canToggleStatus(),
+                                )
+                            }
+                            item { Spacer(modifier = Modifier.height(KupioThemeDefaults.spacing.xl)) }
+                        }
                     }
                 }
             }

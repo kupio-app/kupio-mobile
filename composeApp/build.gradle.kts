@@ -52,6 +52,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 val validateReleaseRuntimeConfig by tasks.registering(ValidateReleaseRuntimeConfigTask::class) {
@@ -83,6 +84,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            export(libs.kmpnotifier)
         }
     }
 
@@ -105,6 +107,8 @@ kotlin {
             implementation(libs.compose.ui)
             implementation(libs.compose.components.resources)
             implementation(libs.compose.uiToolingPreview)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor3)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.androidx.datastore)
@@ -123,7 +127,9 @@ kotlin {
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.tab.navigator)
             implementation(compose.materialIconsExtended)
-            api("io.github.mirzemehdi:kmpnotifier:${libs.versions.kmpnotifier.get()}")
+            api(libs.kmpnotifier)
+            implementation(libs.firebase.analytics)
+            implementation(libs.firebase.crashlytics)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -158,6 +164,7 @@ android {
     }
     buildTypes {
         getByName("debug") {
+            manifestPlaceholders["crashlyticsCollectionEnabled"] = "false"
             buildConfigField(
                 "String",
                 "KUPIO_BACKEND_BASE_URL",
@@ -177,6 +184,7 @@ android {
         }
         getByName("release") {
             isMinifyEnabled = false
+            manifestPlaceholders["crashlyticsCollectionEnabled"] = "true"
             buildConfigField(
                 "String",
                 "KUPIO_BACKEND_BASE_URL",

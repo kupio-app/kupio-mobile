@@ -18,6 +18,7 @@ import kupio.mobile.core.designsystem.KupioButton
 import kupio.mobile.core.designsystem.KupioCenteredContent
 import kupio.mobile.core.designsystem.KupioText
 import kupio.mobile.core.designsystem.KupioThemeDefaults
+import kupio.mobile.core.analytics.AnalyticsService
 import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.presentation.auth.AuthScreen
 import kupio.mobile.features.auth.presentation.username.UsernameScreen
@@ -62,8 +63,18 @@ fun KupioNavigator() {
 @Composable
 private fun KupioDefaultNavigator(screen: Screen) {
     val notificationNavigator = koinInject<NotificationNavigator>()
+    val analytics = koinInject<AnalyticsService>()
 
     Navigator(screen) { navigator ->
+        val currentScreen = navigator.lastItem
+        LaunchedEffect(currentScreen) {
+            val screenClass = currentScreen::class.simpleName ?: "UnknownScreen"
+            analytics.logEvent("screen_view", mapOf(
+                "screen_name" to screenClass,
+                "screen_class" to screenClass
+            ))
+        }
+
         // Listen to the Event Bus for Deep Links
         LaunchedEffect(Unit) {
             notificationNavigator.navigationEvents.collect { targetScreen ->

@@ -104,6 +104,9 @@ class MyListingsViewModelTest {
 
         override suspend fun getMyListings(): List<OwnedListing> = listings.toList()
 
+        override suspend fun getMyListing(listingId: String): OwnedListing? =
+            listings.firstOrNull { it.id == listingId }
+
         override suspend fun updateListingStatus(listingId: String, status: OwnedListingStatus) {
             val index = listings.indexOfFirst { it.id == listingId }
             if (index >= 0) {
@@ -144,4 +147,3 @@ private fun listing(id: String, status: OwnedListingStatus) = OwnedListing(
     isPromoted = false,
     promotionExpiresAt = null,
 )
-

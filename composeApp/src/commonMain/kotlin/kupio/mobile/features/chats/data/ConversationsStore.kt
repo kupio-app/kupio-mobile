@@ -23,6 +23,7 @@ import kupio.mobile.features.chats.domain.model.ChatSummary
 import kupio.mobile.features.chats.domain.model.ConversationData
 import kupio.mobile.features.chats.domain.model.ListingSummary
 import kupio.mobile.features.chats.domain.repository.ChatsRepository
+import kupio.mobile.features.chats.domain.repository.ConversationsRefresher
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 
 class ConversationsStore(
@@ -32,7 +33,7 @@ class ConversationsStore(
     private val authenticatedApiClient: AuthenticatedApiClient,
     private val preferences: PreferencesRepository,
     sessionCleaner: SessionCleaner,
-) {
+) : ConversationsRefresher {
     private val _chats = MutableStateFlow<List<ChatSummary>>(emptyList())
     private val _isLoading = MutableStateFlow(false)
     private val _error = MutableStateFlow<String?>(null)
@@ -57,7 +58,7 @@ class ConversationsStore(
     fun observeConversation(id: String): Flow<ChatSummary?> =
         _chats.map { list -> list.find { it.id == id } }
 
-    suspend fun refresh() {
+    override suspend fun refresh() {
         _isLoading.value = true
         _error.value = null
         try {

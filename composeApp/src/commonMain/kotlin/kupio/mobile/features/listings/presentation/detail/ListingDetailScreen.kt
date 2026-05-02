@@ -171,7 +171,7 @@ private fun ListingDetailContent(
                 modifier = Modifier.align(Alignment.TopCenter),
                 listState = listState,
                 actions = {
-                    if (!state.isOwnListing && !state.isLoading) {
+                    if (!state.isOwnListing && !state.isLoading && state.listing != null) {
                         ListingFloatingIconButton(
                             onClick = { onIntent(ListingDetailIntent.ToggleFavourite) },
                             contentDescription = stringResource(

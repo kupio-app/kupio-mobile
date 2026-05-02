@@ -89,6 +89,7 @@ import kupio.mobile.features.listings.presentation.components.ListingFloatingIco
 import kupio.mobile.features.listings.presentation.components.ListingImage
 import kupio.mobile.features.listings.presentation.edit.EditListingScreen
 import kupio.mobile.features.me.presentation.mylistings.components.StatusChangeDialog
+import kupio.mobile.features.reports.presentation.create.CreateReportScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.back
 import mobile.composeapp.generated.resources.listing_detail_chats
@@ -150,6 +151,14 @@ data class ListingDetailScreen(val listingId: String) : Screen {
                 ListingDetailEffect.NavigateBack -> navigator.pop()
                 is ListingDetailEffect.OpenChat -> navigator.push(ChatThreadScreen(effect.conversationId))
                 is ListingDetailEffect.OpenEdit -> navigator.replace(EditListingScreen(effect.listingId))
+                is ListingDetailEffect.NavigateToReport -> navigator.push(
+                    CreateReportScreen(
+                        listingId = effect.listingId,
+                        listingTitle = effect.listingTitle,
+                        listingImageUrl = effect.listingImageUrl,
+                        listingPriceFormatted = effect.listingPriceFormatted,
+                    )
+                )
             }
         }
         ListingDetailContent(state = state, onIntent = viewModel::onIntent)

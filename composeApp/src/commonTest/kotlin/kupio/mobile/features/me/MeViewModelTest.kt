@@ -27,6 +27,11 @@ import kupio.mobile.features.me.domain.repository.MeRepository
 import kupio.mobile.features.me.presentation.profile.MeEffect
 import kupio.mobile.features.me.presentation.profile.MeIntent
 import kupio.mobile.features.me.presentation.profile.MeViewModel
+import kupio.mobile.features.reports.domain.model.ListReportsResult
+import kupio.mobile.features.reports.domain.model.ReportDetail
+import kupio.mobile.features.reports.domain.model.ReportReason
+import kupio.mobile.features.reports.domain.model.ReportsDashboardStats
+import kupio.mobile.features.reports.domain.repository.ReportsRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MeViewModelTest {
@@ -48,6 +53,7 @@ class MeViewModelTest {
             preferencesRepository = preferences,
             sessionManager = sessionManager,
             meRepository = FakeMeRepository(),
+            reportsRepository = FakeReportsRepository(),
         )
     }
 
@@ -101,6 +107,7 @@ class MeViewModelTest {
         initialMode: ThemeMode,
     ) : PreferencesRepository {
         override val themeMode = MutableStateFlow(initialMode)
+        override val pushToken = MutableStateFlow<String?>(null)
 
         override suspend fun setThemeMode(mode: ThemeMode) {
             themeMode.value = mode
@@ -109,6 +116,10 @@ class MeViewModelTest {
         override fun chatLastSeenEpochMillis(conversationId: String) = MutableStateFlow<Long?>(null)
 
         override suspend fun markChatSeen(conversationId: String, epochMillis: Long) = Unit
+
+        override fun savePushToken(token: String) {
+            pushToken.value = token
+        }
     }
 
     private class FakeAuthRepository : AuthRepository {
@@ -136,5 +147,33 @@ class MeViewModelTest {
         override suspend fun getMyListing(listingId: String): OwnedListing? = null
 
         override suspend fun updateListingStatus(listingId: String, status: OwnedListingStatus) = Unit
+    }
+
+    private class FakeReportsRepository : ReportsRepository {
+        override suspend fun getReportReasons(): List<ReportReason> = emptyList()
+
+        override suspend fun createListingReport(
+            listingId: String,
+            reasonId: Int,
+            additionalInfo: String?,
+        ) = Unit
+
+        override suspend fun getReports(
+            status: String?,
+            seen: String?,
+            cursor: String?,
+        ): ListReportsResult = ListReportsResult(
+            stats = ReportsDashboardStats(newToday = 0, noAction = 0, unseen = 0),
+            reports = emptyList(),
+            nextCursor = null,
+        )
+
+        override suspend fun getReportDetail(reportId: Int): ReportDetail = error("unused")
+
+        override suspend fun submitDecision(
+            reportId: Int,
+            action: String,
+            comment: String?,
+        ): ReportDetail = error("unused")
     }
 }

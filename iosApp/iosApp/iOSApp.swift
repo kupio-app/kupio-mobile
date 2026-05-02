@@ -3,16 +3,41 @@ import FirebaseCore
 import FirebaseCrashlytics
 import GoogleSignIn
 import SwiftUI
+import FirebaseCore
 
-@main
-struct iOSApp: App {
-    init() {
+class AppDelegate: NSObject, UIApplicationDelegate {
+
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
+    ) -> Bool {
+
         FirebaseApp.configure()
+
         #if DEBUG
         Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
         #endif
-        GoogleSignInBridgeKt.registerGoogleSignInLauncher(launcher: IOSGoogleSignInLauncher())
+
+        NotifierManager.shared.initialize(
+            configuration: NotificationPlatformConfigurationIos(
+                showPushNotification: false,
+                askNotificationPermissionOnStart: true,
+                notificationSoundName: nil
+            )
+        )
+
+        GoogleSignInBridgeKt.registerGoogleSignInLauncher(
+            launcher: IOSGoogleSignInLauncher()
+        )
+
+        return true
     }
+}
+
+@main
+struct iOSApp: App {
+
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
     var body: some Scene {
         WindowGroup {

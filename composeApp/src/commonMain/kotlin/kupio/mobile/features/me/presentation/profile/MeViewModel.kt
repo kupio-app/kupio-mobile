@@ -15,11 +15,13 @@ import kupio.mobile.core.preferences.ThemeMode
 import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.me.domain.repository.MeRepository
+import kupio.mobile.features.reports.domain.repository.ReportsRepository
 
 class MeViewModel(
     private val preferencesRepository: PreferencesRepository,
     private val sessionManager: AuthSessionManager,
     private val meRepository: MeRepository,
+    private val reportsRepository: ReportsRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(MeState())
     val state = _state.asStateFlow()
@@ -41,6 +43,9 @@ class MeViewModel(
                     else -> null
                 }
                 _state.update { it.copy(user = user) }
+                if (user?.role?.canModerate == true) {
+                    loadReportStats()
+                }
             }
         }
         loadStats()
@@ -53,11 +58,11 @@ class MeViewModel(
             MeIntent.ChatsClicked -> emitEffect(MeEffect.NavigateToChats)
             MeIntent.FavouritesClicked -> emitEffect(MeEffect.NavigateToFavourites)
             MeIntent.SettingsClicked -> emitEffect(MeEffect.NavigateToSettings)
+            MeIntent.ReportsDashboardClicked -> emitEffect(MeEffect.NavigateToReportsDashboard)
             MeIntent.TopUpBalanceClicked,
             MeIntent.PaymentsHistoryClicked,
             MeIntent.PromotionsPackagesClicked,
-            MeIntent.EditProfileClicked,
-            MeIntent.ReportsDashboardClicked -> Unit
+            MeIntent.EditProfileClicked -> Unit
         }
     }
 
@@ -71,6 +76,18 @@ class MeViewModel(
                 .onFailure { t ->
                     if (t is CancellationException) throw t
                     _state.update { it.copy(isLoadingStats = false) }
+                }
+        }
+    }
+
+    private fun loadReportStats() {
+        viewModelScope.launch {
+            runCatching { reportsRepository.getReports(status = "pending") }
+                .onSuccess { result ->
+                    _state.update { it.copy(reportsDashboardUnseenCount = result.stats.unseen) }
+                }
+                .onFailure { t ->
+                    if (t is CancellationException) throw t
                 }
         }
     }

@@ -19,6 +19,7 @@ import kupio.mobile.features.chats.domain.model.ChatRole
 import kupio.mobile.features.chats.domain.repository.MessagesRepository
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.ListingStatus
+import kupio.mobile.features.listings.domain.model.formatPrice
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.me.domain.model.OwnedListing
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
@@ -74,9 +75,9 @@ class ListingDetailViewModel(
             ListingDetailIntent.DismissOwnerStatusChange -> _state.update { it.copy(statusChangeTarget = null) }
             ListingDetailIntent.EditListing -> openEdit()
             ListingDetailIntent.PromoteListing,
-            ListingDetailIntent.ReportListing,
             ListingDetailIntent.OpenSellerProfile,
             -> Unit
+            ListingDetailIntent.ReportListing -> reportListing()
         }
     }
 
@@ -263,6 +264,21 @@ class ListingDetailViewModel(
         if (!_state.value.isOwnListing) return
         viewModelScope.launch {
             effectChannel.send(ListingDetailEffect.OpenEdit(listing.id))
+        }
+    }
+
+    private fun reportListing() {
+        val listing = _state.value.listing ?: return
+        if (_state.value.isOwnListing) return
+        viewModelScope.launch {
+            effectChannel.send(
+                ListingDetailEffect.NavigateToReport(
+                    listingId = listing.id,
+                    listingTitle = listing.title,
+                    listingImageUrl = listing.primaryImageUrl.orEmpty(),
+                    listingPriceFormatted = listing.formatPrice(),
+                )
+            )
         }
     }
 

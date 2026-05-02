@@ -52,13 +52,16 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             }
 
             let title = NSLocalizedString("notif_unread_title", comment: "")
-            let body: (Int32) -> String = { count in
-                String(format: NSLocalizedString("notif_unread_body", comment: ""), count)
+            let body: (KotlinInt) -> String = { count in
+                String(
+                    format: NSLocalizedString("notif_unread_body", comment: ""),
+                    count.int32Value
+                )
             }
 
             // Runs shared Kotlin unread-message sync and completes the iOS background task.
             UnreadMessagesSyncTaskKt.performUnreadSync(title: title, body: body) { success in
-                refreshTask.setTaskCompleted(success: success?.boolValue ?? false)
+                refreshTask.setTaskCompleted(success: success.boolValue)
             }
         }
 

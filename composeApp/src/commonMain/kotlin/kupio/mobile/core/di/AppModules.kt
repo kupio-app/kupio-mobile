@@ -58,6 +58,12 @@ import kupio.mobile.features.saved.data.remote.FavouritesApi
 import kupio.mobile.features.saved.data.repository.FavouritesRepositoryImpl
 import kupio.mobile.features.saved.domain.repository.FavouritesRepository
 import kupio.mobile.features.saved.domain.ToggleFavouriteUseCase
+import kupio.mobile.features.search.data.repository.SearchHistoryRepositoryImpl
+import kupio.mobile.features.search.domain.SearchSharedState
+import kupio.mobile.features.search.domain.repository.SearchHistoryRepository
+import kupio.mobile.features.search.presentation.filters.SearchFiltersViewModel
+import kupio.mobile.features.search.presentation.queries.SearchQueriesViewModel
+import kupio.mobile.features.search.presentation.results.SearchResultsViewModel
 import kupio.mobile.features.settings.SettingsViewModel
 import kupio.mobile.core.navigation.RootNavigationViewModel
 import kupio.mobile.core.presentation.SnackbarManager
@@ -127,6 +133,11 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::CreateViewModel)
         viewModelOf(::MeViewModel)
         viewModelOf(::MyListingsViewModel)
+        single { SearchSharedState() }
+        single<SearchHistoryRepository> { SearchHistoryRepositoryImpl(get()) }
+        viewModelOf(::SearchFiltersViewModel)
+        viewModel { params -> SearchQueriesViewModel(get(), get(), params.get()) }
+        viewModel { params -> SearchResultsViewModel(get(), get(), get(), get(), get(), params.get()) }
         viewModelOf(::SettingsViewModel)
         viewModelOf(::SavedViewModel)
         viewModelOf(::UsernameViewModel)

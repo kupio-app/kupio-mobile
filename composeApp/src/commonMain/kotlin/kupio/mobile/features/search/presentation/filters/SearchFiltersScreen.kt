@@ -2,7 +2,6 @@ package kupio.mobile.features.search.presentation.filters
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -21,13 +20,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.outlined.ChevronRight
-import androidx.compose.material.icons.filled.RadioButtonChecked
-import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,77 +31,50 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kupio.mobile.core.designsystem.KupioShapes
+import kupio.mobile.core.designsystem.KupioSwitch
 import kupio.mobile.core.designsystem.KupioThemeDefaults
-import kupio.mobile.core.designsystem.KupioTopBarBackAction
-import kupio.mobile.core.designsystem.KupioTopNavbar
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.bouncingDimClickable
-import kupio.mobile.core.designsystem.borderTop
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.listings.domain.model.FilterDefinition
 import kupio.mobile.features.listings.domain.model.FilterType
-import kupio.mobile.features.search.domain.model.DealType
-import kupio.mobile.features.search.domain.model.SearchSortBy
+import kupio.mobile.features.search.presentation.filters.components.DealTypeSection
+import kupio.mobile.features.search.presentation.filters.components.FiltersBottomBar
+import kupio.mobile.features.search.presentation.filters.components.FiltersTopBar
+import kupio.mobile.features.search.presentation.filters.components.PriceRangeSection
+import kupio.mobile.features.search.presentation.filters.components.SortBySection
 import kupio.mobile.features.search.presentation.results.SearchResultsScreen
 import mobile.composeapp.generated.resources.Res
-import mobile.composeapp.generated.resources.back
 import mobile.composeapp.generated.resources.retry
 import mobile.composeapp.generated.resources.search_filters_all_categories
-import mobile.composeapp.generated.resources.search_filters_apply
 import mobile.composeapp.generated.resources.search_filters_categories
 import mobile.composeapp.generated.resources.search_filters_category_placeholder
-import mobile.composeapp.generated.resources.search_filters_clear_all
-import mobile.composeapp.generated.resources.search_filters_deal_for_sale
-import mobile.composeapp.generated.resources.search_filters_deal_free
-import mobile.composeapp.generated.resources.search_filters_deal_trade
 import mobile.composeapp.generated.resources.search_filters_error_load_filters
 import mobile.composeapp.generated.resources.search_filters_error_load_subcategories
 import mobile.composeapp.generated.resources.search_filters_only_with_photos
-import mobile.composeapp.generated.resources.search_filters_price_from
-import mobile.composeapp.generated.resources.search_filters_price_range
-import mobile.composeapp.generated.resources.search_filters_price_to
-import mobile.composeapp.generated.resources.search_filters_results_match
 import mobile.composeapp.generated.resources.search_filters_section_category
 import mobile.composeapp.generated.resources.search_filters_section_deal_type
 import mobile.composeapp.generated.resources.search_filters_section_price
 import mobile.composeapp.generated.resources.search_filters_section_query
 import mobile.composeapp.generated.resources.search_filters_section_show
 import mobile.composeapp.generated.resources.search_filters_section_sort
-import mobile.composeapp.generated.resources.search_filters_sort_newest
-import mobile.composeapp.generated.resources.search_filters_sort_price_asc
-import mobile.composeapp.generated.resources.search_filters_sort_price_desc
-import mobile.composeapp.generated.resources.search_filters_sort_recommended
 import mobile.composeapp.generated.resources.search_filters_subcategories
-import mobile.composeapp.generated.resources.search_filters_title
 import mobile.composeapp.generated.resources.search_filters_use_category
 import mobile.composeapp.generated.resources.search_placeholder
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
-private const val PRICE_MAX_VALUE = 10000f
 
 data class SearchFiltersScreen(val openResultsOnApply: Boolean = false) : Screen {
     @Composable
@@ -227,38 +193,6 @@ private fun SearchFiltersContent(
 }
 
 @Composable
-private fun FiltersTopBar(
-    state: SearchFiltersState,
-    onIntent: (SearchFiltersIntent) -> Unit,
-) {
-    val spacing = KupioThemeDefaults.spacing
-    val subtitle = state.resultCount?.let {
-        stringResource(Res.string.search_filters_results_match, state.resultCount)
-    }
-    KupioTopNavbar(
-        title = stringResource(Res.string.search_filters_title),
-        subtitle = subtitle,
-        leadingContent = {
-            KupioTopBarBackAction(
-                contentDescription = stringResource(Res.string.back),
-                onClick = { onIntent(SearchFiltersIntent.Back) },
-            )
-        },
-        trailingContent = {
-            Text(
-                text = stringResource(Res.string.search_filters_clear_all),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .bouncingClickable { onIntent(SearchFiltersIntent.ClearAll) }
-                    .padding(spacing.sm),
-            )
-        },
-    )
-}
-
-@Composable
 private fun FilterSectionLabel(title: String) {
     Text(
         text = title.uppercase(),
@@ -368,154 +302,6 @@ private fun CategorySection(
                 imageVector = Icons.Outlined.ChevronRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.outline,
-            )
-        }
-    }
-}
-
-@Composable
-private fun PriceRangeSection(
-    state: SearchFiltersState,
-    onIntent: (SearchFiltersIntent) -> Unit,
-) {
-    val spacing = KupioThemeDefaults.spacing
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = spacing.lg),
-        verticalArrangement = Arrangement.spacedBy(spacing.sm),
-    ) {
-        if (state.draft.minPrice != null || state.draft.maxPrice != null) {
-            Text(
-                text = stringResource(
-                    Res.string.search_filters_price_range,
-                    state.draft.minPrice ?: 0,
-                    state.draft.maxPrice ?: PRICE_MAX_VALUE.toInt(),
-                ),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-
-        Row(horizontalArrangement = Arrangement.spacedBy(spacing.sm)) {
-            PriceInputField(
-                label = stringResource(Res.string.search_filters_price_from),
-                value = state.draft.minPrice?.toString() ?: "",
-                onValueChange = { onIntent(SearchFiltersIntent.PriceMinChanged(it)) },
-                modifier = Modifier.weight(1f),
-            )
-            PriceInputField(
-                label = stringResource(Res.string.search_filters_price_to),
-                value = state.draft.maxPrice?.toString() ?: "",
-                onValueChange = { onIntent(SearchFiltersIntent.PriceMaxChanged(it)) },
-                modifier = Modifier.weight(1f),
-            )
-        }
-
-        KupioRangeSlider(
-            startValue = state.draft.minPrice?.toFloat() ?: 0f,
-            endValue = state.draft.maxPrice?.toFloat() ?: PRICE_MAX_VALUE,
-            valueRange = 0f..PRICE_MAX_VALUE,
-            onValueChange = { start, end ->
-                onIntent(SearchFiltersIntent.PriceRangeChanged(start.toInt(), end.toInt()))
-            },
-        )
-    }
-}
-
-@Composable
-private fun PriceInputField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier.height(52.dp),
-        shape = KupioShapes.Large,
-        color = MaterialTheme.colorScheme.surface,
-        border = KupioThemeDefaults.defaultBorder,
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = KupioThemeDefaults.spacing.md, vertical = 8.dp),
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Medium,
-            )
-            BasicTextField(
-                value = value,
-                onValueChange = { onValueChange(it.filter { c -> c.isDigit() }) },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                textStyle = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                ),
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-    }
-}
-
-@Composable
-private fun DealTypeSection(
-    state: SearchFiltersState,
-    onIntent: (SearchFiltersIntent) -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = KupioThemeDefaults.spacing.lg),
-        horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
-    ) {
-        DealTypeChip(
-            label = stringResource(Res.string.search_filters_deal_for_sale),
-            selected = state.draft.dealType == DealType.FOR_SALE,
-            onClick = { onIntent(SearchFiltersIntent.DealTypeSelected(DealType.FOR_SALE)) },
-            modifier = Modifier.weight(1f),
-        )
-        DealTypeChip(
-            label = stringResource(Res.string.search_filters_deal_free),
-            selected = state.draft.dealType == DealType.FREE,
-            onClick = { onIntent(SearchFiltersIntent.DealTypeSelected(DealType.FREE)) },
-            modifier = Modifier.weight(1f),
-        )
-        DealTypeChip(
-            label = stringResource(Res.string.search_filters_deal_trade),
-            selected = state.draft.dealType == DealType.TRADE,
-            onClick = { onIntent(SearchFiltersIntent.DealTypeSelected(DealType.TRADE)) },
-            modifier = Modifier.weight(1f),
-        )
-    }
-}
-
-@Composable
-private fun DealTypeChip(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier
-            .height(44.dp)
-            .bouncingDimClickable(shape = KupioShapes.Large, onClick = onClick),
-        shape = KupioShapes.Large,
-        color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surface,
-        border = if (selected) null else KupioThemeDefaults.strongBorder,
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = if (selected) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
             )
         }
     }
@@ -685,235 +471,6 @@ private fun ToggleRow(
                 modifier = Modifier.weight(1f),
             )
             KupioSwitch(checked = checked, onToggle = onToggle)
-        }
-    }
-}
-
-@Composable
-private fun KupioSwitch(
-    checked: Boolean,
-    onToggle: () -> Unit,
-) {
-    val thumbX by animateDpAsState(targetValue = if (checked) 20.dp else 2.dp)
-    val trackColor =
-        if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
-
-    Box(
-        modifier = Modifier
-            .width(46.dp)
-            .height(26.dp)
-            .bouncingClickable(onClick = onToggle),
-    ) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            shape = KupioShapes.Full,
-            color = trackColor,
-        ) {}
-        Surface(
-            modifier = Modifier
-                .size(22.dp)
-                .absoluteOffset(x = thumbX, y = 2.dp),
-            shape = KupioShapes.Full,
-            color = Color.White,
-        ) {}
-    }
-}
-
-@Composable
-private fun KupioRangeSlider(
-    startValue: Float,
-    endValue: Float,
-    valueRange: ClosedFloatingPointRange<Float>,
-    onValueChange: (start: Float, end: Float) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val inactiveColor = MaterialTheme.colorScheme.outlineVariant
-    val density = LocalDensity.current
-    val thumbRadiusPx = with(density) { 10.dp.toPx() }
-
-    val currentStart by rememberUpdatedState(startValue)
-    val currentEnd by rememberUpdatedState(endValue)
-    val currentCallback by rememberUpdatedState(onValueChange)
-
-    var sliderWidthPx by remember { mutableStateOf(0f) }
-    var draggingThumb by remember { mutableStateOf<Int?>(null) }
-
-    Canvas(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(24.dp)
-            .onGloballyPositioned { coords -> sliderWidthPx = coords.size.width.toFloat() }
-            .pointerInput(Unit) {
-                detectDragGestures(
-                    onDragStart = { offset ->
-                        val tw = (sliderWidthPx - thumbRadiusPx * 2).coerceAtLeast(1f)
-                        val range = valueRange.endInclusive - valueRange.start
-                        val sf = if (range == 0f) 0f else ((currentStart - valueRange.start) / range).coerceIn(0f, 1f)
-                        val ef = if (range == 0f) 1f else ((currentEnd - valueRange.start) / range).coerceIn(0f, 1f)
-                        val sx = sf * tw + thumbRadiusPx
-                        val ex = ef * tw + thumbRadiusPx
-                        draggingThumb = if (kotlin.math.abs(offset.x - sx) <= kotlin.math.abs(offset.x - ex)) 0 else 1
-                    },
-                    onDragEnd = { draggingThumb = null },
-                    onDragCancel = { draggingThumb = null },
-                    onDrag = { change, _ ->
-                        change.consume()
-                        val tw = (sliderWidthPx - thumbRadiusPx * 2).coerceAtLeast(1f)
-                        val f = ((change.position.x - thumbRadiusPx) / tw).coerceIn(0f, 1f)
-                        val v = valueRange.start + f * (valueRange.endInclusive - valueRange.start)
-                        when (draggingThumb) {
-                            0 -> currentCallback(v.coerceAtMost(currentEnd), currentEnd)
-                            1 -> currentCallback(currentStart, v.coerceAtLeast(currentStart))
-                        }
-                    },
-                )
-            },
-    ) {
-        val tw = (size.width - thumbRadiusPx * 2).coerceAtLeast(1f)
-        val centerY = size.height / 2f
-        val range = valueRange.endInclusive - valueRange.start
-        val sf = if (range == 0f) 0f else ((currentStart - valueRange.start) / range).coerceIn(0f, 1f)
-        val ef = if (range == 0f) 1f else ((currentEnd - valueRange.start) / range).coerceIn(0f, 1f)
-        val sx = sf * tw + thumbRadiusPx
-        val ex = ef * tw + thumbRadiusPx
-        val trackH = 4.dp.toPx()
-        val cr = CornerRadius(trackH / 2)
-
-        drawRoundRect(
-            color = inactiveColor,
-            topLeft = Offset(thumbRadiusPx, centerY - trackH / 2),
-            size = Size(tw, trackH),
-            cornerRadius = cr,
-        )
-        if (ex > sx) {
-            drawRoundRect(
-                color = primaryColor,
-                topLeft = Offset(sx, centerY - trackH / 2),
-                size = Size(ex - sx, trackH),
-                cornerRadius = cr,
-            )
-        }
-        listOf(sx, ex).forEach { cx ->
-            drawCircle(color = primaryColor, radius = thumbRadiusPx, center = Offset(cx, centerY))
-            drawCircle(color = Color.White, radius = thumbRadiusPx - 2.5f, center = Offset(cx, centerY))
-        }
-    }
-}
-
-@Composable
-private fun SortBySection(
-    state: SearchFiltersState,
-    onIntent: (SearchFiltersIntent) -> Unit,
-) {
-    val sorts = listOf(
-        SearchSortBy.RECOMMENDED to stringResource(Res.string.search_filters_sort_recommended),
-        SearchSortBy.NEWEST_FIRST to stringResource(Res.string.search_filters_sort_newest),
-        SearchSortBy.PRICE_LOW_HIGH to stringResource(Res.string.search_filters_sort_price_asc),
-        SearchSortBy.PRICE_HIGH_LOW to stringResource(Res.string.search_filters_sort_price_desc),
-    )
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = KupioThemeDefaults.spacing.lg),
-        shape = KupioShapes.Large,
-        color = MaterialTheme.colorScheme.surface,
-        border = KupioThemeDefaults.defaultBorder,
-    ) {
-        Column {
-            sorts.forEachIndexed { index, (sort, label) ->
-                SortByRow(
-                    label = label,
-                    selected = state.draft.sortBy == sort,
-                    onClick = { onIntent(SearchFiltersIntent.SortBySelected(sort)) },
-                    showDivider = index < sorts.lastIndex,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun SortByRow(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    showDivider: Boolean,
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .bouncingDimClickable(onClick = onClick),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = KupioThemeDefaults.spacing.md, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
-        ) {
-            Icon(
-                imageVector = if (selected) Icons.Filled.RadioButtonChecked else Icons.Outlined.RadioButtonUnchecked,
-                contentDescription = null,
-                tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                modifier = Modifier.size(22.dp),
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-            )
-        }
-        if (showDivider) {
-            androidx.compose.material3.HorizontalDivider(
-                modifier = Modifier.padding(horizontal = KupioThemeDefaults.spacing.md),
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                thickness = 0.5.dp,
-            )
-        }
-    }
-}
-
-@Composable
-private fun FiltersBottomBar(
-    onIntent: (SearchFiltersIntent) -> Unit,
-) {
-    val spacing = KupioThemeDefaults.spacing
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .borderTop(KupioThemeDefaults.borderWidths.thin, KupioThemeDefaults.navDividerColor),
-        color = MaterialTheme.colorScheme.background,
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = spacing.lg,
-                    end = spacing.lg,
-                    bottom = spacing.lg,
-                    top = spacing.md
-                ),
-            horizontalArrangement = Arrangement.spacedBy(spacing.sm),
-        ) {
-            Surface(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(52.dp)
-                    .bouncingDimClickable(shape = KupioShapes.Large) { onIntent(SearchFiltersIntent.Apply) },
-                shape = KupioShapes.Large,
-                color = MaterialTheme.colorScheme.onSurface,
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = stringResource(Res.string.search_filters_apply),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.surface,
-                    )
-                }
-            }
         }
     }
 }

@@ -1,13 +1,17 @@
 package kupio.mobile.core.designsystem
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -31,6 +35,7 @@ import mobile.composeapp.generated.resources.retry
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.runtime.getValue
 
 @Composable
 fun KupioScaffold(
@@ -356,5 +361,35 @@ fun KupioErrorRetryRow(
         Button(onClick = onRetry) {
             Text(stringResource(Res.string.retry))
         }
+    }
+}
+
+@Composable
+internal fun KupioSwitch(
+    checked: Boolean,
+    onToggle: () -> Unit,
+) {
+    val thumbX by animateDpAsState(targetValue = if (checked) 20.dp else 2.dp)
+    val trackColor =
+        if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
+
+    Box(
+        modifier = Modifier
+            .width(46.dp)
+            .height(26.dp)
+            .bouncingClickable(onClick = onToggle),
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            shape = KupioShapes.Full,
+            color = trackColor,
+        ) {}
+        Surface(
+            modifier = Modifier
+                .size(22.dp)
+                .absoluteOffset(x = thumbX, y = 2.dp),
+            shape = KupioShapes.Full,
+            color = Color.White,
+        ) {}
     }
 }

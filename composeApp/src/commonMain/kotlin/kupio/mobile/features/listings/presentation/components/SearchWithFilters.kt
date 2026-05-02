@@ -41,6 +41,7 @@ fun SearchWithFilters(
     onSubmit: () -> Unit,
     onFiltersClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onTap: (() -> Unit)? = null,
 ) {
     val spacing = KupioThemeDefaults.spacing
     val colors = MaterialTheme.colorScheme
@@ -50,8 +51,14 @@ fun SearchWithFilters(
         horizontalArrangement = Arrangement.spacedBy(spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        val surfaceModifier = if (onTap != null) {
+            Modifier.weight(1f).height(56.dp).bouncingDimClickable(KupioShapes.ExtraLarge) { onTap() }
+        } else {
+            Modifier.weight(1f).height(56.dp)
+        }
+
         Surface(
-            modifier = Modifier.weight(1f).height(56.dp),
+            modifier = surfaceModifier,
             shape = KupioShapes.ExtraLarge,
             color = colors.surface,
             border = KupioThemeDefaults.defaultBorder,
@@ -69,30 +76,39 @@ fun SearchWithFilters(
                     tint = colors.onSurfaceVariant,
                     modifier = Modifier.size(20.dp),
                 )
-                BasicTextField(
-                    value = query,
-                    onValueChange = onQueryChange,
-                    modifier = Modifier.weight(1f),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    keyboardActions = KeyboardActions(onSearch = { onSubmit() }),
-                    cursorBrush = SolidColor(colors.primary),
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        color = colors.onSurface,
-                    ),
-                    decorationBox = { innerTextField ->
-                        Box(contentAlignment = Alignment.CenterStart) {
-                            if (query.isEmpty()) {
-                                Text(
-                                    text = stringResource(Res.string.home_search_placeholder),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = colors.onSurfaceVariant,
-                                )
+                if (onTap != null) {
+                    Text(
+                        text = stringResource(Res.string.home_search_placeholder),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = colors.onSurfaceVariant,
+                        modifier = Modifier.weight(1f),
+                    )
+                } else {
+                    BasicTextField(
+                        value = query,
+                        onValueChange = onQueryChange,
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        keyboardActions = KeyboardActions(onSearch = { onSubmit() }),
+                        cursorBrush = SolidColor(colors.primary),
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(
+                            color = colors.onSurface,
+                        ),
+                        decorationBox = { innerTextField ->
+                            Box(contentAlignment = Alignment.CenterStart) {
+                                if (query.isEmpty()) {
+                                    Text(
+                                        text = stringResource(Res.string.home_search_placeholder),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = colors.onSurfaceVariant,
+                                    )
+                                }
+                                innerTextField()
                             }
-                            innerTextField()
-                        }
-                    },
-                )
+                        },
+                    )
+                }
             }
         }
 

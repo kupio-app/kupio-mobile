@@ -316,7 +316,6 @@
     <string name="search_clear">Clear search</string>
     <string name="search_recent_searches">Recent searches</string>
     <string name="search_tap_to_reuse">Tap to reuse</string>
-    <string name="search_popular_near_you">Popular near you</string>
     <string name="search_no_recent">No recent searches yet.</string>
     <string name="search_results_count">%1$d items</string>
     <string name="search_results_sort_top">Top</string>

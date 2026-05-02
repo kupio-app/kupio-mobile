@@ -5,14 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -45,13 +42,11 @@ import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.search.domain.model.RecentSearch
-import kupio.mobile.features.search.domain.model.SearchFilters
 import kupio.mobile.features.search.presentation.components.SearchTopBar
 import kupio.mobile.features.search.presentation.filters.SearchFiltersScreen
 import kupio.mobile.features.search.presentation.results.SearchResultsScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.search_no_recent
-import mobile.composeapp.generated.resources.search_popular_near_you
 import mobile.composeapp.generated.resources.search_recent_in_category
 import mobile.composeapp.generated.resources.search_recent_searches
 import mobile.composeapp.generated.resources.search_tap_to_reuse
@@ -141,19 +136,6 @@ private fun SearchQueriesContent(
                         thickness = 0.5.dp,
                     )
                 }
-            }
-
-            stickyHeader {
-                SectionHeader(title = stringResource(Res.string.search_popular_near_you))
-            }
-
-            item {
-                PopularNearYou(
-                    items = state.popularNearYou,
-                    onTap = { query ->
-                        onIntent(SearchQueriesIntent.TapRecent(RecentSearch(query = query)))
-                    },
-                )
             }
         }
     }
@@ -254,47 +236,6 @@ private fun RecentSearchItem(
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(18.dp),
             )
-        }
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun PopularNearYou(
-    items: List<String>,
-    onTap: (String) -> Unit,
-) {
-    FlowRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = KupioThemeDefaults.spacing.lg,
-                vertical = KupioThemeDefaults.spacing.sm,
-            ),
-        horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
-        verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
-    ) {
-        items.forEach { tag ->
-            Surface(
-                modifier = Modifier
-                    .height(34.dp)
-                    .bouncingDimClickable(shape = KupioShapes.Full, onClick = { onTap(tag) }),
-                shape = KupioShapes.Full,
-                color = MaterialTheme.colorScheme.surface,
-                border = KupioThemeDefaults.strongBorder,
-            ) {
-                Box(
-                    modifier = Modifier.padding(horizontal = 14.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = tag,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
-            }
         }
     }
 }

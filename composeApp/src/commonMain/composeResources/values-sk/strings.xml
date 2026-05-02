@@ -314,7 +314,6 @@
     <string name="search_clear">Vymazať hľadanie</string>
     <string name="search_recent_searches">Nedávne hľadania</string>
     <string name="search_tap_to_reuse">Klepni na opätovné použitie</string>
-    <string name="search_popular_near_you">Populárne vo vašom okolí</string>
     <string name="search_no_recent">Zatiaľ žiadne nedávne hľadania.</string>
     <string name="search_results_count">%1$d položiek</string>
     <string name="search_results_sort_top">Top</string>

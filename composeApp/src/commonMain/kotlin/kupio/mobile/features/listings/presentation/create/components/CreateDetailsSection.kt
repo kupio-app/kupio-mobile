@@ -79,7 +79,7 @@ private fun CategorySelector(
     var showCategoryPicker by remember { mutableStateOf(false) }
 
     if (showCategoryPicker) {
-        CategoryPickerSheet(
+        CreateCategoryPicker(
             state = state,
             onIntent = onIntent,
             onDismiss = { showCategoryPicker = false },

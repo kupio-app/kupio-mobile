@@ -1,6 +1,5 @@
 package kupio.mobile.features.search.presentation.filters
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,14 +17,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -53,15 +49,13 @@ import kupio.mobile.features.search.presentation.filters.components.DealTypeSect
 import kupio.mobile.features.search.presentation.filters.components.FiltersBottomBar
 import kupio.mobile.features.search.presentation.filters.components.FiltersTopBar
 import kupio.mobile.features.search.presentation.filters.components.PriceRangeSection
+import kupio.mobile.features.search.presentation.filters.components.SearchCategoryPicker
 import kupio.mobile.features.search.presentation.filters.components.SortBySection
 import kupio.mobile.features.search.presentation.results.SearchResultsScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.retry
-import mobile.composeapp.generated.resources.search_filters_all_categories
-import mobile.composeapp.generated.resources.search_filters_categories
 import mobile.composeapp.generated.resources.search_filters_category_placeholder
 import mobile.composeapp.generated.resources.search_filters_error_load_filters
-import mobile.composeapp.generated.resources.search_filters_error_load_subcategories
 import mobile.composeapp.generated.resources.search_filters_only_with_photos
 import mobile.composeapp.generated.resources.search_filters_section_category
 import mobile.composeapp.generated.resources.search_filters_section_deal_type
@@ -69,8 +63,6 @@ import mobile.composeapp.generated.resources.search_filters_section_price
 import mobile.composeapp.generated.resources.search_filters_section_query
 import mobile.composeapp.generated.resources.search_filters_section_show
 import mobile.composeapp.generated.resources.search_filters_section_sort
-import mobile.composeapp.generated.resources.search_filters_subcategories
-import mobile.composeapp.generated.resources.search_filters_use_category
 import mobile.composeapp.generated.resources.search_placeholder
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -471,237 +463,6 @@ private fun ToggleRow(
                 modifier = Modifier.weight(1f),
             )
             KupioSwitch(checked = checked, onToggle = onToggle)
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SearchCategoryPicker(
-    state: SearchFiltersState,
-    onIntent: (SearchFiltersIntent) -> Unit,
-) {
-    ModalBottomSheet(
-        onDismissRequest = { onIntent(SearchFiltersIntent.CloseCategoryPicker) },
-        containerColor = MaterialTheme.colorScheme.background,
-    ) {
-        val spacing = KupioThemeDefaults.spacing
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(spacing.sm),
-        ) {
-            Text(
-                text = stringResource(Res.string.search_filters_category_placeholder),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Medium,
-            )
-
-            CategoryBreadcrumb(
-                path = state.categoryPath,
-                onRootClick = { onIntent(SearchFiltersIntent.CategoryPickerReset) },
-                onCategoryClick = { onIntent(SearchFiltersIntent.CategorySelected(it.id)) },
-            )
-
-            if (state.categoryPath.isNotEmpty()) {
-                CategoryBackRow(
-                    path = state.categoryPath,
-                    onClick = { onIntent(SearchFiltersIntent.CategoryPickerBack) },
-                )
-            }
-
-            state.selectedCategoryName?.let { name ->
-                androidx.compose.material3.Button(
-                    onClick = { onIntent(SearchFiltersIntent.CloseCategoryPicker) },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = KupioShapes.Medium,
-                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.onSurface,
-                        contentColor = MaterialTheme.colorScheme.surface,
-                    ),
-                ) {
-                    Text(stringResource(Res.string.search_filters_use_category, name))
-                }
-            }
-
-            val displayCategories = if (state.categoryPath.isEmpty()) {
-                state.topLevelCategories
-            } else {
-                state.visibleSubcategories
-            }
-
-            if (displayCategories.isEmpty() && !state.isLoadingSubcategories && state.subcategoriesError == null && state.categoryPath.isNotEmpty()) {
-                // leaf category selected — nothing to show
-            } else {
-                Text(
-                    text = if (state.categoryPath.isEmpty()) {
-                        stringResource(Res.string.search_filters_categories)
-                    } else {
-                        stringResource(Res.string.search_filters_subcategories)
-                    }.uppercase(),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
-
-            when {
-                state.isLoadingSubcategories -> Box(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-                }
-
-                state.subcategoriesError != null -> Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        stringResource(Res.string.search_filters_error_load_subcategories),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Text(
-                        stringResource(Res.string.retry),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.bouncingClickable {
-                            val parent = state.categoryPath.lastOrNull()
-                            if (parent != null) onIntent(SearchFiltersIntent.CategorySelected(parent.id))
-                            else onIntent(SearchFiltersIntent.CategoryPickerReset)
-                        }.padding(spacing.sm),
-                    )
-                }
-
-                displayCategories.isNotEmpty() -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    displayCategories.forEach { cat ->
-                        PickerCategoryRow(
-                            name = cat.name,
-                            selected = state.selectedCategoryId == cat.id,
-                            onClick = { onIntent(SearchFiltersIntent.CategorySelected(cat.id)) },
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(20.dp))
-        }
-    }
-}
-
-@Composable
-private fun CategoryBreadcrumb(
-    path: List<kupio.mobile.features.listings.domain.model.Category>,
-    onRootClick: () -> Unit,
-    onCategoryClick: (kupio.mobile.features.listings.domain.model.Category) -> Unit,
-) {
-    @OptIn(ExperimentalLayoutApi::class)
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        Text(
-            text = stringResource(Res.string.search_filters_all_categories),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier
-                .bouncingDimClickable(shape = KupioShapes.Small, onClick = onRootClick)
-                .padding(horizontal = 4.dp, vertical = 4.dp),
-        )
-        path.forEach { cat ->
-            Text(
-                "/",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.outline,
-                modifier = Modifier.padding(top = 7.dp),
-            )
-            Text(
-                text = cat.name,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier
-                    .bouncingDimClickable(shape = KupioShapes.Small, onClick = { onCategoryClick(cat) })
-                    .padding(horizontal = 4.dp, vertical = 4.dp),
-            )
-        }
-    }
-}
-
-@Composable
-private fun CategoryBackRow(
-    path: List<kupio.mobile.features.listings.domain.model.Category>,
-    onClick: () -> Unit,
-) {
-    val prev = path.dropLast(1).lastOrNull()?.name ?: stringResource(Res.string.search_filters_all_categories)
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .bouncingDimClickable(shape = KupioShapes.Medium, onClick = onClick),
-        shape = KupioShapes.Medium,
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        border = KupioThemeDefaults.strongBorder,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Default.ChevronLeft,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text = prev,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Medium,
-            )
-        }
-    }
-}
-
-@Composable
-private fun PickerCategoryRow(
-    name: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .bouncingDimClickable(shape = KupioShapes.Medium, onClick = onClick),
-        shape = KupioShapes.Medium,
-        color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
-        border = if (selected) {
-            BorderStroke(KupioThemeDefaults.borderWidths.regular, MaterialTheme.colorScheme.primary.copy(alpha = 0.28f))
-        } else {
-            KupioThemeDefaults.strongBorder
-        },
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Text(
-                text = name,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.weight(1f),
-            )
-            Icon(
-                imageVector = Icons.Outlined.ChevronRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.outline,
-            )
         }
     }
 }

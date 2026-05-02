@@ -38,7 +38,7 @@ import kupio.mobile.features.listings.presentation.components.ListingCard
 import kupio.mobile.features.listings.presentation.components.SearchWithFilters
 import kupio.mobile.features.listings.presentation.components.SectionHeader
 import kupio.mobile.features.listings.presentation.detail.ListingDetailScreen
-import kupio.mobile.features.search.presentation.SearchScreen
+import kupio.mobile.features.search.presentation.queries.SearchQueriesScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.home_category_all
 import mobile.composeapp.generated.resources.home_recommended_count
@@ -58,7 +58,7 @@ class FeedScreen : Screen {
         CollectEffect(viewModel.effects) { effect ->
             when (effect) {
                 is FeedEffect.OpenListing -> rootNavigator.push(ListingDetailScreen(effect.id))
-                is FeedEffect.OpenSearch -> navigator.push(SearchScreen(effect.query))
+                is FeedEffect.OpenSearch -> navigator.push(SearchQueriesScreen(effect.query))
             }
         }
         FeedContent(state = state, onIntent = viewModel::onIntent)
@@ -109,6 +109,7 @@ private fun FeedContent(
                         onQueryChange = { onIntent(FeedIntent.SearchQueryChanged(it)) },
                         onSubmit = { onIntent(FeedIntent.SubmitSearch) },
                         onFiltersClick = { onIntent(FeedIntent.OpenFilters) },
+                        onTap = { onIntent(FeedIntent.OpenSearchBar) },
                     )
                 }
 

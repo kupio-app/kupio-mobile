@@ -59,6 +59,7 @@ class FeedViewModel(
                 if (query.isBlank()) return
                 viewModelScope.launch { effectChannel.send(OpenSearch(query)) }
             }
+            FeedIntent.OpenSearchBar -> viewModelScope.launch { effectChannel.send(OpenSearch("")) }
             FeedIntent.RetryLoadListings -> loadRecommended()
             FeedIntent.RetryLoadCategories -> loadCategories()
             FeedIntent.RefreshFeed -> refreshFeed()

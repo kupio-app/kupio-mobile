@@ -57,6 +57,7 @@ sealed interface FeedIntent : UiAction {
     data object OpenNotifications : FeedIntent
     data class SearchQueryChanged(val query: String) : FeedIntent
     data object SubmitSearch : FeedIntent
+    data object OpenSearchBar : FeedIntent
     data object OpenFilters : FeedIntent
     data class SelectCategory(val id: String) : FeedIntent
     data class OpenListing(val id: String) : FeedIntent

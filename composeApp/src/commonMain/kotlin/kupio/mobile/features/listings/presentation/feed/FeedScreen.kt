@@ -38,6 +38,7 @@ import kupio.mobile.features.listings.presentation.components.ListingCard
 import kupio.mobile.features.listings.presentation.components.SearchWithFilters
 import kupio.mobile.features.listings.presentation.components.SectionHeader
 import kupio.mobile.features.listings.presentation.detail.ListingDetailScreen
+import kupio.mobile.features.search.presentation.filters.SearchFiltersScreen
 import kupio.mobile.features.search.presentation.queries.SearchQueriesScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.home_category_all
@@ -59,6 +60,7 @@ class FeedScreen : Screen {
             when (effect) {
                 is FeedEffect.OpenListing -> rootNavigator.push(ListingDetailScreen(effect.id))
                 is FeedEffect.OpenSearch -> rootNavigator.push(SearchQueriesScreen(effect.query))
+                FeedEffect.OpenSearchFilters -> rootNavigator.push(SearchFiltersScreen(openResultsOnApply = true))
             }
         }
         FeedContent(state = state, onIntent = viewModel::onIntent)

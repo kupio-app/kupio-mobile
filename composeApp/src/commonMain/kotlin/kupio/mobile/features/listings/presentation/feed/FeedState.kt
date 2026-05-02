@@ -70,4 +70,5 @@ sealed interface FeedIntent : UiAction {
 sealed interface FeedEffect : UiEffect {
     data class OpenListing(val id: String) : FeedEffect
     data class OpenSearch(val query: String) : FeedEffect
+    data object OpenSearchFilters : FeedEffect
 }

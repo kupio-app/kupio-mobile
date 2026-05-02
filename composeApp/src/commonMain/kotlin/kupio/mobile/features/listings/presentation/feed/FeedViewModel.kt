@@ -63,7 +63,7 @@ class FeedViewModel(
             FeedIntent.RetryLoadListings -> loadRecommended()
             FeedIntent.RetryLoadCategories -> loadCategories()
             FeedIntent.RefreshFeed -> refreshFeed()
-            FeedIntent.OpenFilters -> {}
+            FeedIntent.OpenFilters -> viewModelScope.launch { effectChannel.send(OpenSearchFilters) }
             FeedIntent.OpenNotifications -> {}
             FeedIntent.SelectDelivery -> {}
             is FeedIntent.ToggleFavourite -> toggleFavourite(intent.listingId)

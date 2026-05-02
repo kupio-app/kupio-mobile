@@ -16,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.outlined.Cancel
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Icon
@@ -85,7 +86,7 @@ fun SearchTopBar(
                 modifier = Modifier
                     .weight(1f)
                     .height(44.dp),
-                shape = KupioShapes.ExtraLarge,
+                shape = KupioShapes.Medium,
                 color = colors.surface,
                 border = KupioThemeDefaults.defaultBorder,
             ) {
@@ -132,7 +133,7 @@ fun SearchTopBar(
                             contentAlignment = Alignment.Center,
                         ) {
                             Icon(
-                                imageVector = Icons.Outlined.Cancel,
+                                imageVector = Icons.Outlined.Close,
                                 contentDescription = stringResource(Res.string.search_clear),
                                 tint = colors.onSurfaceVariant,
                                 modifier = Modifier.size(18.dp),
@@ -142,7 +143,7 @@ fun SearchTopBar(
                 }
             }
 
-            val filtersBtnShape = KupioShapes.ExtraLarge
+            val filtersBtnShape = KupioShapes.Medium
             Box(
                 modifier = Modifier
                     .size(44.dp)

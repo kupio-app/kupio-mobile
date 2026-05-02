@@ -11,21 +11,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Image as ImageIcon
@@ -62,10 +59,10 @@ import kotlinx.coroutines.launch
 import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
-import kupio.mobile.features.listings.presentation.components.ListingFloatingIconButton
+import kupio.mobile.features.listings.presentation.components.ImageCountBadge
 import kupio.mobile.features.listings.presentation.components.ListingImage
+import kupio.mobile.features.listings.presentation.components.PagerDotsIndicator
 import mobile.composeapp.generated.resources.Res
-import mobile.composeapp.generated.resources.back
 import mobile.composeapp.generated.resources.create_photo_add
 import mobile.composeapp.generated.resources.create_photo_choose_gallery
 import mobile.composeapp.generated.resources.create_photo_choose_gallery_supporting
@@ -73,10 +70,8 @@ import mobile.composeapp.generated.resources.create_photo_cover
 import mobile.composeapp.generated.resources.create_photo_placeholder_subtitle
 import mobile.composeapp.generated.resources.create_photo_placeholder_title
 import mobile.composeapp.generated.resources.create_photo_remove
-import mobile.composeapp.generated.resources.create_photo_selected_count
 import mobile.composeapp.generated.resources.create_photo_take
 import mobile.composeapp.generated.resources.create_photo_take_supporting
-import mobile.composeapp.generated.resources.listing_detail_photo_count
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
@@ -89,7 +84,6 @@ private val ThumbnailSpacing = 8.dp
 fun ListingFormPhotosSection(
     images: List<ListingFormImage>,
     warningText: String?,
-    onBack: () -> Unit,
     onAdd: () -> Unit,
     onRemove: (String) -> Unit,
     onMove: (fromIndex: Int, toIndex: Int) -> Unit,
@@ -141,70 +135,23 @@ fun ListingFormPhotosSection(
                 )
             }
 
-            ListingFloatingIconButton(
-                onClick = onBack,
-                contentDescription = stringResource(Res.string.back),
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .statusBarsPadding()
-                    .padding(start = spacing.md, top = spacing.sm),
-            ) {
-                Icon(Icons.Default.ChevronLeft, contentDescription = null)
-            }
-
             if (images.size > 1) {
-                Row(
+                PagerDotsIndicator(
+                    pageCount = images.size,
+                    currentPage = pagerState.currentPage,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = spacing.md),
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                ) {
-                    images.forEachIndexed { index, _ ->
-                        Surface(
-                            modifier = Modifier.size(
-                                width = if (index == pagerState.currentPage) 20.dp else 6.dp,
-                                height = 6.dp,
-                            ),
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.surface.copy(
-                                alpha = if (index == pagerState.currentPage) 1f else 0.6f,
-                            ),
-                            content = {},
-                        )
-                    }
-                }
+                )
             }
-
             if (images.isNotEmpty()) {
-                Surface(
+                ImageCountBadge(
+                    currentPage = pagerState.currentPage,
+                    totalCount = images.size,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(spacing.md),
-                    shape = KupioShapes.Small,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.62f),
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = spacing.sm, vertical = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.PhotoCamera,
-                            contentDescription = null,
-                            modifier = Modifier.size(12.dp),
-                            tint = MaterialTheme.colorScheme.surface,
-                        )
-                        Text(
-                            text = stringResource(
-                                Res.string.listing_detail_photo_count,
-                                pagerState.currentPage + 1,
-                                images.size,
-                            ),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.surface,
-                        )
-                    }
-                }
+                )
             }
         }
 
@@ -437,13 +384,6 @@ private fun ImageTile(
                 tint = MaterialTheme.colorScheme.onSurface,
             )
         }
-    }
-}
-
-private fun <T> List<T>.move(fromIndex: Int, toIndex: Int): List<T>? {
-    if (fromIndex !in indices || toIndex !in indices || fromIndex == toIndex) return null
-    return toMutableList().apply {
-        add(toIndex, removeAt(fromIndex))
     }
 }
 

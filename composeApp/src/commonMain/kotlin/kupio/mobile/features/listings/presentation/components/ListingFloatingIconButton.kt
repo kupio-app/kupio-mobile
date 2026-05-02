@@ -31,7 +31,7 @@ fun ListingFloatingIconButton(
             .semantics { this.contentDescription = contentDescription; this.role = Role.Button }
             .let { if (enabled) it.bouncingClickable(onClick) else it },
         shape = CircleShape,
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+        color = MaterialTheme.colorScheme.surface,
     ) {
         Box(contentAlignment = Alignment.Center) {
             icon()

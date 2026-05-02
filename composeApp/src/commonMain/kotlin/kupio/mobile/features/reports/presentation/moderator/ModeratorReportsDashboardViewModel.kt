@@ -11,12 +11,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kupio.mobile.core.analytics.AnalyticsService
+import kupio.mobile.core.analytics.NoOpAnalyticsService
 import kupio.mobile.features.reports.domain.model.ReportListItem
 import kupio.mobile.features.reports.domain.model.ReportsDashboardStats
 import kupio.mobile.features.reports.domain.repository.ReportsRepository
 
 class ModeratorReportsDashboardViewModel(
     private val reportsRepository: ReportsRepository,
+    private val analytics: AnalyticsService = NoOpAnalyticsService(),
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ModeratorReportsDashboardState())
@@ -37,6 +40,7 @@ class ModeratorReportsDashboardViewModel(
             is ModeratorReportsDashboardIntent.FilterSelected -> {
                 if (intent.filter != _state.value.filter) {
                     _state.update { it.copy(filter = intent.filter) }
+                    analytics.logEvent("filter_reports", mapOf("filter" to intent.filter.name))
                     loadReports(reset = true)
                 }
             }
@@ -126,6 +130,7 @@ class ModeratorReportsDashboardViewModel(
                         errorMessage = t.message ?: "Unknown error",
                     )
                 }
+                analytics.recordException(t, mapOf("screen" to "reports_dashboard"))
             }
         }
     }

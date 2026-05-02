@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kupio.mobile.core.analytics.AnalyticsService
+import kupio.mobile.core.analytics.NoOpAnalyticsService
 import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.features.chats.data.remote.UserApi
 import kupio.mobile.features.reports.domain.repository.ReportsRepository
@@ -19,6 +21,7 @@ class ModeratorReportDetailViewModel(
     private val reportsRepository: ReportsRepository,
     private val userApi: UserApi,
     private val authenticatedApiClient: AuthenticatedApiClient,
+    private val analytics: AnalyticsService = NoOpAnalyticsService(),
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ModeratorReportDetailState())
@@ -69,6 +72,7 @@ class ModeratorReportDetailViewModel(
                         errorMessage = t.message.orEmpty(),
                     )
                 }
+                analytics.recordException(t, mapOf("screen" to "report_detail", "report_id" to reportId.toString()))
             }
         }
     }
@@ -113,6 +117,7 @@ class ModeratorReportDetailViewModel(
                     comment = comment,
                 )
             }.onSuccess { updatedReport ->
+                analytics.logEvent("moderate_report", mapOf("report_id" to reportId.toString(), "decision" to decision.name))
                 _state.update {
                     it.copy(
                         isSubmitting = false,
@@ -129,6 +134,7 @@ class ModeratorReportDetailViewModel(
                         submitError = ModeratorReportDetailSubmitError.SUBMIT_FAILED,
                     )
                 }
+                analytics.recordException(t, mapOf("screen" to "report_detail", "report_id" to reportId.toString()))
             }
         }
     }

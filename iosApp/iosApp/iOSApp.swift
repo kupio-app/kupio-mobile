@@ -13,6 +13,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     ) -> Bool {
 
         FirebaseApp.configure()
+        #if DEBUG
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
+        #endif
 
         #if DEBUG
         Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)

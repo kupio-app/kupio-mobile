@@ -13,11 +13,41 @@ import kupio.mobile.features.listings.domain.model.ListingImage
 import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
+import kupio.mobile.features.search.domain.model.SearchFilters
+import kupio.mobile.features.search.domain.model.toApiParams
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class ListingsRepositoryImpl(
     private val listingsApi: ListingsApi,
     private val authenticatedApiClient: AuthenticatedApiClient,
 ) : ListingsRepository {
+
+    private val json = Json { ignoreUnknownKeys = true }
+
+    override suspend fun searchListings(
+        filters: SearchFilters,
+        cursor: String?,
+        limit: Int,
+    ): ListingFeed {
+        val (isFree, isTradable, customFilters) = filters.toApiParams()
+        val filtersJson = if (customFilters.isNotEmpty()) {
+            json.encodeToString(customFilters)
+        } else {
+            null
+        }
+        return listingsApi.getListings(
+            query = filters.query.takeIf { it.isNotBlank() },
+            categoryId = filters.categoryId,
+            minPrice = filters.minPrice,
+            maxPrice = filters.maxPrice,
+            isFree = isFree,
+            isTradable = isTradable,
+            filters = filtersJson,
+            limit = limit,
+            cursor = cursor,
+        ).toDomain()
+    }
 
     override suspend fun getFeed(
         limit: Int,

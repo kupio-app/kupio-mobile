@@ -43,6 +43,7 @@ import kupio.mobile.core.designsystem.KupioLoadingScreen
 import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.presentation.CollectEffect
+import kupio.mobile.features.listings.presentation.components.ListingTopBar
 import kupio.mobile.features.listings.data.image.MaxListingImages
 import kupio.mobile.features.listings.presentation.create.components.DetailsSection
 import kupio.mobile.features.listings.presentation.create.components.ErrorText
@@ -154,81 +155,87 @@ private fun EditListingContent(
         )
     }
 
-    Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        bottomBar = {
-            if (!state.isLoadingListing && state.loadError == null) {
-                SaveBar(
-                    enabled = state.canSave,
-                    isSaving = state.isSaving,
-                    onSave = { onIntent(EditListingIntent.Save) },
-                )
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.background,
-    ) { paddingValues ->
-        when {
-            state.isLoadingListing -> KupioLoadingScreen()
-            state.loadError != null -> Box(
-                modifier = Modifier.fillMaxSize().padding(paddingValues),
-                contentAlignment = Alignment.Center,
-            ) {
-                KupioErrorRetryRow(
-                    message = stringResource(Res.string.edit_listing_load_error),
-                    onRetry = { onIntent(EditListingIntent.Retry) },
-                )
-            }
-            else -> LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentPadding = PaddingValues(bottom = KupioThemeDefaults.spacing.xl),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                item(key = "photos") {
-                    ListingFormPhotosSection(
-                        images = state.images,
-                        warningText = state.imageWarning?.toErrorMessage(),
-                        onBack = { onIntent(EditListingIntent.Back) },
-                        onAdd = showImageSourcePicker,
-                        onRemove = { onIntent(EditListingIntent.RemoveImage(it)) },
-                        onMove = { from, to -> onIntent(EditListingIntent.MoveImage(from, to)) },
+    Box {
+        Scaffold(
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
+            bottomBar = {
+                if (!state.isLoadingListing && state.loadError == null) {
+                    SaveBar(
+                        enabled = state.canSave,
+                        isSaving = state.isSaving,
+                        onSave = { onIntent(EditListingIntent.Save) },
                     )
                 }
-                item(key = "details") {
-                    FormContentPadding {
-                        DetailsSection(
-                            state = state.form,
-                            onIntent = { onIntent(EditListingIntent.FormIntent(it)) },
+            },
+            containerColor = MaterialTheme.colorScheme.background,
+        ) { paddingValues ->
+            when {
+                state.isLoadingListing -> KupioLoadingScreen()
+                state.loadError != null -> Box(
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    KupioErrorRetryRow(
+                        message = stringResource(Res.string.edit_listing_load_error),
+                        onRetry = { onIntent(EditListingIntent.Retry) },
+                    )
+                }
+                else -> LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentPadding = PaddingValues(bottom = KupioThemeDefaults.spacing.xl),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    item(key = "photos") {
+                        ListingFormPhotosSection(
+                            images = state.images,
+                            warningText = state.imageWarning?.toErrorMessage(),
+                            onAdd = showImageSourcePicker,
+                            onRemove = { onIntent(EditListingIntent.RemoveImage(it)) },
+                            onMove = { from, to -> onIntent(EditListingIntent.MoveImage(from, to)) },
                         )
                     }
-                }
-                item(key = "filters") {
-                    FormContentPadding {
-                        FiltersSection(
-                            state = state.form,
-                            onIntent = { onIntent(EditListingIntent.FormIntent(it)) },
-                        )
-                    }
-                }
-                item(key = "price") {
-                    FormContentPadding {
-                        PriceSection(
-                            state = state.form,
-                            onIntent = { onIntent(EditListingIntent.FormIntent(it)) },
-                        )
-                    }
-                }
-                state.submitError?.let { error ->
-                    item(key = "submit_error") {
+                    item(key = "details") {
                         FormContentPadding {
-                            ErrorText(text = error.toErrorMessage())
+                            DetailsSection(
+                                state = state.form,
+                                onIntent = { onIntent(EditListingIntent.FormIntent(it)) },
+                            )
+                        }
+                    }
+                    item(key = "filters") {
+                        FormContentPadding {
+                            FiltersSection(
+                                state = state.form,
+                                onIntent = { onIntent(EditListingIntent.FormIntent(it)) },
+                            )
+                        }
+                    }
+                    item(key = "price") {
+                        FormContentPadding {
+                            PriceSection(
+                                state = state.form,
+                                onIntent = { onIntent(EditListingIntent.FormIntent(it)) },
+                            )
+                        }
+                    }
+                    state.submitError?.let { error ->
+                        item(key = "submit_error") {
+                            FormContentPadding {
+                                ErrorText(text = error.toErrorMessage())
+                            }
                         }
                     }
                 }
             }
         }
+        ListingTopBar(
+            listState = listState,
+            onBack = { onIntent(EditListingIntent.Back) },
+            modifier = Modifier.align(Alignment.TopCenter),
+        )
     }
 }
 

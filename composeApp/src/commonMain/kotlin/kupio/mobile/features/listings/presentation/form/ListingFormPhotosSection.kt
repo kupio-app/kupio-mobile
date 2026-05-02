@@ -11,21 +11,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Image as ImageIcon
@@ -63,11 +60,9 @@ import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.listings.presentation.components.ImageCountBadge
-import kupio.mobile.features.listings.presentation.components.ListingFloatingIconButton
 import kupio.mobile.features.listings.presentation.components.ListingImage
 import kupio.mobile.features.listings.presentation.components.PagerDotsIndicator
 import mobile.composeapp.generated.resources.Res
-import mobile.composeapp.generated.resources.back
 import mobile.composeapp.generated.resources.create_photo_add
 import mobile.composeapp.generated.resources.create_photo_choose_gallery
 import mobile.composeapp.generated.resources.create_photo_choose_gallery_supporting
@@ -75,7 +70,6 @@ import mobile.composeapp.generated.resources.create_photo_cover
 import mobile.composeapp.generated.resources.create_photo_placeholder_subtitle
 import mobile.composeapp.generated.resources.create_photo_placeholder_title
 import mobile.composeapp.generated.resources.create_photo_remove
-import mobile.composeapp.generated.resources.create_photo_selected_count
 import mobile.composeapp.generated.resources.create_photo_take
 import mobile.composeapp.generated.resources.create_photo_take_supporting
 import org.jetbrains.compose.resources.stringResource
@@ -90,7 +84,6 @@ private val ThumbnailSpacing = 8.dp
 fun ListingFormPhotosSection(
     images: List<ListingFormImage>,
     warningText: String?,
-    onBack: () -> Unit,
     onAdd: () -> Unit,
     onRemove: (String) -> Unit,
     onMove: (fromIndex: Int, toIndex: Int) -> Unit,
@@ -140,17 +133,6 @@ fun ListingFormPhotosSection(
                     modifier = Modifier.fillMaxSize(),
                     onAdd = onAdd,
                 )
-            }
-
-            ListingFloatingIconButton(
-                onClick = onBack,
-                contentDescription = stringResource(Res.string.back),
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .statusBarsPadding()
-                    .padding(start = spacing.md, top = spacing.sm),
-            ) {
-                Icon(Icons.Default.ChevronLeft, contentDescription = null)
             }
 
             if (images.size > 1) {

@@ -8,12 +8,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +43,8 @@ import kupio.mobile.core.presentation.SnackbarManager
 import kotlinx.coroutines.delay
 import kupio.mobile.features.chats.presentation.thread.ChatThreadScreen
 import kupio.mobile.features.listings.domain.model.ListingStatus
+import kupio.mobile.features.listings.presentation.components.ListingFloatingIconButton
+import kupio.mobile.features.listings.presentation.components.ListingTopBar
 import kupio.mobile.features.listings.presentation.detail.components.DetailActionBar
 import kupio.mobile.features.listings.presentation.detail.components.ListingDescriptionSection
 import kupio.mobile.features.listings.presentation.detail.components.ListingFooter
@@ -50,6 +60,8 @@ import kupio.mobile.features.listings.presentation.edit.EditListingScreen
 import kupio.mobile.features.me.presentation.mylistings.components.StatusChangeDialog
 import kupio.mobile.features.reports.presentation.create.CreateReportScreen
 import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.listing_detail_favourite
+import mobile.composeapp.generated.resources.listing_detail_unfavourite
 import mobile.composeapp.generated.resources.my_listings_activate
 import mobile.composeapp.generated.resources.my_listings_cancel_action
 import mobile.composeapp.generated.resources.my_listings_confirm_action
@@ -104,6 +116,7 @@ private fun ListingDetailContent(
     val snackbarManager = koinInject<SnackbarManager>()
     var currentEvent by remember { mutableStateOf<SnackbarEvent?>(null) }
     var displayEvent by remember { mutableStateOf<SnackbarEvent?>(null) }
+    val listState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
         snackbarManager.events.collect { event ->
@@ -150,9 +163,32 @@ private fun ListingDetailContent(
                             onRetry = { onIntent(ListingDetailIntent.Retry) },
                         )
                     }
-                    state.listing != null -> DetailBody(state = state, onIntent = onIntent)
+                    state.listing != null -> DetailBody(state = state, listState=listState, onIntent = onIntent)
                 }
             }
+            ListingTopBar(
+                onBack = { onIntent(ListingDetailIntent.Back) },
+                modifier = Modifier.align(Alignment.TopCenter),
+                listState = listState,
+                actions = {
+                    if (!state.isOwnListing && !state.isLoading) {
+                        ListingFloatingIconButton(
+                            onClick = { onIntent(ListingDetailIntent.ToggleFavourite) },
+                            contentDescription = stringResource(
+                                if (state.isFavourited) Res.string.listing_detail_unfavourite
+                                else Res.string.listing_detail_favourite,
+                            ),
+                            enabled = !state.isTogglingFavourite,
+                        ) {
+                            Icon(
+                                imageVector = if (state.isFavourited) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                                contentDescription = null,
+                                tint = if (state.isFavourited) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                    }
+                },
+            )
 
             val spacing = KupioThemeDefaults.spacing
             if (displayEvent != null) {
@@ -212,22 +248,17 @@ private fun ListingDetailContent(
 @Composable
 private fun DetailBody(
     state: ListingDetailState,
+    listState: LazyListState,
     onIntent: (ListingDetailIntent) -> Unit,
 ) {
     val listing = state.listing ?: return
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = KupioThemeDefaults.spacing.lg),
     ) {
         item {
-            ListingHero(
-                listing = listing,
-                showFavourite = !state.isOwnListing,
-                isFavourited = state.isFavourited,
-                isTogglingFavourite = state.isTogglingFavourite,
-                onBack = { onIntent(ListingDetailIntent.Back) },
-                onFavouriteClick = { onIntent(ListingDetailIntent.ToggleFavourite) },
-            )
+            ListingHero(listing = listing)
         }
         item {
             ListingSummarySection(

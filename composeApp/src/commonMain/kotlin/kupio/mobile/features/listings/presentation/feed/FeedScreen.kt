@@ -58,7 +58,7 @@ class FeedScreen : Screen {
         CollectEffect(viewModel.effects) { effect ->
             when (effect) {
                 is FeedEffect.OpenListing -> rootNavigator.push(ListingDetailScreen(effect.id))
-                is FeedEffect.OpenSearch -> navigator.push(SearchQueriesScreen(effect.query))
+                is FeedEffect.OpenSearch -> rootNavigator.push(SearchQueriesScreen(effect.query))
             }
         }
         FeedContent(state = state, onIntent = viewModel::onIntent)

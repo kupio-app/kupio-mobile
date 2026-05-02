@@ -21,12 +21,13 @@ import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.listings.presentation.create.CreateError
-import kupio.mobile.features.listings.presentation.create.CreateField
 import kupio.mobile.features.listings.presentation.create.CreateFilterInput
 import kupio.mobile.features.listings.presentation.create.CreateState
 import kupio.mobile.features.listings.presentation.create.SelectedListingImage
+import kupio.mobile.features.listings.presentation.create.fieldErrors
 import kupio.mobile.features.listings.presentation.create.validateCreateListing
 import kupio.mobile.features.listings.presentation.form.ListingFormController
+import kupio.mobile.features.listings.presentation.form.move
 import kupio.mobile.features.listings.presentation.form.ListingFormImage
 import kupio.mobile.features.listings.presentation.form.LocalListingImage
 import kupio.mobile.features.listings.presentation.form.RemoteListingImage
@@ -405,24 +406,3 @@ private fun Map<String, String>.toFilterInputs(
     filter.slug to input
 }.toMap()
 
-private fun <T> List<T>.move(fromIndex: Int, toIndex: Int): List<T>? {
-    if (fromIndex !in indices || toIndex !in indices || fromIndex == toIndex) return null
-    return toMutableList().apply {
-        add(toIndex, removeAt(fromIndex))
-    }
-}
-
-private fun Throwable.fieldErrors(): Map<CreateField, CreateError> {
-    val apiException = this as? ApiException ?: return emptyMap()
-    return apiException.fieldErrors.mapNotNull { error ->
-        val field = when (error.field) {
-            "title" -> CreateField.TITLE
-            "description" -> CreateField.DESCRIPTION
-            "price" -> CreateField.PRICE
-            "category_id" -> CreateField.CATEGORY
-            "custom_filters" -> CreateField.CUSTOM_FILTERS
-            else -> null
-        }
-        field?.let { it to CreateError.ServerMessage(error.message) }
-    }.toMap()
-}

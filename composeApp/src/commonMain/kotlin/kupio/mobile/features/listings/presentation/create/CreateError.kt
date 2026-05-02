@@ -1,5 +1,7 @@
 package kupio.mobile.features.listings.presentation.create
 
+import kupio.mobile.core.network.ApiException
+
 sealed interface CreateError {
     data class TitleTooShort(val min: Int) : CreateError
     data class TitleTooLong(val max: Int) : CreateError
@@ -18,4 +20,19 @@ sealed interface CreateError {
     data object UnsupportedImage : CreateError
     data object Generic : CreateError
     data class ServerMessage(val message: String) : CreateError
+}
+
+internal fun Throwable.fieldErrors(): Map<CreateField, CreateError> {
+    val apiException = this as? ApiException ?: return emptyMap()
+    return apiException.fieldErrors.mapNotNull { error ->
+        val field = when (error.field) {
+            "title" -> CreateField.TITLE
+            "description" -> CreateField.DESCRIPTION
+            "price" -> CreateField.PRICE
+            "category_id" -> CreateField.CATEGORY
+            "custom_filters" -> CreateField.CUSTOM_FILTERS
+            else -> null
+        }
+        field?.let { it to CreateError.ServerMessage(error.message) }
+    }.toMap()
 }

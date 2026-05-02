@@ -405,13 +405,6 @@ private fun ImageTile(
     }
 }
 
-private fun <T> List<T>.move(fromIndex: Int, toIndex: Int): List<T>? {
-    if (fromIndex !in indices || toIndex !in indices || fromIndex == toIndex) return null
-    return toMutableList().apply {
-        add(toIndex, removeAt(fromIndex))
-    }
-}
-
 @Composable
 private fun BoxScope.ListingTileImage(image: ListingFormImage) {
     val previewBitmap = image.previewBitmap

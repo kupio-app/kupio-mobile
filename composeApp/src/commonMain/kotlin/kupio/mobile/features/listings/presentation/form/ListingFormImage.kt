@@ -56,3 +56,10 @@ fun LocalListingImage.toUpload(): ListingImageUpload = ListingImageUpload(
     mimeType = mimeType,
     bytes = bytes,
 )
+
+internal fun <T> List<T>.move(fromIndex: Int, toIndex: Int): List<T>? {
+    if (fromIndex !in indices || toIndex !in indices || fromIndex == toIndex) return null
+    return toMutableList().apply {
+        add(toIndex, removeAt(fromIndex))
+    }
+}

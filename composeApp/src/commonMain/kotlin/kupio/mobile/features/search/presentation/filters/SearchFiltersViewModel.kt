@@ -76,8 +76,6 @@ class SearchFiltersViewModel(
                 _state.update { it.copy(filterValues = it.filterValues + (intent.slug to SearchFilterInput.BooleanValue(intent.value))) }
             SearchFiltersIntent.OnlyWithPhotosToggled ->
                 _state.update { it.copy(draft = it.draft.copy(onlyWithPhotos = !it.draft.onlyWithPhotos)) }
-            SearchFiltersIntent.DeliveryAvailableToggled ->
-                _state.update { it.copy(draft = it.draft.copy(deliveryAvailable = !it.draft.deliveryAvailable)) }
             is SearchFiltersIntent.SortBySelected ->
                 _state.update { it.copy(draft = it.draft.copy(sortBy = intent.sortBy)) }
             SearchFiltersIntent.Apply -> applyFilters()

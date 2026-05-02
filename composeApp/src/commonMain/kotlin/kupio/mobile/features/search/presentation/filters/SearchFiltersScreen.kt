@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
@@ -27,7 +26,6 @@ import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.material3.CircularProgressIndicator
@@ -68,7 +66,6 @@ import kupio.mobile.core.designsystem.KupioTopBarBackAction
 import kupio.mobile.core.designsystem.KupioTopNavbar
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.bouncingDimClickable
-import kupio.mobile.core.designsystem.borderBottom
 import kupio.mobile.core.designsystem.borderTop
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.listings.domain.model.FilterDefinition
@@ -87,7 +84,6 @@ import mobile.composeapp.generated.resources.search_filters_clear_all
 import mobile.composeapp.generated.resources.search_filters_deal_for_sale
 import mobile.composeapp.generated.resources.search_filters_deal_free
 import mobile.composeapp.generated.resources.search_filters_deal_trade
-import mobile.composeapp.generated.resources.search_filters_delivery_available
 import mobile.composeapp.generated.resources.search_filters_error_load_filters
 import mobile.composeapp.generated.resources.search_filters_error_load_subcategories
 import mobile.composeapp.generated.resources.search_filters_only_with_photos
@@ -662,11 +658,6 @@ private fun ShowSection(
             label = stringResource(Res.string.search_filters_only_with_photos),
             checked = state.draft.onlyWithPhotos,
             onToggle = { onIntent(SearchFiltersIntent.OnlyWithPhotosToggled) },
-        )
-        ToggleRow(
-            label = stringResource(Res.string.search_filters_delivery_available),
-            checked = state.draft.deliveryAvailable,
-            onToggle = { onIntent(SearchFiltersIntent.DeliveryAvailableToggled) },
         )
     }
 }

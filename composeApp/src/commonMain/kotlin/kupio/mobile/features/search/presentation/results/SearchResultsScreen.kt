@@ -60,17 +60,11 @@ import mobile.composeapp.generated.resources.search_filter_chip_price
 import mobile.composeapp.generated.resources.search_filters_deal_for_sale
 import mobile.composeapp.generated.resources.search_filters_deal_free
 import mobile.composeapp.generated.resources.search_filters_deal_trade
-import mobile.composeapp.generated.resources.search_filters_delivery_available
 import mobile.composeapp.generated.resources.search_filters_only_with_photos
-import mobile.composeapp.generated.resources.search_filters_sort_newest
-import mobile.composeapp.generated.resources.search_filters_sort_price_asc
-import mobile.composeapp.generated.resources.search_filters_sort_price_desc
-import mobile.composeapp.generated.resources.search_filters_sort_recommended
 import mobile.composeapp.generated.resources.search_results_count
 import mobile.composeapp.generated.resources.search_results_empty
 import mobile.composeapp.generated.resources.search_results_error
 import mobile.composeapp.generated.resources.search_results_sort_new
-import mobile.composeapp.generated.resources.search_results_sort_price
 import mobile.composeapp.generated.resources.search_results_sort_top
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -389,9 +383,6 @@ private fun buildActiveFilterChips(filters: SearchFilters): List<Pair<String, Fi
     }
     if (filters.onlyWithPhotos) {
         chips += stringResource(Res.string.search_filters_only_with_photos) to FilterKey.OnlyWithPhotos
-    }
-    if (filters.deliveryAvailable) {
-        chips += stringResource(Res.string.search_filters_delivery_available) to FilterKey.DeliveryAvailable
     }
     filters.customFilters.forEach { (slug, value) ->
         chips += value to FilterKey.Custom(slug)

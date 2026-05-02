@@ -339,7 +339,6 @@
     <string name="search_filters_deal_trade">Trade</string>
     <string name="search_filters_section_show">Show</string>
     <string name="search_filters_only_with_photos">Only listings with photos</string>
-    <string name="search_filters_delivery_available">Delivery available</string>
     <string name="search_filters_section_sort">Sort by</string>
     <string name="search_filters_sort_recommended">Recommended</string>
     <string name="search_filters_sort_newest">Newest first</string>

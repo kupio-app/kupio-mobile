@@ -192,7 +192,6 @@ class SearchResultsViewModel(
             FilterKey.Price -> current.copy(minPrice = null, maxPrice = null)
             FilterKey.DealType -> current.copy(dealType = DealType.ANY)
             FilterKey.OnlyWithPhotos -> current.copy(onlyWithPhotos = false)
-            FilterKey.DeliveryAvailable -> current.copy(deliveryAvailable = false)
             is FilterKey.Custom -> current.copy(customFilters = current.customFilters - key.slug)
         }
         searchSharedState.updateFilters(updated)

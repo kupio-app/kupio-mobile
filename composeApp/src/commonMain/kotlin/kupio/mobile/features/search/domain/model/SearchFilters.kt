@@ -9,7 +9,6 @@ data class SearchFilters(
     val maxPrice: Int? = null,
     val dealType: DealType = DealType.ANY,
     val onlyWithPhotos: Boolean = false,
-    val deliveryAvailable: Boolean = false,
     val customFilters: Map<String, String> = emptyMap(),
     val sortBy: SearchSortBy = SearchSortBy.RECOMMENDED,
 )
@@ -28,7 +27,6 @@ fun SearchFilters.hasActiveFilters(): Boolean =
         maxPrice != null ||
         dealType != DealType.ANY ||
         onlyWithPhotos ||
-        deliveryAvailable ||
         customFilters.isNotEmpty()
 
 fun SearchFilters.toApiParams(): Triple<Boolean?, Boolean?, Map<String, String>> {

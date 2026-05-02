@@ -39,7 +39,6 @@ sealed interface FilterKey {
     data object Price : FilterKey
     data object DealType : FilterKey
     data object OnlyWithPhotos : FilterKey
-    data object DeliveryAvailable : FilterKey
     data class Custom(val slug: String) : FilterKey
 }
 

@@ -46,7 +46,6 @@ sealed interface SearchFiltersIntent : UiAction {
     data class FilterTextChanged(val slug: String, val value: String) : SearchFiltersIntent
     data class FilterBooleanChanged(val slug: String, val value: Boolean?) : SearchFiltersIntent
     data object OnlyWithPhotosToggled : SearchFiltersIntent
-    data object DeliveryAvailableToggled : SearchFiltersIntent
     data class SortBySelected(val sortBy: SearchSortBy) : SearchFiltersIntent
     data object Apply : SearchFiltersIntent
     data object ClearAll : SearchFiltersIntent

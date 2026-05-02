@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		082857EF2FA54643007002AE /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 082857EE2FA54643007002AE /* FirebaseCore */; };
 		082857F12FA54643007002AE /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 082857F02FA54643007002AE /* FirebaseMessaging */; };
+		087057B52FA65CF5001BAAD0 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 087057B42FA65CF5001BAAD0 /* FirebaseCrashlytics */; };
+		087057B72FA65D1A001BAAD0 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 087057B62FA65D1A001BAAD0 /* FirebaseAnalytics */; };
 		7E42D56BF6FA0F1A6683289B /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 36722B8C37D2AB4E85A548D5 /* GoogleSignIn */; };
 /* End PBXBuildFile section */
 
@@ -48,7 +50,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				082857F12FA54643007002AE /* FirebaseMessaging in Frameworks */,
+				087057B52FA65CF5001BAAD0 /* FirebaseCrashlytics in Frameworks */,
 				082857EF2FA54643007002AE /* FirebaseCore in Frameworks */,
+				087057B72FA65D1A001BAAD0 /* FirebaseAnalytics in Frameworks */,
 				7E42D56BF6FA0F1A6683289B /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -56,6 +60,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		087057B32FA65CF5001BAAD0 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		F786C1FB21279B094DD2424F /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -69,6 +80,7 @@
 			children = (
 				B0EF82EE49DA61D171E92B31 /* Configuration */,
 				845240BDE1BDF64A5FBF2977 /* iosApp */,
+				087057B32FA65CF5001BAAD0 /* Frameworks */,
 				F786C1FB21279B094DD2424F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -97,6 +109,8 @@
 				36722B8C37D2AB4E85A548D5 /* GoogleSignIn */,
 				082857EE2FA54643007002AE /* FirebaseCore */,
 				082857F02FA54643007002AE /* FirebaseMessaging */,
+				087057B42FA65CF5001BAAD0 /* FirebaseCrashlytics */,
+				087057B62FA65D1A001BAAD0 /* FirebaseAnalytics */,
 			);
 			productName = iosApp;
 			productReference = EF7F0C278B33300C60DE68D0 /* mobile.app */;
@@ -416,6 +430,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 082857ED2FA54643007002AE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		087057B42FA65CF5001BAAD0 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 082857ED2FA54643007002AE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		087057B62FA65D1A001BAAD0 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 082857ED2FA54643007002AE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
 		};
 		36722B8C37D2AB4E85A548D5 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;

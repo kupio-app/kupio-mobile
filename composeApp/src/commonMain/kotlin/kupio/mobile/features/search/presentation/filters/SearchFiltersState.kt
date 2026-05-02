@@ -49,7 +49,6 @@ sealed interface SearchFiltersIntent : UiAction {
     data object DeliveryAvailableToggled : SearchFiltersIntent
     data class SortBySelected(val sortBy: SearchSortBy) : SearchFiltersIntent
     data object Apply : SearchFiltersIntent
-    data object Reset : SearchFiltersIntent
     data object ClearAll : SearchFiltersIntent
     data object Back : SearchFiltersIntent
 }

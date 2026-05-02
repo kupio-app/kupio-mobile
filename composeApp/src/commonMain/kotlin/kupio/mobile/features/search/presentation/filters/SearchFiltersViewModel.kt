@@ -81,7 +81,7 @@ class SearchFiltersViewModel(
             is SearchFiltersIntent.SortBySelected ->
                 _state.update { it.copy(draft = it.draft.copy(sortBy = intent.sortBy)) }
             SearchFiltersIntent.Apply -> applyFilters()
-            SearchFiltersIntent.Reset, SearchFiltersIntent.ClearAll -> resetAll()
+            SearchFiltersIntent.ClearAll -> resetAll()
             SearchFiltersIntent.Back -> viewModelScope.launch { effectChannel.send(NavigateBack) }
         }
     }

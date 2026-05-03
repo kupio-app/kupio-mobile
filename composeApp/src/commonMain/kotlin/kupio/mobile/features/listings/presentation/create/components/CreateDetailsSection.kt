@@ -20,9 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kupio.mobile.core.designsystem.KupioErrorRetryRow
+import kupio.mobile.core.designsystem.KupioErrorText
 import kupio.mobile.core.designsystem.KupioFieldLabel
 import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
+import kupio.mobile.core.designsystem.KupioLoadingRow
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.listings.presentation.create.CreateField
 import kupio.mobile.features.listings.presentation.create.CreateIntent
@@ -51,7 +54,7 @@ internal fun DetailsSection(
             value = state.title,
             onValueChange = { onIntent(CreateIntent.TitleChanged(it)) },
             placeholder = stringResource(Res.string.create_title_placeholder),
-            error = state.fieldErrors[CreateField.TITLE],
+            error = state.fieldErrors[CreateField.TITLE]?.toErrorMessage(),
             characterCount = "${state.title.length}/255",
             singleLine = true,
         )
@@ -60,7 +63,7 @@ internal fun DetailsSection(
             value = state.description,
             onValueChange = { onIntent(CreateIntent.DescriptionChanged(it)) },
             placeholder = stringResource(Res.string.create_description_placeholder),
-            error = state.fieldErrors[CreateField.DESCRIPTION],
+            error = state.fieldErrors[CreateField.DESCRIPTION]?.toErrorMessage(),
             characterCount = "${state.description.length}/5000",
             minLines = 4,
         )
@@ -91,8 +94,8 @@ private fun CategorySelector(
         required = true,
     )
     when {
-        state.isLoadingCategories -> LoadingRow()
-        state.categoriesError != null -> RetryRow(
+        state.isLoadingCategories -> KupioLoadingRow()
+        state.categoriesError != null -> KupioErrorRetryRow(
             message = stringResource(Res.string.create_error_load_categories),
             onRetry = { onIntent(CreateIntent.RetryCategories) },
         )
@@ -104,7 +107,7 @@ private fun CategorySelector(
             )
         }
     }
-    state.fieldErrors[CreateField.CATEGORY]?.let { ErrorText(it.toErrorMessage()) }
+    state.fieldErrors[CreateField.CATEGORY]?.let { KupioErrorText(it.toErrorMessage()) }
 }
 
 @Composable

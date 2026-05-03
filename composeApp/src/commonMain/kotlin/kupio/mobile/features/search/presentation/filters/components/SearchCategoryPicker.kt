@@ -1,7 +1,7 @@
 package kupio.mobile.features.search.presentation.filters.components
 
 import androidx.compose.runtime.Composable
-import kupio.mobile.core.designsystem.KupioCategoryPickerSheet
+import kupio.mobile.core.designsystem.categorypicker.KupioCategoryPickerSheet
 import kupio.mobile.features.search.presentation.filters.SearchFiltersIntent
 import kupio.mobile.features.search.presentation.filters.SearchFiltersState
 import mobile.composeapp.generated.resources.Res
@@ -16,6 +16,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun SearchCategoryPicker(
     state: SearchFiltersState,
+    onDismiss: () -> Unit,
     onIntent: (SearchFiltersIntent) -> Unit,
 ) {
     val atRoot = state.categoryPath.isEmpty()
@@ -31,7 +32,7 @@ internal fun SearchCategoryPicker(
         isLoading = state.isLoadingSubcategories,
         hasError = state.subcategoriesError != null,
         onSelectCategory = { onIntent(SearchFiltersIntent.CategorySelected(it)) },
-        onConfirm = { onIntent(SearchFiltersIntent.CloseCategoryPicker) },
+        onConfirm = onDismiss,
         onBack = { onIntent(SearchFiltersIntent.CategoryPickerBack) },
         onReset = { onIntent(SearchFiltersIntent.CategoryPickerReset) },
         onRetry = {
@@ -39,6 +40,6 @@ internal fun SearchCategoryPicker(
             if (parent != null) onIntent(SearchFiltersIntent.CategorySelected(parent.id))
             else onIntent(SearchFiltersIntent.CategoryPickerReset)
         },
-        onDismiss = { onIntent(SearchFiltersIntent.CloseCategoryPicker) },
+        onDismiss = onDismiss,
     )
 }

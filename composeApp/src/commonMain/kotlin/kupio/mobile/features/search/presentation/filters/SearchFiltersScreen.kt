@@ -24,6 +24,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
@@ -84,10 +87,6 @@ data class SearchFiltersScreen(val openResultsOnApply: Boolean = false) : Screen
             }
         }
 
-        if (state.isCategoryPickerOpen) {
-            SearchCategoryPicker(state = state, onIntent = viewModel::onIntent)
-        }
-
         SearchFiltersContent(state = state, onIntent = viewModel::onIntent)
     }
 }
@@ -97,6 +96,16 @@ private fun SearchFiltersContent(
     state: SearchFiltersState,
     onIntent: (SearchFiltersIntent) -> Unit,
 ) {
+    var showCategoryPicker by remember { mutableStateOf(false) }
+
+    if (showCategoryPicker) {
+        SearchCategoryPicker(
+            state = state,
+            onDismiss = { showCategoryPicker = false },
+            onIntent = onIntent
+        )
+    }
+
     Scaffold(
         topBar = { FiltersTopBar(state = state, onIntent = onIntent) },
         bottomBar = { FiltersBottomBar(onIntent = onIntent) },
@@ -109,7 +118,7 @@ private fun SearchFiltersContent(
             item { QuerySection(state = state, onIntent = onIntent) }
 
             item { FilterSectionLabel(stringResource(Res.string.search_filters_section_category)) }
-            item { CategorySection(state = state, onIntent = onIntent) }
+            item { CategorySection(state = state, onClick = { showCategoryPicker = true }) }
 
             item { FilterSectionLabel(stringResource(Res.string.search_filters_section_price)) }
             item { PriceRangeSection(state = state, onIntent = onIntent) }
@@ -249,14 +258,14 @@ private fun QuerySection(
 @Composable
 private fun CategorySection(
     state: SearchFiltersState,
-    onIntent: (SearchFiltersIntent) -> Unit,
+    onClick: () -> Unit,
 ) {
     val spacing = KupioThemeDefaults.spacing
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = spacing.lg)
-            .bouncingDimClickable(shape = KupioShapes.Large) { onIntent(SearchFiltersIntent.OpenCategoryPicker) },
+            .bouncingDimClickable(shape = KupioShapes.Large, onClick),
         shape = KupioShapes.Large,
         color = MaterialTheme.colorScheme.surface,
         border = KupioThemeDefaults.defaultBorder,

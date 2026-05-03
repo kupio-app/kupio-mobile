@@ -20,7 +20,6 @@ data class SearchFiltersState(
     val filterDefinitions: List<FilterDefinition> = emptyList(),
     val isLoadingFilters: Boolean = false,
     val filtersError: String? = null,
-    val isCategoryPickerOpen: Boolean = false,
     val filterValues: Map<String, SearchFilterInput> = emptyMap(),
 ) : UiState {
     val selectedCategoryId: Int? get() = draft.categoryId
@@ -34,8 +33,6 @@ sealed interface SearchFilterInput {
 
 sealed interface SearchFiltersIntent : UiAction {
     data class QueryChanged(val value: String) : SearchFiltersIntent
-    data object OpenCategoryPicker : SearchFiltersIntent
-    data object CloseCategoryPicker : SearchFiltersIntent
     data class CategorySelected(val id: Int) : SearchFiltersIntent
     data object CategoryPickerBack : SearchFiltersIntent
     data object CategoryPickerReset : SearchFiltersIntent

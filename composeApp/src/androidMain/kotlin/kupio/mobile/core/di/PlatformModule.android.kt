@@ -11,6 +11,11 @@ import kupio.mobile.core.platform.AndroidPhoneDialer
 import kupio.mobile.core.platform.PhoneDialer
 import kupio.mobile.core.notifications.BackgroundSyncScheduler
 import kupio.mobile.core.notifications.BackgroundSyncSchedulerImpl
+import kupio.mobile.core.offline.db.KupioDatabase
+import kupio.mobile.core.offline.db.createKupioDatabase
+import kupio.mobile.core.offline.db.getKupioDatabaseBuilder
+import kupio.mobile.core.offline.files.AndroidOfflineFileStore
+import kupio.mobile.core.offline.files.OfflineFileStore
 import kupio.mobile.core.preferences.KupioPreferencesFileName
 import kupio.mobile.core.preferences.createPreferencesDataStore
 import org.koin.dsl.module
@@ -23,6 +28,8 @@ actual val platformModule = module {
         }
     }
     single<BackgroundSyncScheduler> { BackgroundSyncSchedulerImpl(WorkManager.getInstance(get())) }
+    single<KupioDatabase> { createKupioDatabase(getKupioDatabaseBuilder(get())) }
+    single<OfflineFileStore> { AndroidOfflineFileStore(get()) }
     single { KVault(get<Context>(), "kupio.mobile.secure_store") }
     single<PhoneDialer> { AndroidPhoneDialer(get()) }
     single<DataStore<Preferences>> {

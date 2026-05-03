@@ -4,6 +4,8 @@ import io.ktor.client.HttpClient
 import kupio.mobile.core.config.BackendConfig
 import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.core.network.createKupioHttpClient
+import kupio.mobile.core.offline.OfflineMutationStore
+import kupio.mobile.core.offline.OfflineSyncManager
 import kupio.mobile.core.preferences.DataStorePreferencesRepository
 import kupio.mobile.core.preferences.PreferencesRepository
 import kupio.mobile.features.auth.data.local.DataStoreDeviceIdProvider
@@ -96,16 +98,18 @@ val kupioAppModules: List<Module> = listOf(
         }
         single { AuthApi(get()) }
         single { ListingsApi(get()) }
-        single<ListingsRepository> { ListingsRepositoryImpl(get(), get()) }
+        single { OfflineMutationStore(get(), get()) }
+        single { OfflineSyncManager(get(), get(), get(), get()) }
+        single<ListingsRepository> { ListingsRepositoryImpl(get(), get(), get(), get(), get(), get()) }
         single { CategoriesApi(get()) }
         single<CategoriesRepository> { CategoriesRepositoryImpl(get()) }
         single { ChatApi(get()) }
         single { UserApi(get()) }
         single { FavouritesApi(get()) }
-        single<FavouritesRepository> { FavouritesRepositoryImpl(get(), get()) }
+        single<FavouritesRepository> { FavouritesRepositoryImpl(get(), get(), get(), get(), get()) }
         single { ToggleFavouriteUseCase(get(), get()) }
         single { MeApi(get()) }
-        single<MeRepository> { MeRepositoryImpl(get(), get()) }
+        single<MeRepository> { MeRepositoryImpl(get(), get(), get(), get(), get(), get()) }
         single { ReportsApi(get()) }
         single<ReportsRepository> { ReportsRepositoryImpl(get(), get()) }
         single<ChatsRepository> { ChatsRepositoryImpl(get(), get()) }

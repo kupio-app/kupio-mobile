@@ -11,6 +11,11 @@ import kupio.mobile.core.preferences.KupioPreferencesFileName
 import kupio.mobile.core.preferences.createPreferencesDataStore
 import kupio.mobile.core.notifications.BackgroundSyncScheduler
 import kupio.mobile.core.notifications.BackgroundSyncSchedulerImpl
+import kupio.mobile.core.offline.db.KupioDatabase
+import kupio.mobile.core.offline.db.createKupioDatabase
+import kupio.mobile.core.offline.db.getKupioDatabaseBuilder
+import kupio.mobile.core.offline.files.IosOfflineFileStore
+import kupio.mobile.core.offline.files.OfflineFileStore
 import org.koin.dsl.module
 import platform.Foundation.NSApplicationSupportDirectory
 import platform.Foundation.NSFileManager
@@ -37,6 +42,8 @@ actual val platformModule = module {
         }
     }
     single<BackgroundSyncScheduler> { BackgroundSyncSchedulerImpl() }
+    single<KupioDatabase> { createKupioDatabase(getKupioDatabaseBuilder()) }
+    single<OfflineFileStore> { IosOfflineFileStore() }
     single { KVault("kupio.mobile.secure_store") }
     single<PhoneDialer> { IosPhoneDialer() }
     single<DataStore<Preferences>> {

@@ -19,6 +19,7 @@ import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.auth.domain.session.CachedAuthenticatedUserStore
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -49,6 +50,7 @@ class SettingsViewModelTest {
         val sessionManager = AuthSessionManager(
             authRepository = authRepository,
             secureSessionStore = secureSessionStore,
+            cachedAuthenticatedUserStore = FakeCachedAuthenticatedUserStore(),
         )
         val viewModel = SettingsViewModel(
             preferencesRepository = FakePreferencesRepository(),
@@ -79,6 +81,7 @@ class SettingsViewModelTest {
                     ),
                     clearError = IllegalStateException("clear failed"),
                 ),
+                cachedAuthenticatedUserStore = FakeCachedAuthenticatedUserStore(),
             ),
         )
 
@@ -119,6 +122,12 @@ class SettingsViewModelTest {
             clearError?.let { throw it }
             session = null
         }
+    }
+
+    private class FakeCachedAuthenticatedUserStore : CachedAuthenticatedUserStore {
+        override suspend fun read(): AuthenticatedUser? = null
+        override suspend fun write(user: AuthenticatedUser) = Unit
+        override suspend fun clear() = Unit
     }
 
     private class FakeAuthRepository : AuthRepository {

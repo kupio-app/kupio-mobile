@@ -95,3 +95,15 @@ interface PendingListingImagesDao {
     @Query("DELETE FROM pending_listing_images WHERE operationId = :operationId")
     suspend fun deleteForOperation(operationId: Long)
 }
+
+@Dao
+interface CachedAuthenticatedUserDao {
+    @Upsert
+    suspend fun upsert(user: CachedAuthenticatedUserEntity)
+
+    @Query("SELECT * FROM cached_authenticated_user LIMIT 1")
+    suspend fun get(): CachedAuthenticatedUserEntity?
+
+    @Query("DELETE FROM cached_authenticated_user")
+    suspend fun clear()
+}

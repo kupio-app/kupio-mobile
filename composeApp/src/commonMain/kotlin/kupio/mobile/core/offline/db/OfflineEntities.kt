@@ -82,3 +82,16 @@ data class PendingListingImageEntity(
     val filePath: String,
     val sortOrder: Int,
 )
+
+@Entity(tableName = "cached_authenticated_user")
+data class CachedAuthenticatedUserEntity(
+    @PrimaryKey val id: String,
+    val username: String?,
+    val displayName: String?,
+    val email: String,
+    val role: String,
+    val needsUsername: Boolean,
+    val balance: Int,
+    val avatarUrl: String?,
+    val createdAt: String?,
+)

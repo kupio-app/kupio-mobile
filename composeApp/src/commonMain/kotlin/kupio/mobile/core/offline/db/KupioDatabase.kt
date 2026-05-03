@@ -13,8 +13,9 @@ import kotlinx.coroutines.Dispatchers
         CachedFavouriteEntity::class,
         PendingSyncOperationEntity::class,
         PendingListingImageEntity::class,
+        CachedAuthenticatedUserEntity::class,
     ],
-    version = 1,
+    version = 2,
 )
 @ConstructedBy(KupioDatabaseConstructor::class)
 abstract class KupioDatabase : RoomDatabase() {
@@ -22,6 +23,7 @@ abstract class KupioDatabase : RoomDatabase() {
     abstract fun favouritesDao(): CachedFavouritesDao
     abstract fun pendingSyncDao(): PendingSyncDao
     abstract fun pendingImagesDao(): PendingListingImagesDao
+    abstract fun authenticatedUserDao(): CachedAuthenticatedUserDao
 }
 
 @Suppress("KotlinNoActualForExpect")

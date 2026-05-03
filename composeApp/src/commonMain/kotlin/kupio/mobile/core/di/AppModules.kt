@@ -10,6 +10,7 @@ import kupio.mobile.core.preferences.DataStorePreferencesRepository
 import kupio.mobile.core.preferences.PreferencesRepository
 import kupio.mobile.features.auth.data.local.DataStoreDeviceIdProvider
 import kupio.mobile.features.auth.data.local.KVaultSecureSessionStore
+import kupio.mobile.features.auth.data.local.RoomCachedAuthenticatedUserStore
 import kupio.mobile.features.auth.data.remote.AuthApi
 import kupio.mobile.features.auth.data.repository.AuthRepositoryImpl
 import kupio.mobile.features.auth.data.repository.AuthTokenProvider
@@ -19,6 +20,7 @@ import kupio.mobile.features.auth.data.repository.TokenRefreshingAuthenticatedAp
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.repository.DeviceIdProvider
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.auth.domain.session.CachedAuthenticatedUserStore
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.auth.AuthViewModel
@@ -131,9 +133,10 @@ val kupioAppModules: List<Module> = listOf(
         }
         single<AuthRepository> { AuthRepositoryImpl(get(), get(), get(), get()) }
         single<SecureSessionStore> { KVaultSecureSessionStore(get()) }
+        single<CachedAuthenticatedUserStore> { RoomCachedAuthenticatedUserStore(get()) }
         single<DeviceIdProvider> { DataStoreDeviceIdProvider(get()) }
         single { AuthValidator() }
-        single { AuthSessionManager(get(), get()) }
+        single { AuthSessionManager(get(), get(), get()) }
         single<PreferencesRepository> { DataStorePreferencesRepository(get()) }
         viewModelOf(::RootNavigationViewModel)
         viewModelOf(::AuthViewModel)

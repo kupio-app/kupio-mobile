@@ -23,6 +23,7 @@ import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.model.UserRole
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.auth.domain.session.CachedAuthenticatedUserStore
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.chats.domain.model.ChatRole
 import kupio.mobile.features.chats.domain.model.ConversationData
@@ -296,6 +297,7 @@ class ListingDetailViewModelTest {
         val sessionManager = AuthSessionManager(
             authRepository = FakeAuthRepository(currentUserId),
             secureSessionStore = FakeSecureSessionStore(),
+            cachedAuthenticatedUserStore = FakeCachedAuthenticatedUserStore(),
         )
         if (currentUserId.isNotBlank()) {
             sessionManager.establishSession(
@@ -515,6 +517,12 @@ class ListingDetailViewModelTest {
         override suspend fun clear() {
             session = null
         }
+    }
+
+    private class FakeCachedAuthenticatedUserStore : CachedAuthenticatedUserStore {
+        override suspend fun read(): AuthenticatedUser? = null
+        override suspend fun write(user: AuthenticatedUser) = Unit
+        override suspend fun clear() = Unit
     }
 
     private companion object {

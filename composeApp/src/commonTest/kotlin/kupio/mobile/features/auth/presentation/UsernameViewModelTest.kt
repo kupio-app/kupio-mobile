@@ -21,6 +21,7 @@ import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.model.UserRole
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.auth.domain.session.CachedAuthenticatedUserStore
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.username.UsernameIntent
@@ -134,6 +135,7 @@ class UsernameViewModelTest {
                     refreshExpiresAt = 200,
                 ),
             ),
+            cachedAuthenticatedUserStore = FakeCachedAuthenticatedUserStore(),
         )
         manager.updateAuthenticatedUser(sampleUsernameUser(needsUsername = true))
         return manager
@@ -168,6 +170,12 @@ class UsernameViewModelTest {
         override suspend fun clear() {
             session = null
         }
+    }
+
+    private class FakeCachedAuthenticatedUserStore : CachedAuthenticatedUserStore {
+        override suspend fun read(): AuthenticatedUser? = null
+        override suspend fun write(user: AuthenticatedUser) = Unit
+        override suspend fun clear() = Unit
     }
 }
 

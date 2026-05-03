@@ -33,8 +33,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import kupio.mobile.features.listings.presentation.create.components.LoadingRow
-import kupio.mobile.features.listings.presentation.create.components.RetryRow
 import kupio.mobile.features.listings.domain.model.Category
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
@@ -117,15 +115,15 @@ internal fun KupioCategoryPickerSheet(
                         )
                     }
                 }
-                isLoading -> LoadingRow()
-                hasError -> RetryRow(
+                isLoading -> KupioLoadingRow()
+                hasError -> KupioErrorRetryRow(
                     message = errorLabel,
                     onRetry = onRetry,
                 )
             }
 
             if (isLoading && displayCategories.isNotEmpty()) {
-                LoadingRow()
+                KupioLoadingRow()
             }
 
             Spacer(Modifier.height(20.dp))

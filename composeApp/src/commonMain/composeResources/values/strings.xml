@@ -355,4 +355,7 @@
     <string name="search_filters_categories">Categories</string>
     <string name="search_filters_subcategories">Subcategories</string>
     <string name="search_filters_use_category">Use %1$s</string>
+    <string name="listing_sync_pending">Pending sync</string>
+    <string name="listing_sync_syncing">Syncing</string>
+    <string name="listing_sync_failed">Sync failed</string>
 </resources>

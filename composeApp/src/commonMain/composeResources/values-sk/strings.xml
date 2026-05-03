@@ -353,4 +353,7 @@
     <string name="search_filters_categories">Kategórie</string>
     <string name="search_filters_subcategories">Podkategórie</string>
     <string name="search_filters_use_category">Použiť %1$s</string>
+    <string name="listing_sync_pending">Čaká na synchronizáciu</string>
+    <string name="listing_sync_syncing">Synchronizuje sa</string>
+    <string name="listing_sync_failed">Synchronizácia zlyhala</string>
 </resources>

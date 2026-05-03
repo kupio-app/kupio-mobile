@@ -46,7 +46,7 @@ import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.listings.presentation.components.ListingTopBar
 import kupio.mobile.features.listings.data.image.MaxListingImages
 import kupio.mobile.features.listings.presentation.create.components.DetailsSection
-import kupio.mobile.features.listings.presentation.create.components.ErrorText
+import kupio.mobile.core.designsystem.KupioErrorText
 import kupio.mobile.features.listings.presentation.create.components.FiltersSection
 import kupio.mobile.features.listings.presentation.create.components.PriceSection
 import kupio.mobile.features.listings.presentation.create.toErrorMessage
@@ -224,7 +224,7 @@ private fun EditListingContent(
                     state.submitError?.let { error ->
                         item(key = "submit_error") {
                             FormContentPadding {
-                                ErrorText(text = error.toErrorMessage())
+                                KupioErrorText(text = error.toErrorMessage())
                             }
                         }
                     }

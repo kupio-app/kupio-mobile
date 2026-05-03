@@ -4,6 +4,7 @@ import android.app.Application
 import com.mmk.kmpnotifier.notification.NotifierManager
 import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfiguration
 import kupio.mobile.core.di.initKoin
+import kupio.mobile.core.notifications.BackgroundSyncScheduler
 import kupio.mobile.core.notifications.PushNotificationManager
 import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
@@ -27,5 +28,7 @@ class KupioApplication : Application() {
         val pushNotificationManager = get<PushNotificationManager>()
         pushNotificationManager.start()
         NotifierManager.addListener(pushNotificationManager)
+
+        get<BackgroundSyncScheduler>().schedule()
     }
 }

@@ -96,6 +96,7 @@ kotlin {
             implementation(libs.androidx.credentials.play.services.auth)
             implementation(libs.googleid)
             implementation(libs.koin.android)
+            implementation(libs.androidx.work.runtime.ktx)
             implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {

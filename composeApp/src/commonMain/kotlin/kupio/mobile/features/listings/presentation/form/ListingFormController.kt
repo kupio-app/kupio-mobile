@@ -1,10 +1,9 @@
 package kupio.mobile.features.listings.presentation.form
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kupio.mobile.features.listings.domain.model.Category
+import kupio.mobile.core.designsystem.categorypicker.CategoryPickerControllerState
+import kupio.mobile.core.designsystem.categorypicker.KupioCategoryPickerContoller
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.presentation.create.CreateError
 import kupio.mobile.features.listings.presentation.create.CreateField
@@ -13,14 +12,54 @@ import kupio.mobile.features.listings.presentation.create.CreateIntent
 import kupio.mobile.features.listings.presentation.create.CreateState
 
 class ListingFormController(
-    private val categoriesRepository: CategoriesRepository,
+    categoriesRepository: CategoriesRepository,
     private val scope: CoroutineScope,
     private val currentState: () -> CreateState,
     private val updateState: ((CreateState) -> CreateState) -> Unit,
     private val onFormChanged: () -> Unit = {},
 ) {
-    private var filtersJob: Job? = null
-    private var subcategoriesJob: Job? = null
+    private val categoryPicker = KupioCategoryPickerContoller(
+        categoriesRepository,
+        onCategorySelected = { id, name ->
+            onFormChanged()
+            val isSameCategory = currentState().selectedCategoryId == id
+            updateState {
+                it.copy(
+                    selectedCategoryId = id,
+                    selectedCategoryName = name,
+                    filters = if (isSameCategory) it.filters else emptyList(),
+                    filterValues = if (isSameCategory) it.filterValues else emptyMap(),
+                    filterErrors = if (isSameCategory) it.filterErrors else emptyMap(),
+                    filtersError = if (isSameCategory) it.filtersError else null,
+                    fieldErrors = it.fieldErrors - CreateField.CATEGORY - CreateField.CUSTOM_FILTERS,
+                    submitError = null,
+                )
+            }
+        },
+        onCategoryReset = {
+            onFormChanged()
+            updateState {
+                it.copy(
+                    selectedCategoryId = null,
+                    selectedCategoryName = null,
+                    filters = emptyList(),
+                    filterValues = emptyMap(),
+                    filterErrors = emptyMap(),
+                    filtersError = null,
+                    submitError = null,
+                )
+            }
+        },
+        scope = scope,
+    )
+
+    init {
+        scope.launch {
+            categoryPicker.state.collect { pickerState ->
+                updateState { it.mergePickerState(pickerState) }
+            }
+        }
+    }
 
     fun handle(intent: CreateIntent): Boolean {
         when (intent) {
@@ -30,12 +69,10 @@ class ListingFormController(
             }
             is CreateIntent.PriceChanged -> updateField(CreateField.PRICE) { it.copy(price = intent.value) }
             is CreateIntent.CurrencyChanged -> updateForm { it.copy(currency = intent.value) }
-            is CreateIntent.CategorySelected -> selectCategory(intent.id)
-            CreateIntent.CategoryPickerReset -> resetCategoryPicker()
-            CreateIntent.CategoryPickerBack -> navigateCategoryPickerBack()
-            CreateIntent.RetrySubcategories -> currentState().categoryPath.lastOrNull()?.id?.let {
-                loadSubcategories(it, forceRefresh = true)
-            }
+            is CreateIntent.CategorySelected -> categoryPicker.selectCategory(intent.id)
+            CreateIntent.CategoryPickerReset -> categoryPicker.reset()
+            CreateIntent.CategoryPickerBack -> categoryPicker.navigateBack()
+            CreateIntent.RetrySubcategories -> categoryPicker.retrySubcategories()
             is CreateIntent.FilterTextChanged -> updateFilterText(intent.slug, intent.value)
             is CreateIntent.FilterBooleanChanged -> updateFilterBoolean(intent.slug, intent.value)
             CreateIntent.ToggleFree -> updateForm {
@@ -49,7 +86,7 @@ class ListingFormController(
             CreateIntent.ToggleTradable -> updateForm { it.copy(isTradable = !it.isTradable) }
             CreateIntent.RetryCategories -> loadCategories()
             CreateIntent.RetryFilters -> currentState().selectedCategoryId?.let {
-                loadFilters(it, forceRefresh = true)
+                categoryPicker.retryFilters(it)
             }
             CreateIntent.ImageLimitReached,
             is CreateIntent.ImagesSelected,
@@ -63,43 +100,8 @@ class ListingFormController(
         return true
     }
 
-    fun cancel() {
-        filtersJob?.cancel()
-        subcategoriesJob?.cancel()
-    }
-
-    fun loadCategories() {
-        updateState {
-            it.copy(
-                isLoadingCategories = true,
-                categoriesError = null,
-                categoryPath = emptyList(),
-                visibleSubcategories = emptyList(),
-                subcategoriesError = null,
-            )
-        }
-        scope.launch {
-            runCatching { categoriesRepository.getRootCategories(limit = 100) }
-                .onSuccess { categories ->
-                    updateState {
-                        it.copy(
-                            categories = categories,
-                            isLoadingCategories = false,
-                            categoriesError = null,
-                        )
-                    }
-                }
-                .onFailure { throwable ->
-                    if (throwable is CancellationException) throw throwable
-                    updateState {
-                        it.copy(
-                            isLoadingCategories = false,
-                            categoriesError = throwable.message.toCreateError(),
-                        )
-                    }
-                }
-        }
-    }
+    fun cancel() = categoryPicker.cancel()
+    fun loadCategories() = categoryPicker.loadCategories()
 
     private fun updateField(
         field: CreateField,
@@ -137,147 +139,20 @@ class ListingFormController(
         onFormChanged()
         updateState { transform(it).copy(submitError = null) }
     }
-
-    private fun selectCategory(categoryId: Int) {
-        onFormChanged()
-        val state = currentState()
-        val category = state.findKnownCategory(categoryId)
-        val categoryPath = category?.let { state.pathTo(it) } ?: emptyList()
-        val isSameCategory = state.selectedCategoryId == categoryId
-        updateState {
-            it.copy(
-                selectedCategoryId = categoryId,
-                selectedCategoryName = category?.name ?: it.selectedCategoryName,
-                categoryPath = categoryPath,
-                visibleSubcategories = emptyList(),
-                isLoadingSubcategories = false,
-                subcategoriesError = null,
-                filters = if (isSameCategory) it.filters else emptyList(),
-                filterValues = if (isSameCategory) it.filterValues else emptyMap(),
-                filterErrors = if (isSameCategory) it.filterErrors else emptyMap(),
-                fieldErrors = it.fieldErrors - CreateField.CATEGORY - CreateField.CUSTOM_FILTERS,
-                filtersError = if (isSameCategory) it.filtersError else null,
-                submitError = null,
-            )
-        }
-        if (!isSameCategory) {
-            loadFilters(categoryId)
-        }
-        loadSubcategories(categoryId)
-    }
-
-    private fun navigateCategoryPickerBack() {
-        val path = currentState().categoryPath
-        if (path.size <= 1) {
-            resetCategoryPicker()
-        } else {
-            selectCategory(path[path.lastIndex - 1].id)
-        }
-    }
-
-    private fun resetCategoryPicker() {
-        subcategoriesJob?.cancel()
-        updateState {
-            it.copy(
-                categoryPath = emptyList(),
-                visibleSubcategories = emptyList(),
-                isLoadingSubcategories = false,
-                subcategoriesError = null,
-            )
-        }
-    }
-
-    private fun loadSubcategories(
-        categoryId: Int,
-        forceRefresh: Boolean = false,
-    ) {
-        subcategoriesJob?.cancel()
-        updateState {
-            it.copy(
-                isLoadingSubcategories = true,
-                subcategoriesError = null,
-            )
-        }
-        subcategoriesJob = scope.launch {
-            runCatching {
-                categoriesRepository.getSubcategories(
-                    categoryId = categoryId,
-                    limit = 100,
-                    forceRefresh = forceRefresh,
-                )
-            }.onSuccess { subcategories ->
-                updateState { state ->
-                    if (state.selectedCategoryId != categoryId) {
-                        state
-                    } else {
-                        state.copy(
-                            visibleSubcategories = subcategories,
-                            isLoadingSubcategories = false,
-                            subcategoriesError = null,
-                        )
-                    }
-                }
-            }.onFailure { throwable ->
-                if (throwable is CancellationException) throw throwable
-                updateState { state ->
-                    if (state.selectedCategoryId != categoryId) {
-                        state
-                    } else {
-                        state.copy(
-                            isLoadingSubcategories = false,
-                            subcategoriesError = throwable.message.toCreateError(),
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun loadFilters(
-        categoryId: Int,
-        forceRefresh: Boolean = false,
-    ) {
-        filtersJob?.cancel()
-        updateState { it.copy(isLoadingFilters = true, filtersError = null) }
-        filtersJob = scope.launch {
-            runCatching { categoriesRepository.getCategoryFilters(categoryId, forceRefresh = forceRefresh) }
-                .onSuccess { filters ->
-                    updateState {
-                        it.copy(
-                            filters = filters,
-                            isLoadingFilters = false,
-                            filtersError = null,
-                        )
-                    }
-                }
-                .onFailure { throwable ->
-                    if (throwable is CancellationException) throw throwable
-                    updateState {
-                        it.copy(
-                            isLoadingFilters = false,
-                            filtersError = throwable.message.toCreateError(),
-                        )
-                    }
-                }
-        }
-    }
 }
 
-private fun CreateState.findKnownCategory(categoryId: Int): Category? =
-    categories.firstOrNull { it.id == categoryId }
-        ?: categoryPath.firstOrNull { it.id == categoryId }
-        ?: visibleSubcategories.firstOrNull { it.id == categoryId }
-
-private fun CreateState.pathTo(category: Category): List<Category> {
-    val existingPathIndex = categoryPath.indexOfFirst { it.id == category.id }
-    if (existingPathIndex >= 0) return categoryPath.take(existingPathIndex + 1)
-
-    return if (category.parentId == categoryPath.lastOrNull()?.id) {
-        categoryPath + category
-    } else {
-        listOf(category)
-    }
-}
+private fun CreateState.mergePickerState(picker: CategoryPickerControllerState): CreateState = copy(
+    categories = picker.rootCategories,
+    isLoadingCategories = picker.isLoadingRootCategories,
+    categoriesError = picker.rootCategoriesError?.toCreateError(),
+    categoryPath = picker.categoryPath,
+    visibleSubcategories = picker.visibleSubcategories,
+    isLoadingSubcategories = picker.isLoadingSubcategories,
+    subcategoriesError = picker.subcategoriesError?.toCreateError(),
+    filters = picker.filterDefinitions,
+    isLoadingFilters = picker.isLoadingFilters,
+    filtersError = picker.filtersError?.toCreateError(),
+)
 
 fun String?.toCreateError(): CreateError =
     takeUnless { it.isNullOrBlank() }

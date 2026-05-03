@@ -1,7 +1,7 @@
 ﻿package kupio.mobile.features.listings.presentation.create.components
 
 import androidx.compose.runtime.Composable
-import kupio.mobile.core.designsystem.KupioCategoryPickerSheet
+import kupio.mobile.core.designsystem.categorypicker.KupioCategoryPickerSheet
 import kupio.mobile.features.listings.presentation.create.CreateIntent
 import kupio.mobile.features.listings.presentation.create.CreateState
 import mobile.composeapp.generated.resources.Res

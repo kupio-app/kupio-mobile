@@ -7,6 +7,9 @@ import kupio.mobile.app.App
 import kupio.mobile.core.di.initKoin
 import kupio.mobile.core.notifications.BackgroundSyncScheduler
 import kupio.mobile.core.notifications.PushNotificationManager
+import kupio.mobile.core.offline.OfflineSyncManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.koin.mp.KoinPlatformTools
 import platform.UIKit.UIViewController
 
@@ -26,6 +29,9 @@ fun MainViewController(): UIViewController {
     NotifierManager.addListener(pushNotificationManager)
 
     koin.get<BackgroundSyncScheduler>().schedule()
+    koin.get<CoroutineScope>().launch {
+        runCatching { koin.get<OfflineSyncManager>().syncPending() }
+    }
 
     return ComposeUIViewController { App() }
 }

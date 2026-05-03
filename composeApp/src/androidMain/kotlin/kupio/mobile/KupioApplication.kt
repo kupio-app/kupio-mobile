@@ -6,6 +6,9 @@ import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfig
 import kupio.mobile.core.di.initKoin
 import kupio.mobile.core.notifications.BackgroundSyncScheduler
 import kupio.mobile.core.notifications.PushNotificationManager
+import kupio.mobile.core.offline.OfflineSyncManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -30,5 +33,8 @@ class KupioApplication : Application() {
         NotifierManager.addListener(pushNotificationManager)
 
         get<BackgroundSyncScheduler>().schedule()
+        get<CoroutineScope>().launch {
+            runCatching { get<OfflineSyncManager>().syncPending() }
+        }
     }
 }

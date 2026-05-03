@@ -1,6 +1,7 @@
 package kupio.mobile.core.notifications
 
 import com.mmk.kmpnotifier.notification.NotifierManager
+import kupio.mobile.core.offline.OfflineSyncManager
 import kupio.mobile.features.chats.domain.repository.ChatsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +22,7 @@ fun performUnreadSync(
     syncScope.launch {
         try {
             val koin = KoinPlatformTools.defaultContext().get()
+            koin.get<OfflineSyncManager>().syncPending()
             val unreadCount = koin.get<ChatsRepository>().getUnreadCount()
             val notificationShown = unreadCount > 0
 

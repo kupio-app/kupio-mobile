@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kupio.mobile.core.designsystem.KupioErrorText
 import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingDimClickable
@@ -45,7 +46,6 @@ import kupio.mobile.features.listings.presentation.create.CreateError
 import kupio.mobile.features.listings.presentation.create.CreateField
 import kupio.mobile.features.listings.presentation.create.CreateIntent
 import kupio.mobile.features.listings.presentation.create.CreateState
-import kupio.mobile.features.listings.presentation.create.digitsOnly
 import kupio.mobile.features.listings.presentation.create.toErrorMessage
 import kupio.mobile.features.listings.domain.model.Currency
 import mobile.composeapp.generated.resources.Res
@@ -145,7 +145,7 @@ private fun CreatePriceField(
             )
         }
     }
-    error?.let { ErrorText(it.toErrorMessage()) }
+    error?.let { KupioErrorText(it.toErrorMessage()) }
 }
 
 @Composable
@@ -351,3 +351,5 @@ internal fun PublishBar(
         }
     }
 }
+
+internal fun String.digitsOnly(): String = filter { it.isDigit() }

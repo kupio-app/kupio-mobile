@@ -6,8 +6,15 @@ import kupio.mobile.features.listings.domain.model.ListingFeed
 import kupio.mobile.features.listings.domain.model.ListingImage
 import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.model.ListingStatus
+import kupio.mobile.features.search.domain.model.SearchFilters
 
 interface ListingsRepository {
+    suspend fun searchListings(
+        filters: SearchFilters,
+        cursor: String? = null,
+        limit: Int = 20,
+    ): ListingFeed
+
     suspend fun getFeed(
         limit: Int = 20,
         cursor: String? = null,

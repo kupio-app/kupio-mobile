@@ -32,12 +32,22 @@ class ListingsApi(private val httpClient: HttpClient) {
     suspend fun getListings(
         query: String? = null,
         categoryId: Int? = null,
+        minPrice: Int? = null,
+        maxPrice: Int? = null,
+        isFree: Boolean? = null,
+        isTradable: Boolean? = null,
+        filters: String? = null,
         limit: Int = 20,
         cursor: String? = null,
     ): ListListingsResponseDto = httpClient.get("/api/listings") {
         url {
             query?.let { parameters.append("q", it) }
             categoryId?.let { parameters.append("category_id", it.toString()) }
+            minPrice?.let { parameters.append("min_price", it.toString()) }
+            maxPrice?.let { parameters.append("max_price", it.toString()) }
+            isFree?.let { parameters.append("is_free", it.toString()) }
+            isTradable?.let { parameters.append("is_tradable", it.toString()) }
+            filters?.let { parameters.append("filters", it) }
             parameters.append("limit", limit.toString())
             cursor?.let { parameters.append("cursor", it) }
         }

@@ -1,5 +1,6 @@
 package kupio.mobile.features.listings.presentation.create
 
+import kupio.mobile.core.designsystem.formatForDisplay
 import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.CustomFilterPayloadValue
 import kupio.mobile.features.listings.domain.model.FilterDefinition

@@ -65,10 +65,11 @@ class FeedViewModel(
                 analytics.logEvent("search", mapOf("search_term" to query))
                 viewModelScope.launch { effectChannel.send(OpenSearch(query)) }
             }
+            FeedIntent.OpenSearchBar -> viewModelScope.launch { effectChannel.send(OpenSearch("")) }
             FeedIntent.RetryLoadListings -> loadRecommended()
             FeedIntent.RetryLoadCategories -> loadCategories()
             FeedIntent.RefreshFeed -> refreshFeed()
-            FeedIntent.OpenFilters -> {}
+            FeedIntent.OpenFilters -> viewModelScope.launch { effectChannel.send(OpenSearchFilters) }
             FeedIntent.OpenNotifications -> {}
             FeedIntent.SelectDelivery -> {}
             is FeedIntent.ToggleFavourite -> toggleFavourite(intent.listingId)

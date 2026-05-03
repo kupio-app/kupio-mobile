@@ -1,13 +1,17 @@
 package kupio.mobile.core.designsystem
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -31,6 +35,7 @@ import mobile.composeapp.generated.resources.retry
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.runtime.getValue
 
 @Composable
 fun KupioScaffold(
@@ -115,6 +120,7 @@ fun KupioDefaultButton(
 fun KupioFieldLabel(
     label: String,
     modifier: Modifier = Modifier,
+    withValidationInfo: Boolean = true,
     required: Boolean = false,
     trailing: String? = null,
 ) {
@@ -127,10 +133,10 @@ fun KupioFieldLabel(
             Text(
                 text = label.uppercase(),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.outline,
                 fontWeight = FontWeight.Bold,
             )
-            if (required) {
+            if (required && withValidationInfo) {
                 Text(
                     text = "*",
                     style = MaterialTheme.typography.labelSmall,
@@ -139,11 +145,11 @@ fun KupioFieldLabel(
                 )
             }
         }
-        if (trailing != null) {
+        if (trailing != null && withValidationInfo) {
             Text(
                 text = trailing,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.outline,
             )
         }
     }
@@ -160,6 +166,7 @@ fun KupioTextField(
     required: Boolean = false,
     trailingLabel: String? = null,
     trailingSlot: (@Composable () -> Unit)? = null,
+    isValidationEnabled: Boolean = true,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     singleLine: Boolean = true,
@@ -173,6 +180,7 @@ fun KupioTextField(
             label = label,
             required = required,
             trailing = trailingLabel,
+            withValidationInfo = isValidationEnabled,
         )
         Surface(
             shape = KupioShapes.Medium,
@@ -202,7 +210,7 @@ fun KupioTextField(
                 shape = KupioShapes.Medium,
             )
         }
-        if (error != null) {
+        if (error != null && isValidationEnabled) {
             Text(
                 text = error,
                 style = MaterialTheme.typography.bodySmall,
@@ -300,6 +308,16 @@ fun KupioLoadingScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
+fun KupioLoadingRow() {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = KupioThemeDefaults.spacing.md),
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+    }
+}
+
+@Composable
 fun KupioFilterChip(
     label: String,
     selected: Boolean,
@@ -338,6 +356,15 @@ fun KupioFilterChip(
 }
 
 @Composable
+internal fun KupioErrorText(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.error,
+    )
+}
+
+@Composable
 fun KupioErrorRetryRow(
     message: String,
     onRetry: () -> Unit,
@@ -348,13 +375,39 @@ fun KupioErrorRetryRow(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
     ) {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        KupioErrorText(message)
         Button(onClick = onRetry) {
             Text(stringResource(Res.string.retry))
         }
+    }
+}
+
+@Composable
+internal fun KupioSwitch(
+    checked: Boolean,
+    onToggle: () -> Unit,
+) {
+    val thumbX by animateDpAsState(targetValue = if (checked) 20.dp else 2.dp)
+    val trackColor =
+        if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
+
+    Box(
+        modifier = Modifier
+            .width(46.dp)
+            .height(26.dp)
+            .bouncingClickable(onClick = onToggle),
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            shape = KupioShapes.Full,
+            color = trackColor,
+        ) {}
+        Surface(
+            modifier = Modifier
+                .size(22.dp)
+                .absoluteOffset(x = thumbX, y = 2.dp),
+            shape = KupioShapes.Full,
+            color = Color.White,
+        ) {}
     }
 }

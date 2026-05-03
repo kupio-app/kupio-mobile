@@ -3,8 +3,6 @@ package kupio.mobile.features.search.presentation.filters
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Search
@@ -31,12 +28,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kupio.mobile.core.designsystem.KupioCustomFilterInput
 import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioSwitch
 import kupio.mobile.core.designsystem.KupioThemeDefaults
@@ -44,7 +41,6 @@ import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.listings.domain.model.FilterDefinition
-import kupio.mobile.features.listings.domain.model.FilterType
 import kupio.mobile.features.search.presentation.filters.components.DealTypeSection
 import kupio.mobile.features.search.presentation.filters.components.FiltersBottomBar
 import kupio.mobile.features.search.presentation.filters.components.FiltersTopBar
@@ -311,112 +307,15 @@ private fun SearchFilterItem(
             .padding(horizontal = KupioThemeDefaults.spacing.lg, vertical = KupioThemeDefaults.spacing.sm),
         verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.xs),
     ) {
-        Text(
-            text = filter.label.uppercase(),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.outline,
-            fontWeight = FontWeight.SemiBold,
+        KupioCustomFilterInput(
+            filter = filter,
+            error = null,
+            isValidationEnabled = false,
+            textValue = (value as? SearchFilterInput.Text)?.value,
+            booleanValue = (value as? SearchFilterInput.BooleanValue)?.value,
+            onTextChanged = { slug, newValue -> onIntent(SearchFiltersIntent.FilterTextChanged(slug, newValue)) },
+            onBooleanChanged = { slug, newValue -> onIntent(SearchFiltersIntent.FilterBooleanChanged(slug, newValue)) },
         )
-        when (filter.type) {
-            FilterType.TEXT, FilterType.NUMBER, FilterType.RANGE -> {
-                Surface(
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
-                    shape = KupioShapes.Large,
-                    color = MaterialTheme.colorScheme.surface,
-                    border = KupioThemeDefaults.defaultBorder,
-                ) {
-                    BasicTextField(
-                        value = (value as? SearchFilterInput.Text)?.value ?: "",
-                        onValueChange = { onIntent(SearchFiltersIntent.FilterTextChanged(filter.slug, it)) },
-                        modifier = Modifier.padding(horizontal = KupioThemeDefaults.spacing.md),
-                        singleLine = true,
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                        textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
-                        keyboardOptions = if (filter.type == FilterType.TEXT) KeyboardOptions.Default else KeyboardOptions(
-                            keyboardType = KeyboardType.Number
-                        ),
-                        decorationBox = { inner ->
-                            Box(contentAlignment = Alignment.CenterStart) {
-                                if ((value as? SearchFilterInput.Text)?.value.isNullOrEmpty()) {
-                                    Text(
-                                        filter.label,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                                inner()
-                            }
-                        },
-                    )
-                }
-            }
-
-            FilterType.BOOLEAN -> {
-                @OptIn(ExperimentalLayoutApi::class)
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
-                    verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
-                ) {
-                    val boolVal = (value as? SearchFilterInput.BooleanValue)?.value
-                    if (!filter.isRequired) {
-                        FilterChoiceChip(
-                            text = "—",
-                            selected = boolVal == null,
-                            onClick = { onIntent(SearchFiltersIntent.FilterBooleanChanged(filter.slug, null)) })
-                    }
-                    FilterChoiceChip(
-                        text = "Yes",
-                        selected = boolVal == true,
-                        onClick = { onIntent(SearchFiltersIntent.FilterBooleanChanged(filter.slug, true)) })
-                    FilterChoiceChip(
-                        text = "No",
-                        selected = boolVal == false,
-                        onClick = { onIntent(SearchFiltersIntent.FilterBooleanChanged(filter.slug, false)) })
-                }
-            }
-
-            FilterType.SELECT -> {
-                @OptIn(ExperimentalLayoutApi::class)
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
-                    verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.sm),
-                ) {
-                    val selected = (value as? SearchFilterInput.Text)?.value ?: ""
-                    filter.options.values.forEach { option ->
-                        FilterChoiceChip(
-                            text = option,
-                            selected = selected == option,
-                            onClick = { onIntent(SearchFiltersIntent.FilterTextChanged(filter.slug, option)) },
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun FilterChoiceChip(
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
-    Surface(
-        modifier = Modifier
-            .height(34.dp)
-            .bouncingDimClickable(shape = KupioShapes.Full, onClick = onClick),
-        shape = KupioShapes.Full,
-        color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surface,
-        border = if (selected) null else KupioThemeDefaults.strongBorder,
-    ) {
-        Box(modifier = Modifier.padding(horizontal = 13.dp), contentAlignment = Alignment.Center) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Medium,
-                color = if (selected) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
     }
 }
 

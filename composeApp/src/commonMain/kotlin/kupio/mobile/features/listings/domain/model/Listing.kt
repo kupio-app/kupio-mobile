@@ -20,6 +20,7 @@ data class Listing(
     val isCallsDisabled: Boolean,
     val isFree: Boolean,
     val isTradable: Boolean,
+    val isPromoted: Boolean = false,
     val customFilters: Map<String, String>,
 )
 

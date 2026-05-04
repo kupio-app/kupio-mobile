@@ -6,7 +6,6 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.contentOrNull
 import kupio.mobile.features.listings.domain.model.Currency
 import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.CustomFilterPayloadValue
@@ -39,6 +38,7 @@ data class ListingResponseDto(
     @SerialName("is_calls_disabled") val isCallsDisabled: Boolean = false,
     @SerialName("is_free") val isFree: Boolean = false,
     @SerialName("is_tradable") val isTradable: Boolean = false,
+    @SerialName("active_promotions") val activePromotions: List<String> = emptyList(),
     @SerialName("custom_filters") val customFilters: JsonObject? = null,
 )
 
@@ -151,6 +151,7 @@ fun ListingResponseDto.toDomain(): Listing {
         isCallsDisabled = isCallsDisabled,
         isFree = isFree,
         isTradable = isTradable,
+        isPromoted = activePromotions.isNotEmpty(),
         customFilters = customFilters.toDisplayMap(),
     )
 }

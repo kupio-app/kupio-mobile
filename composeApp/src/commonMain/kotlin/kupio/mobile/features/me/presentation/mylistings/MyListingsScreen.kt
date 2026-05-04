@@ -36,6 +36,7 @@ import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.presentation.mylistings.components.FilterChipsRow
 import kupio.mobile.features.me.presentation.mylistings.components.OwnedListingCard
 import kupio.mobile.features.me.presentation.mylistings.components.StatusChangeDialog
+import kupio.mobile.features.promotions.presentation.promote.PromoteListingScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.my_listings_empty
 import mobile.composeapp.generated.resources.my_listings_load_error
@@ -65,6 +66,7 @@ class MyListingsScreen : Screen {
                 MyListingsEffect.NavigateBack -> navigator.pop()
                 is MyListingsEffect.OpenListing -> rootNavigator.push(ListingDetailScreen(effect.id))
                 is MyListingsEffect.EditListing -> rootNavigator.push(EditListingScreen(effect.id))
+                is MyListingsEffect.PromoteListing -> rootNavigator.push(PromoteListingScreen(effect.id))
             }
         }
 

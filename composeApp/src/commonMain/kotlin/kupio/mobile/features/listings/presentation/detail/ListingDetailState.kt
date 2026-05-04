@@ -69,6 +69,7 @@ sealed interface ListingDetailEffect : UiEffect {
     data object NavigateBack : ListingDetailEffect
     data class OpenChat(val conversationId: String) : ListingDetailEffect
     data class OpenEdit(val listingId: String) : ListingDetailEffect
+    data class OpenPromotion(val listingId: String) : ListingDetailEffect
     data class NavigateToReport(
         val listingId: String,
         val listingTitle: String,

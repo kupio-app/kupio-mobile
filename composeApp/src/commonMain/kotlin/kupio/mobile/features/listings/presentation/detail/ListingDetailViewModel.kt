@@ -74,9 +74,8 @@ class ListingDetailViewModel(
             ListingDetailIntent.ConfirmOwnerStatusChange -> confirmOwnerStatusChange()
             ListingDetailIntent.DismissOwnerStatusChange -> _state.update { it.copy(statusChangeTarget = null) }
             ListingDetailIntent.EditListing -> openEdit()
-            ListingDetailIntent.PromoteListing,
-            ListingDetailIntent.OpenSellerProfile,
-            -> Unit
+            ListingDetailIntent.PromoteListing -> openPromotion()
+            ListingDetailIntent.OpenSellerProfile -> Unit
             ListingDetailIntent.ReportListing -> reportListing()
         }
     }
@@ -264,6 +263,14 @@ class ListingDetailViewModel(
         if (!_state.value.isOwnListing) return
         viewModelScope.launch {
             effectChannel.send(ListingDetailEffect.OpenEdit(listing.id))
+        }
+    }
+
+    private fun openPromotion() {
+        val listing = _state.value.listing ?: return
+        if (!_state.value.isOwnListing) return
+        viewModelScope.launch {
+            effectChannel.send(ListingDetailEffect.OpenPromotion(listing.id))
         }
     }
 

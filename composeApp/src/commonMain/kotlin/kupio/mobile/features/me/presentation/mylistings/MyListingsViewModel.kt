@@ -42,7 +42,9 @@ class MyListingsViewModel(
                 effectChannel.send(MyListingsEffect.EditListing(intent.id))
             }
             is MyListingsIntent.BumpUp -> Unit
-            is MyListingsIntent.Promote -> Unit
+            is MyListingsIntent.Promote -> viewModelScope.launch {
+                effectChannel.send(MyListingsEffect.PromoteListing(intent.id))
+            }
             is MyListingsIntent.OpenListing -> viewModelScope.launch {
                 effectChannel.send(MyListingsEffect.OpenListing(intent.id))
             }

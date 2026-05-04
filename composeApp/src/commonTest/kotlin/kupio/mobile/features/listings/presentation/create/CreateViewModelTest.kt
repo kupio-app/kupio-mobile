@@ -23,12 +23,6 @@ import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.search.domain.model.SearchFilters
-import kupio.mobile.features.listings.presentation.create.CreateEffect
-import kupio.mobile.features.listings.presentation.create.CreateError
-import kupio.mobile.features.listings.presentation.create.CreateFilterInput
-import kupio.mobile.features.listings.presentation.create.CreateIntent
-import kupio.mobile.features.listings.presentation.create.CreateViewModel
-import kupio.mobile.features.listings.presentation.create.SelectedListingImage
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test

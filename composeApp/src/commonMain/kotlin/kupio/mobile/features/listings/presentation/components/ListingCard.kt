@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kupio.mobile.core.designsystem.KupioCardSurface
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingClickableIf
 import kupio.mobile.core.designsystem.bouncingDimClickable
@@ -30,6 +31,7 @@ import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.formatPrice
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.home_listing_favorite
+import mobile.composeapp.generated.resources.listing_detail_promoted
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -56,6 +58,23 @@ fun ListingCard(
                     contentDescription = listing.title,
                     modifier = Modifier.fillMaxSize(),
                 )
+                if (listing.isPromoted) {
+                    Surface(
+                        modifier = Modifier
+                            .padding(spacing.sm)
+                            .align(Alignment.TopStart),
+                        shape = KupioShapes.Small,
+                        color = MaterialTheme.colorScheme.primary,
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.listing_detail_promoted).uppercase(),
+                            modifier = Modifier.padding(horizontal = spacing.sm, vertical = 2.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                        )
+                    }
+                }
                 val heartModifier = Modifier
                     .padding(spacing.sm)
                     .size(32.dp)

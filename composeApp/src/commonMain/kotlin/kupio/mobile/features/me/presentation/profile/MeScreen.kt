@@ -9,8 +9,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.LightMode
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -66,6 +68,7 @@ class MeScreen : Screen {
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun MeRoute(state: MeState, onIntent: (MeIntent) -> Unit) {
     val spacing = KupioThemeDefaults.spacing
     val themeToggleIcon = when (state.themeMode) {
@@ -87,54 +90,61 @@ private fun MeRoute(state: MeState, onIntent: (MeIntent) -> Unit) {
             )
         },
     ) { paddingValues ->
-        LazyColumn(
+        PullToRefreshBox(
+            isRefreshing = state.isRefreshing,
+            onRefresh = { onIntent(MeIntent.Refresh) },
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = paddingValues.calculateTopPadding())
-                .background(MaterialTheme.colorScheme.background),
-            contentPadding = PaddingValues(
-                start = spacing.md,
-                end = spacing.md,
-                top = spacing.md,
-                bottom = paddingValues.calculateBottomPadding(),
-            ),
-            verticalArrangement = Arrangement.spacedBy(spacing.lg),
+                .padding(paddingValues),
         ) {
-            item { UserInfoSection(user = state.user) }
-            item { BalanceCard(user = state.user, onTopUp = { onIntent(MeIntent.TopUpBalanceClicked) }) }
-            item {
-                MyListingsSection(
-                    stats = state.stats,
-                    onManageClick = { onIntent(MeIntent.MyListingsClicked) },
-                )
-            }
-            item {
-                ActivitySection(
-                    stats = state.stats,
-                    onChatsClick = { onIntent(MeIntent.ChatsClicked) },
-                    onFavouritesClick = { onIntent(MeIntent.FavouritesClicked) },
-                )
-            }
-            item {
-                PaymentsSection(
-                    onTopUpClick = { onIntent(MeIntent.TopUpBalanceClicked) },
-                    onPaymentsHistoryClick = { onIntent(MeIntent.PaymentsHistoryClicked) },
-                    onPromotionsClick = { onIntent(MeIntent.PromotionsPackagesClicked) },
-                )
-            }
-            item {
-                ProfileSection(
-                    onEditProfileClick = { onIntent(MeIntent.EditProfileClicked) },
-                    onSettingsClick = { onIntent(MeIntent.SettingsClicked) },
-                )
-            }
-            val user = state.user
-            if (user?.role?.canModerate == true) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
+                contentPadding = PaddingValues(
+                    start = spacing.md,
+                    end = spacing.md,
+                    top = spacing.md,
+                    bottom = spacing.md,
+                ),
+                verticalArrangement = Arrangement.spacedBy(spacing.lg),
+            ) {
+                item { UserInfoSection(user = state.user) }
+                item { BalanceCard(user = state.user, onTopUp = { onIntent(MeIntent.TopUpBalanceClicked) }) }
                 item {
-                    ReportsDashboardCard(
-                        openCount = state.reportsDashboardUnseenCount,
-                        onClick = { onIntent(MeIntent.ReportsDashboardClicked) },
+                    MyListingsSection(
+                        stats = state.stats,
+                        onManageClick = { onIntent(MeIntent.MyListingsClicked) },
                     )
+                }
+                item {
+                    ActivitySection(
+                        stats = state.stats,
+                        onChatsClick = { onIntent(MeIntent.ChatsClicked) },
+                        onFavouritesClick = { onIntent(MeIntent.FavouritesClicked) },
+                    )
+                }
+                item {
+                    PaymentsSection(
+                        onTopUpClick = { onIntent(MeIntent.TopUpBalanceClicked) },
+                        onPaymentsHistoryClick = { onIntent(MeIntent.PaymentsHistoryClicked) },
+                        onPromotionsClick = { onIntent(MeIntent.PromotionsPackagesClicked) },
+                    )
+                }
+                item {
+                    ProfileSection(
+                        onEditProfileClick = { onIntent(MeIntent.EditProfileClicked) },
+                        onSettingsClick = { onIntent(MeIntent.SettingsClicked) },
+                    )
+                }
+                val user = state.user
+                if (user?.role?.canModerate == true) {
+                    item {
+                        ReportsDashboardCard(
+                            openCount = state.reportsDashboardUnseenCount,
+                            onClick = { onIntent(MeIntent.ReportsDashboardClicked) },
+                        )
+                    }
                 }
             }
         }

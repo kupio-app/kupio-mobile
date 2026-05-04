@@ -4,10 +4,13 @@ import io.ktor.client.HttpClient
 import kupio.mobile.core.config.BackendConfig
 import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.core.network.createKupioHttpClient
+import kupio.mobile.core.offline.OfflineMutationStore
+import kupio.mobile.core.offline.OfflineSyncManager
 import kupio.mobile.core.preferences.DataStorePreferencesRepository
 import kupio.mobile.core.preferences.PreferencesRepository
 import kupio.mobile.features.auth.data.local.DataStoreDeviceIdProvider
 import kupio.mobile.features.auth.data.local.KVaultSecureSessionStore
+import kupio.mobile.features.auth.data.local.RoomCachedAuthenticatedUserStore
 import kupio.mobile.features.auth.data.remote.AuthApi
 import kupio.mobile.features.auth.data.repository.AuthRepositoryImpl
 import kupio.mobile.features.auth.data.repository.AuthTokenProvider
@@ -17,6 +20,7 @@ import kupio.mobile.features.auth.data.repository.TokenRefreshingAuthenticatedAp
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.repository.DeviceIdProvider
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.auth.domain.session.CachedAuthenticatedUserStore
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.auth.AuthViewModel
@@ -34,6 +38,7 @@ import kupio.mobile.features.chats.presentation.list.ChatsListViewModel
 import kupio.mobile.features.chats.presentation.thread.ChatThreadViewModel
 import kupio.mobile.features.listings.presentation.create.CreateViewModel
 import kupio.mobile.features.listings.data.remote.CategoriesApi
+import kupio.mobile.features.listings.data.repository.CategoriesCacheStore
 import kupio.mobile.features.listings.data.remote.ListingsApi
 import kupio.mobile.features.listings.data.repository.CategoriesRepositoryImpl
 import kupio.mobile.features.listings.data.repository.ListingsRepositoryImpl
@@ -100,18 +105,22 @@ val kupioAppModules: List<Module> = listOf(
         }
         single { AuthApi(get()) }
         single { ListingsApi(get()) }
+        single { OfflineMutationStore(get(), get()) }
+        single { OfflineSyncManager(get(), get(), get(), get()) }
+        single<ListingsRepository> { ListingsRepositoryImpl(get(), get(), get(), get(), get()) }
         single<ListingsRepository> { ListingsRepositoryImpl(get(), get()) }
         single { PromotionsApi(get()) }
         single<PromotionsRepository> { PromotionsRepositoryImpl(get(), get()) }
         single { CategoriesApi(get()) }
-        single<CategoriesRepository> { CategoriesRepositoryImpl(get()) }
+        single { CategoriesCacheStore(get()) }
+        single<CategoriesRepository> { CategoriesRepositoryImpl(get(), get()) }
         single { ChatApi(get()) }
         single { UserApi(get()) }
         single { FavouritesApi(get()) }
-        single<FavouritesRepository> { FavouritesRepositoryImpl(get(), get()) }
+        single<FavouritesRepository> { FavouritesRepositoryImpl(get(), get(), get(), get()) }
         single { ToggleFavouriteUseCase(get(), get()) }
         single { MeApi(get()) }
-        single<MeRepository> { MeRepositoryImpl(get(), get()) }
+        single<MeRepository> { MeRepositoryImpl(get(), get(), get(), get(), get()) }
         single { ReportsApi(get()) }
         single<ReportsRepository> { ReportsRepositoryImpl(get(), get()) }
         single<ChatsRepository> { ChatsRepositoryImpl(get(), get()) }
@@ -133,9 +142,10 @@ val kupioAppModules: List<Module> = listOf(
         }
         single<AuthRepository> { AuthRepositoryImpl(get(), get(), get(), get()) }
         single<SecureSessionStore> { KVaultSecureSessionStore(get()) }
+        single<CachedAuthenticatedUserStore> { RoomCachedAuthenticatedUserStore(get()) }
         single<DeviceIdProvider> { DataStoreDeviceIdProvider(get()) }
         single { AuthValidator() }
-        single { AuthSessionManager(get(), get()) }
+        single { AuthSessionManager(get(), get(), get()) }
         single<PreferencesRepository> { DataStorePreferencesRepository(get()) }
         viewModelOf(::RootNavigationViewModel)
         viewModelOf(::AuthViewModel)

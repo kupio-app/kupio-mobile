@@ -15,6 +15,7 @@ import kupio.mobile.features.auth.domain.repository.AuthRepository
 class AuthSessionManager(
     private val authRepository: AuthRepository,
     private val secureSessionStore: SecureSessionStore,
+    private val cachedAuthenticatedUserStore: CachedAuthenticatedUserStore,
 ) {
     private val _sessionState = MutableStateFlow<SessionState>(SessionState.Loading)
     val sessionState: StateFlow<SessionState> = _sessionState.asStateFlow()
@@ -35,7 +36,7 @@ class AuthSessionManager(
             } catch (_: AuthSessionExpiredException) {
                 clearPersistedSession()
             } catch (_: Throwable) {
-                _sessionState.value = SessionState.BootstrapFailed
+                restoreCachedUserOrFail()
             }
         }
     }
@@ -48,6 +49,7 @@ class AuthSessionManager(
 
     suspend fun updateAuthenticatedUser(user: AuthenticatedUser) {
         sessionMutex.withLock {
+            cachedAuthenticatedUserStore.write(user)
             _sessionState.value = user.toSessionState()
         }
     }
@@ -83,11 +85,18 @@ class AuthSessionManager(
             }
             throw throwable
         }
+        cachedAuthenticatedUserStore.write(user)
         _sessionState.value = user.toSessionState()
+    }
+
+    private suspend fun restoreCachedUserOrFail() {
+        val cachedUser = cachedAuthenticatedUserStore.read()
+        _sessionState.value = cachedUser?.toSessionState() ?: SessionState.BootstrapFailed
     }
 
     private suspend fun clearPersistedSession() {
         secureSessionStore.clear()
+        cachedAuthenticatedUserStore.clear()
         _sessionState.value = SessionState.SignedOut
     }
 }

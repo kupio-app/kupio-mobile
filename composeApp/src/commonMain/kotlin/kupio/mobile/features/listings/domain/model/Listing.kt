@@ -1,5 +1,7 @@
 package kupio.mobile.features.listings.domain.model
 
+import kupio.mobile.core.offline.OfflineSyncState
+
 data class Listing(
     val id: String,
     val title: String,
@@ -22,6 +24,9 @@ data class Listing(
     val isTradable: Boolean,
     val isPromoted: Boolean = false,
     val customFilters: Map<String, String>,
+    val updatedAt: String? = null,
+    val syncState: OfflineSyncState = OfflineSyncState.SYNCED,
+    val syncError: String? = null,
 )
 
 data class ListingImage(

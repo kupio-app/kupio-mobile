@@ -16,6 +16,7 @@ import kupio.mobile.features.auth.domain.model.AuthSession
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.auth.domain.session.CachedAuthenticatedUserStore
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.listings.domain.model.Currency
 import kupio.mobile.features.me.domain.model.OwnedListing
@@ -80,7 +81,11 @@ class MyListingsViewModelTest {
     }
 
     private fun buildViewModel(repository: FakeMeRepository): MyListingsViewModel {
-        val sessionManager = AuthSessionManager(FakeAuthRepository(), FakeSecureSessionStore())
+        val sessionManager = AuthSessionManager(
+            FakeAuthRepository(),
+            FakeSecureSessionStore(),
+            FakeCachedAuthenticatedUserStore(),
+        )
         return MyListingsViewModel(
             meRepository = repository,
             sessionManager = sessionManager,
@@ -130,6 +135,12 @@ class MyListingsViewModelTest {
     private class FakeSecureSessionStore : SecureSessionStore {
         override suspend fun readSession(): AuthSession? = null
         override suspend fun writeSession(session: AuthSession) = Unit
+        override suspend fun clear() = Unit
+    }
+
+    private class FakeCachedAuthenticatedUserStore : CachedAuthenticatedUserStore {
+        override suspend fun read(): AuthenticatedUser? = null
+        override suspend fun write(user: AuthenticatedUser) = Unit
         override suspend fun clear() = Unit
     }
 }

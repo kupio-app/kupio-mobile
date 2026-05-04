@@ -22,6 +22,7 @@ import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
+import kupio.mobile.features.search.domain.model.SearchFilters
 import kupio.mobile.features.listings.presentation.create.CreateEffect
 import kupio.mobile.features.listings.presentation.create.CreateError
 import kupio.mobile.features.listings.presentation.create.CreateFilterInput
@@ -497,6 +498,12 @@ class CreateViewModelTest {
             cursor: String?,
             query: String?,
             categoryId: Int?,
+        ): ListingFeed = ListingFeed(emptyList(), null)
+
+        override suspend fun searchListings(
+            filters: SearchFilters,
+            cursor: String?,
+            limit: Int,
         ): ListingFeed = ListingFeed(emptyList(), null)
 
         override suspend fun getListing(id: String): Listing = listing(id)

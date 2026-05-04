@@ -11,6 +11,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -22,6 +23,7 @@ import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.model.UserRole
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.auth.domain.session.CachedAuthenticatedUserStore
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.chats.domain.model.ChatRole
 import kupio.mobile.features.chats.domain.model.ConversationData
@@ -39,6 +41,7 @@ import kupio.mobile.features.listings.domain.model.ListingImage
 import kupio.mobile.features.listings.domain.model.ListingImageUpload
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
+import kupio.mobile.features.search.domain.model.SearchFilters
 import kupio.mobile.core.presentation.SnackbarManager
 import kupio.mobile.features.me.domain.model.OwnedListing
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
@@ -257,6 +260,16 @@ class ListingDetailViewModelTest {
     }
 
     @Test
+    fun `toggle favourite is disabled during in-flight request`() = runTest(dispatcher) {
+        val viewModel = createViewModel(favourites = FakeFavouritesRepository(hangMutations = true))
+        advanceUntilIdle()
+
+        viewModel.onIntent(ListingDetailIntent.ToggleFavourite)
+
+        assertTrue(viewModel.state.value.isTogglingFavourite)
+    }
+
+    @Test
     fun `toggle favourite reverts optimistic update on failure`() = runTest(dispatcher) {
         val favourites = FakeFavouritesRepository(shouldFail = true)
         val viewModel = createViewModel(favourites = favourites)
@@ -285,6 +298,7 @@ class ListingDetailViewModelTest {
         val sessionManager = AuthSessionManager(
             authRepository = FakeAuthRepository(currentUserId),
             secureSessionStore = FakeSecureSessionStore(),
+            cachedAuthenticatedUserStore = FakeCachedAuthenticatedUserStore(),
         )
         if (currentUserId.isNotBlank()) {
             sessionManager.establishSession(
@@ -328,6 +342,12 @@ class ListingDetailViewModelTest {
             cursor: String?,
             query: String?,
             categoryId: Int?,
+        ): ListingFeed = ListingFeed(emptyList(), null)
+
+        override suspend fun searchListings(
+            filters: SearchFilters,
+            cursor: String?,
+            limit: Int,
         ): ListingFeed = ListingFeed(emptyList(), null)
 
         override suspend fun getListing(id: String): Listing = listing(id, phone, isCallsDisabled)
@@ -451,6 +471,7 @@ class ListingDetailViewModelTest {
     private class FakeFavouritesRepository(
         private val favouriteIds: Set<String> = emptySet(),
         private val shouldFail: Boolean = false,
+        private val hangMutations: Boolean = false,
     ) : FavouritesRepository {
         var getFavouriteIdsCalls = 0
 
@@ -463,10 +484,12 @@ class ListingDetailViewModelTest {
         }
 
         override suspend fun addFavourite(listingId: String) {
+            if (hangMutations) awaitCancellation()
             if (shouldFail) error("add failed")
         }
 
         override suspend fun removeFavourite(listingId: String) {
+            if (hangMutations) awaitCancellation()
             if (shouldFail) error("remove failed")
         }
     }
@@ -501,6 +524,12 @@ class ListingDetailViewModelTest {
         override suspend fun clear() {
             session = null
         }
+    }
+
+    private class FakeCachedAuthenticatedUserStore : CachedAuthenticatedUserStore {
+        override suspend fun read(): AuthenticatedUser? = null
+        override suspend fun write(user: AuthenticatedUser) = Unit
+        override suspend fun clear() = Unit
     }
 
     private companion object {

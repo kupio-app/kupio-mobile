@@ -376,4 +376,7 @@
     <string name="auth_footer_login">Už máš účet?</string>
     <string name="auth_footer_register_link">Vytvoriť →</string>
     <string name="auth_footer_login_link">Prihlásiť sa →</string>
+    <string name="listing_sync_pending">Čaká na synchronizáciu</string>
+    <string name="listing_sync_syncing">Synchronizuje sa</string>
+    <string name="listing_sync_failed">Synchronizácia zlyhala</string>
 </resources>

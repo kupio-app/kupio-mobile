@@ -235,7 +235,8 @@ class EditListingViewModel(
                         images = localImages.map { it.toUpload() },
                     )
                 }
-                if (uploadedImages.size != localImages.size) {
+                val uploadsQueuedOffline = localImages.isNotEmpty() && uploadedImages.isEmpty()
+                if (uploadedImages.size != localImages.size && !uploadsQueuedOffline) {
                     error("Could not upload all images.")
                 }
                 val uploadedImageIdsByLocalId = localImages
@@ -409,4 +410,3 @@ private fun Map<String, String>.toFilterInputs(
     }
     filter.slug to input
 }.toMap()
-

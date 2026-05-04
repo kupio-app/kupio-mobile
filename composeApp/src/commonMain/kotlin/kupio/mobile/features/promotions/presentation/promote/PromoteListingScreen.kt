@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,6 +20,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -38,7 +41,6 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kupio.mobile.core.designsystem.KupioCardSurface
-import kupio.mobile.core.designsystem.KupioDefaultButton
 import kupio.mobile.core.designsystem.KupioErrorRetryRow
 import kupio.mobile.core.designsystem.KupioLoadingScreen
 import kupio.mobile.core.designsystem.KupioShapes
@@ -138,6 +140,7 @@ private fun PromoteListingRoute(
                         onRetry = { onIntent(PromoteListingIntent.RetryLoad) },
                     )
                 }
+
                 state.listing != null -> PromoteListingBody(state = state, onIntent = onIntent)
             }
         }
@@ -469,20 +472,39 @@ private fun PromoteBottomBar(
                     color = MaterialTheme.colorScheme.error,
                 )
             }
-            KupioDefaultButton(
-                text = buttonLabel,
-                onClick = {
-                    onIntent(
-                        if (success) {
-                            PromoteListingIntent.DoneClicked
-                        } else {
-                            PromoteListingIntent.PromoteClicked
-                        },
-                    )
-                },
-                enabled = success || state.canSubmit,
-                loading = state.isSubmitting,
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(horizontal = KupioThemeDefaults.spacing.md, vertical = KupioThemeDefaults.spacing.sm),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Button(
+                    onClick = {
+                        onIntent(
+                            if (success) {
+                                PromoteListingIntent.DoneClicked
+                            } else {
+                                PromoteListingIntent.PromoteClicked
+                            },
+                        )
+                    },
+                    enabled = success || state.canSubmit,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp),
+                    shape = KupioShapes.Medium,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.onSurface,
+                        contentColor = MaterialTheme.colorScheme.surface,
+                        disabledContainerColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.24f),
+                        disabledContentColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
+                    ),
+                ) {
+                    Text(buttonLabel)
+                }
+            }
         }
     }
 }

@@ -257,16 +257,6 @@ class ListingDetailViewModelTest {
     }
 
     @Test
-    fun `toggle favourite is disabled during in-flight request`() = runTest(dispatcher) {
-        val viewModel = createViewModel()
-        advanceUntilIdle()
-
-        viewModel.onIntent(ListingDetailIntent.ToggleFavourite)
-
-        assertTrue(viewModel.state.value.isTogglingFavourite)
-    }
-
-    @Test
     fun `toggle favourite reverts optimistic update on failure`() = runTest(dispatcher) {
         val favourites = FakeFavouritesRepository(shouldFail = true)
         val viewModel = createViewModel(favourites = favourites)

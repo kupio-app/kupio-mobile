@@ -520,7 +520,8 @@ private fun PromotionPacket.durationLabel(): String =
 private fun PromotionPacket.priceLabel(): String {
     val whole = price / 100
     val fraction = (price % 100).toString().padStart(2, '0')
-    return "$whole.$fraction"
+    val value = "$whole.$fraction"
+    return "€$value"
 }
 
 @Composable

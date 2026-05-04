@@ -33,6 +33,10 @@
     <string name="theme_mode_light">Light</string>
     <string name="theme_mode_dark">Dark</string>
     <string name="theme_mode_current">Current mode: %1$s</string>
+    <string name="auth_footer_register">Don't have an account?</string>
+    <string name="auth_footer_login">Already have an account?</string>
+    <string name="auth_footer_register_link">Create one →</string>
+    <string name="auth_footer_login_link">Sign in →</string>
     <string name="auth_login">Sign in</string>
     <string name="auth_register">Register</string>
     <string name="auth_create_account">Create account</string>

@@ -1,15 +1,11 @@
 package kupio.mobile.features.auth.presentation.auth.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ChevronLeft
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,6 +22,12 @@ import kupio.mobile.core.designsystem.borderTop
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.standaloneTopBarInsetsPadding
 import kupio.mobile.features.auth.presentation.auth.AuthMode
+import mobile.composeapp.generated.resources.Res
+import mobile.composeapp.generated.resources.auth_footer_login
+import mobile.composeapp.generated.resources.auth_footer_login_link
+import mobile.composeapp.generated.resources.auth_footer_register
+import mobile.composeapp.generated.resources.auth_footer_register_link
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AuthTopNavbar(
@@ -66,21 +68,22 @@ fun AuthModeFooter(currentMode: AuthMode, onSwitchMode: (AuthMode) -> Unit) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = KupioThemeDefaults.spacing.md, bottom = KupioThemeDefaults.spacing.lg),
+                    .navigationBarsPadding()
+                    .padding(vertical = KupioThemeDefaults.spacing.md),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val prefix = if (currentMode == AuthMode.LOGIN) "Don't have an account?" else "Already have an account?"
-                val linkText = if (currentMode == AuthMode.LOGIN) "Create one →" else "Log in →"
+                val prefix = if (currentMode == AuthMode.LOGIN) Res.string.auth_footer_register else Res.string.auth_footer_login
+                val linkText = if (currentMode == AuthMode.LOGIN) Res.string.auth_footer_register_link else Res.string.auth_footer_login_link
                 val nextMode = if (currentMode == AuthMode.LOGIN) AuthMode.REGISTER else AuthMode.LOGIN
 
                 Text(
-                    text = "$prefix ",
+                    text = "${stringResource(prefix)} ",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    text = linkText,
+                    text = stringResource(linkText),
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.bouncingClickable { onSwitchMode(nextMode) }

@@ -325,7 +325,7 @@ private fun ReportSubmitBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = spacing.md, vertical = 10.dp),
+                .padding(horizontal = spacing.md, vertical = spacing.sm),
         ) {
             Button(
                 onClick = onSubmit,

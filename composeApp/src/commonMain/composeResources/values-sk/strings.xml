@@ -353,4 +353,8 @@
     <string name="search_filters_categories">Kategórie</string>
     <string name="search_filters_subcategories">Podkategórie</string>
     <string name="search_filters_use_category">Použiť %1$s</string>
+    <string name="auth_footer_register">Nemáš účet?</string>
+    <string name="auth_footer_login">Už máš účet?</string>
+    <string name="auth_footer_register_link">Vytvoriť →</string>
+    <string name="auth_footer_login_link">Prihlásiť sa →</string>
 </resources>

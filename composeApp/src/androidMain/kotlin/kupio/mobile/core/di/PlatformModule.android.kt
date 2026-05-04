@@ -14,6 +14,8 @@ import kupio.mobile.core.notifications.BackgroundSyncSchedulerImpl
 import kupio.mobile.core.offline.db.KupioDatabase
 import kupio.mobile.core.offline.db.createKupioDatabase
 import kupio.mobile.core.offline.db.getKupioDatabaseBuilder
+import kupio.mobile.core.offline.AndroidOfflineSyncScheduler
+import kupio.mobile.core.offline.OfflineSyncScheduler
 import kupio.mobile.core.offline.files.AndroidOfflineFileStore
 import kupio.mobile.core.offline.files.OfflineFileStore
 import kupio.mobile.core.preferences.KupioPreferencesFileName
@@ -28,6 +30,7 @@ actual val platformModule = module {
         }
     }
     single<BackgroundSyncScheduler> { BackgroundSyncSchedulerImpl(WorkManager.getInstance(get())) }
+    single<OfflineSyncScheduler> { AndroidOfflineSyncScheduler(WorkManager.getInstance(get())) }
     single<KupioDatabase> { createKupioDatabase(getKupioDatabaseBuilder(get())) }
     single<OfflineFileStore> { AndroidOfflineFileStore(get()) }
     single { KVault(get<Context>(), "kupio.mobile.secure_store") }

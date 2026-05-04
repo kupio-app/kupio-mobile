@@ -22,6 +22,7 @@ class OfflineSyncManager(
 
     suspend fun syncPending(limit: Int = DefaultBatchSize) {
         syncMutex.withLock {
+            var firstFailure: Throwable? = null
             store.resetStuckSyncing()
             store.runnableOperations(limit).forEach { operation ->
                 store.markSyncing(operation)
@@ -32,8 +33,10 @@ class OfflineSyncManager(
                 }.onFailure { throwable ->
                     if (throwable is AuthSessionExpiredException) throw throwable
                     store.markFailed(operation, throwable)
+                    if (firstFailure == null) firstFailure = throwable
                 }
             }
+            firstFailure?.let { throw OfflineSyncFailedException(it) }
         }
     }
 
@@ -162,3 +165,7 @@ class OfflineSyncManager(
         const val DefaultBatchSize = 50
     }
 }
+
+class OfflineSyncFailedException(
+    cause: Throwable,
+) : Exception("One or more offline operations failed to sync.", cause)

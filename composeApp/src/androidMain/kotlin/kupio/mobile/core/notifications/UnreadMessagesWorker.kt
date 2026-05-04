@@ -7,7 +7,6 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.mmk.kmpnotifier.notification.NotifierManager
 import kupio.mobile.R
-import kupio.mobile.core.offline.OfflineSyncManager
 import kupio.mobile.features.auth.domain.model.AuthSessionExpiredException
 import kupio.mobile.features.chats.domain.repository.ChatsRepository
 import org.koin.core.component.KoinComponent
@@ -19,12 +18,10 @@ class UnreadMessagesWorker(
 ) : CoroutineWorker(context, params), KoinComponent {
 
     private val chatsRepository: ChatsRepository by inject()
-    private val offlineSyncManager: OfflineSyncManager by inject()
 
     override suspend fun doWork(): Result {
         val startTime = System.currentTimeMillis()
         return try {
-            offlineSyncManager.syncPending()
             val unreadCount = chatsRepository.getUnreadCount()
             val notificationShown = unreadCount > 0
 

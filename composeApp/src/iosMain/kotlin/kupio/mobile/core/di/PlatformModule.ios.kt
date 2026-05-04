@@ -14,6 +14,8 @@ import kupio.mobile.core.notifications.BackgroundSyncSchedulerImpl
 import kupio.mobile.core.offline.db.KupioDatabase
 import kupio.mobile.core.offline.db.createKupioDatabase
 import kupio.mobile.core.offline.db.getKupioDatabaseBuilder
+import kupio.mobile.core.offline.IosOfflineSyncScheduler
+import kupio.mobile.core.offline.OfflineSyncScheduler
 import kupio.mobile.core.offline.files.IosOfflineFileStore
 import kupio.mobile.core.offline.files.OfflineFileStore
 import org.koin.dsl.module
@@ -42,6 +44,7 @@ actual val platformModule = module {
         }
     }
     single<BackgroundSyncScheduler> { BackgroundSyncSchedulerImpl() }
+    single<OfflineSyncScheduler> { IosOfflineSyncScheduler(get(), get()) }
     single<KupioDatabase> { createKupioDatabase(getKupioDatabaseBuilder()) }
     single<OfflineFileStore> { IosOfflineFileStore() }
     single { KVault("kupio.mobile.secure_store") }

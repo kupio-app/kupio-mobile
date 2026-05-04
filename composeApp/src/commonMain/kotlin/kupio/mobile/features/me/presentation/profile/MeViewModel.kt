@@ -54,6 +54,7 @@ class MeViewModel(
     fun onIntent(intent: MeIntent) {
         when (intent) {
             MeIntent.ThemeToggleClicked -> toggleThemeMode()
+            MeIntent.Refresh -> refresh()
             MeIntent.MyListingsClicked -> emitEffect(MeEffect.NavigateToMyListings)
             MeIntent.ChatsClicked -> emitEffect(MeEffect.NavigateToChats)
             MeIntent.FavouritesClicked -> emitEffect(MeEffect.NavigateToFavourites)
@@ -80,15 +81,34 @@ class MeViewModel(
         }
     }
 
-    private fun loadReportStats() {
+    private suspend fun loadReportStats() {
+        runCatching { reportsRepository.getReports(status = "pending") }
+            .onSuccess { result ->
+                _state.update { it.copy(reportsDashboardUnseenCount = result.stats.unseen) }
+            }
+            .onFailure { t ->
+                if (t is CancellationException) throw t
+            }
+    }
+
+    private fun refresh() {
         viewModelScope.launch {
-            runCatching { reportsRepository.getReports(status = "pending") }
-                .onSuccess { result ->
-                    _state.update { it.copy(reportsDashboardUnseenCount = result.stats.unseen) }
+            _state.update { it.copy(isRefreshing = true) }
+            try {
+                runCatching { meRepository.getStats() }
+                    .onSuccess { stats ->
+                        _state.update { it.copy(stats = stats) }
+                    }
+                    .onFailure { t ->
+                        if (t is CancellationException) throw t
+                    }
+
+                if (_state.value.user?.role?.canModerate == true) {
+                    loadReportStats()
                 }
-                .onFailure { t ->
-                    if (t is CancellationException) throw t
-                }
+            } finally {
+                _state.update { it.copy(isRefreshing = false) }
+            }
         }
     }
 

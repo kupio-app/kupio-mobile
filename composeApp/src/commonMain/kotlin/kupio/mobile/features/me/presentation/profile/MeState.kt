@@ -12,11 +12,13 @@ data class MeState(
     val user: AuthenticatedUser? = null,
     val stats: UserListingStats? = null,
     val isLoadingStats: Boolean = false,
+    val isRefreshing: Boolean = false,
     val reportsDashboardUnseenCount: Int = 0,
 ) : UiState
 
 sealed interface MeIntent : UiAction {
     data object ThemeToggleClicked : MeIntent
+    data object Refresh : MeIntent
     data object MyListingsClicked : MeIntent
     data object ChatsClicked : MeIntent
     data object FavouritesClicked : MeIntent

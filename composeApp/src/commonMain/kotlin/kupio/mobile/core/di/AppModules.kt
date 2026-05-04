@@ -108,7 +108,6 @@ val kupioAppModules: List<Module> = listOf(
         single { OfflineMutationStore(get(), get()) }
         single { OfflineSyncManager(get(), get(), get(), get()) }
         single<ListingsRepository> { ListingsRepositoryImpl(get(), get(), get(), get(), get()) }
-        single<ListingsRepository> { ListingsRepositoryImpl(get(), get()) }
         single { PromotionsApi(get()) }
         single<PromotionsRepository> { PromotionsRepositoryImpl(get(), get()) }
         single { CategoriesApi(get()) }

@@ -33,7 +33,6 @@ import kupio.mobile.features.listings.presentation.create.CreateField
 import kupio.mobile.features.listings.presentation.create.CreateIntent
 import kupio.mobile.features.listings.presentation.create.SelectedListingImage
 import kupio.mobile.features.listings.presentation.form.RemoteListingImage
-import kupio.mobile.features.search.domain.model.SearchFilters
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EditListingViewModelTest {
@@ -310,12 +309,6 @@ class EditListingViewModelTest {
         var orderedImageIds: List<String> = emptyList()
         val orderAttempts = mutableListOf<List<String>>()
         private var getListingCalls = 0
-
-        override suspend fun searchListings(
-            filters: SearchFilters,
-            cursor: String?,
-            limit: Int,
-        ): ListingFeed = ListingFeed(emptyList(), null)
 
         override suspend fun getFeed(
             limit: Int,

@@ -5,7 +5,6 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -18,6 +17,7 @@ import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.model.UserRole
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.auth.domain.session.CachedAuthenticatedUserStore
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.Currency
@@ -100,7 +100,7 @@ class PromoteListingViewModelTest {
 
         assertEquals(5, viewModel.state.value.selectedPacketId)
         assertEquals("Promotion failed", viewModel.state.value.submitError)
-        assertTrue(viewModel.state.value.createdPromotion == null)
+        assertEquals(viewModel.state.value.createdPromotion, null)
         assertFalse(viewModel.state.value.isSubmitting)
     }
 
@@ -112,7 +112,7 @@ class PromoteListingViewModelTest {
             listingId = "listing-1",
             listingsRepository = listings,
             promotionsRepository = promotions,
-            sessionManager = AuthSessionManager(FakeAuthRepository(), FakeSecureSessionStore()),
+            sessionManager = AuthSessionManager(FakeAuthRepository(), FakeSecureSessionStore(), FakeCachedAuthenticatedUserStore()),
         )
     }
 
@@ -255,3 +255,17 @@ private fun listing(id: String) = Listing(
     isTradable = false,
     customFilters = emptyMap(),
 )
+
+private class FakeCachedAuthenticatedUserStore(
+    private var user: AuthenticatedUser? = null,
+) : CachedAuthenticatedUserStore {
+    override suspend fun read(): AuthenticatedUser? = user
+
+    override suspend fun write(user: AuthenticatedUser) {
+        this.user = user
+    }
+
+    override suspend fun clear() {
+        user = null
+    }
+}

@@ -99,6 +99,7 @@ fun ListingCard(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
+                ListingSyncBadge(syncState = listing.syncState)
             }
         }
     }

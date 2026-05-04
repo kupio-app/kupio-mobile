@@ -10,6 +10,7 @@ import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.model.UserRole
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.auth.domain.session.CachedAuthenticatedUserStore
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
 
 class AuthSessionManagerTest {
@@ -58,6 +59,26 @@ class AuthSessionManagerTest {
     }
 
     @Test
+    fun `bootstrap restores cached user when refresh fails transiently`() = runTest {
+        val storedSession = sampleSession()
+        val cachedUser = sampleUser(needsUsername = false)
+        val secureSessionStore = FakeSecureSessionStore(session = storedSession)
+        val cachedUserStore = FakeCachedAuthenticatedUserStore(user = cachedUser)
+        val manager = createManager(
+            secureSessionStore = secureSessionStore,
+            cachedUserStore = cachedUserStore,
+            repository = FakeAuthRepository(
+                refreshError = IllegalStateException("network unavailable"),
+            ),
+        )
+
+        manager.bootstrap()
+
+        assertEquals(SessionState.SignedIn(cachedUser), manager.sessionState.value)
+        assertEquals(storedSession, secureSessionStore.readSession())
+    }
+
+    @Test
     fun `bootstrap routes to username completion when backend requires it`() = runTest {
         val manager = createManager(
             secureSessionStore = FakeSecureSessionStore(session = sampleSession()),
@@ -78,8 +99,10 @@ class AuthSessionManagerTest {
     @Test
     fun `establish session stores tokens and resolves signed in user`() = runTest {
         val secureSessionStore = FakeSecureSessionStore()
+        val cachedUserStore = FakeCachedAuthenticatedUserStore()
         val manager = createManager(
             secureSessionStore = secureSessionStore,
+            cachedUserStore = cachedUserStore,
             repository = FakeAuthRepository(
                 currentUser = sampleUser(needsUsername = false),
             ),
@@ -92,6 +115,7 @@ class AuthSessionManagerTest {
             SessionState.SignedIn(sampleUser(needsUsername = false)),
             manager.sessionState.value,
         )
+        assertEquals(sampleUser(needsUsername = false), cachedUserStore.read())
     }
 
     @Test
@@ -151,10 +175,12 @@ class AuthSessionManagerTest {
     private fun createManager(
         repository: FakeAuthRepository = FakeAuthRepository(),
         secureSessionStore: FakeSecureSessionStore = FakeSecureSessionStore(),
+        cachedUserStore: FakeCachedAuthenticatedUserStore = FakeCachedAuthenticatedUserStore(),
     ): AuthSessionManager {
         return AuthSessionManager(
             authRepository = repository,
             secureSessionStore = secureSessionStore,
+            cachedAuthenticatedUserStore = cachedUserStore,
         )
     }
 
@@ -189,6 +215,20 @@ class AuthSessionManagerTest {
 
         override suspend fun clear() {
             session = null
+        }
+    }
+
+    private class FakeCachedAuthenticatedUserStore(
+        private var user: AuthenticatedUser? = null,
+    ) : CachedAuthenticatedUserStore {
+        override suspend fun read(): AuthenticatedUser? = user
+
+        override suspend fun write(user: AuthenticatedUser) {
+            this.user = user
+        }
+
+        override suspend fun clear() {
+            user = null
         }
     }
 

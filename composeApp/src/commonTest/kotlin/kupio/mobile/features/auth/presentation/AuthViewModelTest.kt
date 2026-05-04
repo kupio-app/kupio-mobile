@@ -21,6 +21,7 @@ import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.domain.model.UserRole
 import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.auth.domain.session.CachedAuthenticatedUserStore
 import kupio.mobile.features.auth.domain.session.SecureSessionStore
 import kupio.mobile.features.auth.domain.validation.AuthValidator
 import kupio.mobile.features.auth.presentation.auth.AuthEffect
@@ -166,6 +167,7 @@ class AuthViewModelTest {
         val sessionManager = AuthSessionManager(
             authRepository = FakeAuthRepository(),
             secureSessionStore = FakeSecureSessionStore(),
+            cachedAuthenticatedUserStore = FakeCachedAuthenticatedUserStore(),
         )
         val viewModel = createViewModel(
             repository = FakeAuthRepository(),
@@ -192,6 +194,7 @@ class AuthViewModelTest {
         sessionManager: AuthSessionManager = AuthSessionManager(
             authRepository = repository,
             secureSessionStore = FakeSecureSessionStore(),
+            cachedAuthenticatedUserStore = FakeCachedAuthenticatedUserStore(),
         ),
     ): AuthViewModel {
         return AuthViewModel(
@@ -213,6 +216,12 @@ class AuthViewModelTest {
         override suspend fun clear() {
             session = null
         }
+    }
+
+    private class FakeCachedAuthenticatedUserStore : CachedAuthenticatedUserStore {
+        override suspend fun read(): AuthenticatedUser? = null
+        override suspend fun write(user: AuthenticatedUser) = Unit
+        override suspend fun clear() = Unit
     }
 
     private class FakeAuthRepository(

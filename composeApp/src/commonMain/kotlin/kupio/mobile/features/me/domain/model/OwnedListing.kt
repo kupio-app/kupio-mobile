@@ -1,5 +1,6 @@
 package kupio.mobile.features.me.domain.model
 
+import kupio.mobile.core.offline.OfflineSyncState
 import kupio.mobile.features.listings.domain.model.Currency
 
 data class OwnedListing(
@@ -14,6 +15,8 @@ data class OwnedListing(
     val chatsCount: Int,
     val isPromoted: Boolean,
     val promotionExpiresAt: String?,
+    val syncState: OfflineSyncState = OfflineSyncState.SYNCED,
+    val syncError: String? = null,
 )
 
 data class OwnedListingsPage(

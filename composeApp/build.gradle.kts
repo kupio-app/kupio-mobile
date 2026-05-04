@@ -53,6 +53,8 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.room)
 }
 
 val validateReleaseRuntimeConfig by tasks.registering(ValidateReleaseRuntimeConfigTask::class) {
@@ -119,6 +121,8 @@ kotlin {
             implementation(libs.kvault)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.androidx.room.runtime)
+            implementation(libs.androidx.sqlite.bundled)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.logging)
@@ -204,5 +208,12 @@ android {
 }
 
 dependencies {
+    add("kspAndroid", libs.androidx.room.compiler)
+    add("kspIosArm64", libs.androidx.room.compiler)
+    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
     debugImplementation(libs.compose.uiTooling)
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }

@@ -1,7 +1,5 @@
 package kupio.mobile.features.listings.data.repository
 
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kupio.mobile.features.listings.data.remote.CategoriesApi
 import kupio.mobile.features.listings.data.remote.toDomain
 import kupio.mobile.features.listings.domain.model.Category
@@ -10,15 +8,16 @@ import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 
 class CategoriesRepositoryImpl(
     private val categoriesApi: CategoriesApi,
+    private val cacheStore: CategoriesCacheStore,
 ) : CategoriesRepository {
-    private val filtersCache = mutableMapOf<Int, List<FilterDefinition>>()
-    private val filtersCacheMutex = Mutex()
-    private val subcategoriesCache = mutableMapOf<Int, List<Category>>()
-    private val subcategoriesCacheMutex = Mutex()
-
     override suspend fun getRootCategories(limit: Int): List<Category> =
-        categoriesApi.getCategories(depth = 0, limit = limit)
-            .map { it.toDomain() }
+        runCatching {
+            categoriesApi.getCategories(depth = 0, limit = limit)
+                .map { it.toDomain() }
+                .also { cacheStore.replaceRootCategories(it) }
+        }.getOrElse {
+            cacheStore.getRootCategories(limit)
+        }
 
     override suspend fun getSubcategories(
         categoryId: Int,
@@ -26,17 +25,18 @@ class CategoriesRepositoryImpl(
         forceRefresh: Boolean,
     ): List<Category> {
         if (!forceRefresh) {
-            subcategoriesCacheMutex.withLock {
-                subcategoriesCache[categoryId]
-            }?.let { return it }
+            cacheStore.getSubcategories(categoryId, limit)
+                .takeIf { it.isNotEmpty() }
+                ?.let { return it }
         }
 
-        val subcategories = categoriesApi.getSubcategories(categoryId = categoryId, limit = limit)
-            .map { it.toDomain() }
-        subcategoriesCacheMutex.withLock {
-            subcategoriesCache[categoryId] = subcategories
+        return runCatching {
+            categoriesApi.getSubcategories(categoryId = categoryId, limit = limit)
+                .map { it.toDomain() }
+                .also { cacheStore.replaceSubcategories(categoryId, it) }
+        }.getOrElse {
+            cacheStore.getSubcategories(categoryId, limit)
         }
-        return subcategories
     }
 
     override suspend fun getCategoryFilters(
@@ -44,17 +44,18 @@ class CategoriesRepositoryImpl(
         forceRefresh: Boolean,
     ): List<FilterDefinition> {
         if (!forceRefresh) {
-            filtersCacheMutex.withLock {
-                filtersCache[categoryId]
-            }?.let { return it }
+            cacheStore.getCategoryFilters(categoryId)
+                .takeIf { it.isNotEmpty() }
+                ?.let { return it }
         }
 
-        val filters = categoriesApi.getCategoryFilters(categoryId)
-            .map { it.toDomain() }
-            .sortedBy { it.displayOrder }
-        filtersCacheMutex.withLock {
-            filtersCache[categoryId] = filters
+        return runCatching {
+            categoriesApi.getCategoryFilters(categoryId)
+                .map { it.toDomain() }
+                .sortedBy { it.displayOrder }
+                .also { cacheStore.replaceCategoryFilters(categoryId, it) }
+        }.getOrElse {
+            cacheStore.getCategoryFilters(categoryId)
         }
-        return filters
     }
 }

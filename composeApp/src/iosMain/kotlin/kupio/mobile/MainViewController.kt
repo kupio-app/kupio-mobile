@@ -7,6 +7,7 @@ import kupio.mobile.app.App
 import kupio.mobile.core.di.initKoin
 import kupio.mobile.core.notifications.BackgroundSyncScheduler
 import kupio.mobile.core.notifications.PushNotificationManager
+import kupio.mobile.core.offline.OfflineSyncScheduler
 import org.koin.mp.KoinPlatformTools
 import platform.UIKit.UIViewController
 
@@ -26,6 +27,7 @@ fun MainViewController(): UIViewController {
     NotifierManager.addListener(pushNotificationManager)
 
     koin.get<BackgroundSyncScheduler>().schedule()
+    koin.get<OfflineSyncScheduler>().start()
 
     return ComposeUIViewController { App() }
 }

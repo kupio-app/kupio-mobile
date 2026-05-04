@@ -39,6 +39,7 @@ import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.features.listings.presentation.components.ListingThumbnail
+import kupio.mobile.features.listings.presentation.components.ListingSyncBadge
 import kupio.mobile.features.me.domain.model.OwnedListing
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.domain.model.formatPrice
@@ -109,6 +110,7 @@ internal fun OwnedListingCard(
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface,
                     )
+                    ListingSyncBadge(syncState = listing.syncState)
                     ListingStatsRow(
                         seenCount = listing.seenCount,
                         favouritesCount = listing.favouritesCount,

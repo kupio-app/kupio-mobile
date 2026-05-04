@@ -16,8 +16,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.KupioTopBarBackAction
-import kupio.mobile.core.designsystem.KupioTopBarIconAction
-import kupio.mobile.core.designsystem.borderBottom
 import kupio.mobile.core.designsystem.borderTop
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.designsystem.standaloneTopBarInsetsPadding
@@ -61,7 +59,7 @@ fun AuthModeFooter(currentMode: AuthMode, onSwitchMode: (AuthMode) -> Unit) {
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .borderTop(KupioThemeDefaults.borderWidths.thin, KupioThemeDefaults.navDividerColor),
+                .borderTop(KupioThemeDefaults.borderWidths.regular, KupioThemeDefaults.navDividerColor),
             color = MaterialTheme.colorScheme.background,
             tonalElevation = 2.dp,
         ) {

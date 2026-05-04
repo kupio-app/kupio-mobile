@@ -54,7 +54,6 @@ fun AuthViewport(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
             .verticalScroll(rememberScrollState())
             .padding(
                 start = KupioThemeDefaults.spacing.lg,

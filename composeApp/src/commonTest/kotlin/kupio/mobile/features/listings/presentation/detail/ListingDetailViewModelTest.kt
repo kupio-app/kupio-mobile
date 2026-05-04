@@ -46,6 +46,7 @@ import kupio.mobile.features.me.domain.model.UserListingStats
 import kupio.mobile.features.me.domain.repository.MeRepository
 import kupio.mobile.features.saved.domain.ToggleFavouriteUseCase
 import kupio.mobile.features.saved.domain.repository.FavouritesRepository
+import kupio.mobile.features.search.domain.model.SearchFilters
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ListingDetailViewModelTest {
@@ -325,6 +326,12 @@ class ListingDetailViewModelTest {
         var isCallsDisabled = false
         val detailIds = mutableListOf<String>()
         val statusUpdates = mutableListOf<Pair<String, ListingStatus>>()
+
+        override suspend fun searchListings(
+            filters: SearchFilters,
+            cursor: String?,
+            limit: Int,
+        ): ListingFeed = ListingFeed(emptyList(), null)
 
         override suspend fun getFeed(
             limit: Int,

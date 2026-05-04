@@ -42,6 +42,10 @@ import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.listings.presentation.detail.ListingDetailViewModel
 import kupio.mobile.features.listings.presentation.edit.EditListingViewModel
 import kupio.mobile.features.listings.presentation.feed.FeedViewModel
+import kupio.mobile.features.promotions.data.remote.PromotionsApi
+import kupio.mobile.features.promotions.data.repository.PromotionsRepositoryImpl
+import kupio.mobile.features.promotions.domain.repository.PromotionsRepository
+import kupio.mobile.features.promotions.presentation.promote.PromoteListingViewModel
 import kupio.mobile.features.reports.data.remote.ReportsApi
 import kupio.mobile.features.reports.data.repository.ReportsRepositoryImpl
 import kupio.mobile.features.reports.domain.repository.ReportsRepository
@@ -97,6 +101,8 @@ val kupioAppModules: List<Module> = listOf(
         single { AuthApi(get()) }
         single { ListingsApi(get()) }
         single<ListingsRepository> { ListingsRepositoryImpl(get(), get()) }
+        single { PromotionsApi(get()) }
+        single<PromotionsRepository> { PromotionsRepositoryImpl(get(), get()) }
         single { CategoriesApi(get()) }
         single<CategoriesRepository> { CategoriesRepositoryImpl(get()) }
         single { ChatApi(get()) }
@@ -145,6 +151,7 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::SettingsViewModel)
         viewModelOf(::SavedViewModel)
         viewModelOf(::UsernameViewModel)
+        viewModel { params -> PromoteListingViewModel(params.get(), get(), get(), get(), get()) }
         viewModelOf(::ModeratorReportsDashboardViewModel)
         viewModel { params -> ModeratorReportDetailViewModel(params.get(), get(), get(), get(), get()) }
         viewModel { params -> ListingDetailViewModel(params.get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }

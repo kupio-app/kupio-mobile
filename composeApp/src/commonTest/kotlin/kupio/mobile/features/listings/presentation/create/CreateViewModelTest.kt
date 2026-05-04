@@ -28,6 +28,7 @@ import kupio.mobile.features.listings.presentation.create.CreateFilterInput
 import kupio.mobile.features.listings.presentation.create.CreateIntent
 import kupio.mobile.features.listings.presentation.create.CreateViewModel
 import kupio.mobile.features.listings.presentation.create.SelectedListingImage
+import kupio.mobile.features.search.domain.model.SearchFilters
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -484,6 +485,12 @@ class CreateViewModelTest {
         var uploadedListingId: String? = null
         var uploadedImages: List<ListingImageUpload> = emptyList()
         val statusUpdates = mutableListOf<Pair<String, ListingStatus>>()
+
+        override suspend fun searchListings(
+            filters: SearchFilters,
+            cursor: String?,
+            limit: Int,
+        ): ListingFeed = ListingFeed(emptyList(), null)
 
         override suspend fun getFeed(
             limit: Int,

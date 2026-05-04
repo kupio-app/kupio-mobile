@@ -285,7 +285,7 @@
     <string name="promotion_pick_body">Propagované inzeráty majú vyššiu viditeľnosť vo feede a vo výsledkoch vyhľadávania.</string>
     <string name="promotion_packet_one_day">1 deň</string>
     <string name="promotion_packet_days">%1$d dní</string>
-    <string name="promotion_packet_price">%1$d</string>
+    <string name="promotion_packet_price">%1$s</string>
     <string name="promotion_type_top">Top pozícia</string>
     <string name="promotion_type_highlight">Zvýraznenie</string>
     <string name="promotion_type_urgent">Urgentné</string>

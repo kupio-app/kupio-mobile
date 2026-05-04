@@ -307,7 +307,7 @@ private fun PromotionPacketCard(
                         }
                         Spacer(Modifier.width(spacing.sm))
                         Text(
-                            text = stringResource(Res.string.promotion_packet_price, packet.price),
+                            text = stringResource(Res.string.promotion_packet_price, packet.priceLabel()),
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                             color = contentColor,
                         )
@@ -516,6 +516,12 @@ private fun PromotionPacket.durationLabel(): String =
     } else {
         stringResource(Res.string.promotion_packet_days, durationDays)
     }
+
+private fun PromotionPacket.priceLabel(): String {
+    val whole = price / 100
+    val fraction = (price % 100).toString().padStart(2, '0')
+    return "$whole.$fraction"
+}
 
 @Composable
 private fun PromotionType.label(): String = when (this) {

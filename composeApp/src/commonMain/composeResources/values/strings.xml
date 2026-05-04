@@ -284,7 +284,7 @@
     <string name="promotion_pick_body">Promoted listings get higher visibility in buyer feeds and search results.</string>
     <string name="promotion_packet_one_day">1 day</string>
     <string name="promotion_packet_days">%1$d days</string>
-    <string name="promotion_packet_price">%1$d</string>
+    <string name="promotion_packet_price">%1$s</string>
     <string name="promotion_type_top">Top placement</string>
     <string name="promotion_type_highlight">Highlight</string>
     <string name="promotion_type_urgent">Urgent</string>

@@ -58,7 +58,7 @@ class PushNotificationManager(
         val type = DeepLinksType.from(data["type"] as String?)
         when (type) {
             DeepLinksType.ChatMessage -> {
-                val conversationId = data["conversationId"] as String?
+                val conversationId = data["conversation_id"] as String?
                 conversationId?.let {
                     navigator.navigateTo(ChatThreadScreen(it))
                 }

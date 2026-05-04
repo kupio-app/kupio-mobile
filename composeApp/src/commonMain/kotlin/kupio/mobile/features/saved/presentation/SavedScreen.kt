@@ -42,12 +42,14 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kupio.mobile.core.designsystem.KupioCardSurface
 import kupio.mobile.core.designsystem.KupioErrorRetryRow
+import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
 import kupio.mobile.core.designsystem.KupioTopNavbar
 import kupio.mobile.core.designsystem.bouncingClickable
 import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.formatPrice
+import kupio.mobile.features.listings.presentation.components.ListingImage
 import kupio.mobile.features.listings.presentation.detail.ListingDetailScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.nav_saved
@@ -69,12 +71,13 @@ class SavedScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val rootNavigator = generateSequence(navigator) { it.parent }.last()
         val viewModel = koinViewModel<SavedViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
 
         CollectEffect(viewModel.effects) { effect ->
             when (effect) {
-                is SavedEffect.OpenListing -> navigator.push(ListingDetailScreen(effect.listingId))
+                is SavedEffect.OpenListing -> rootNavigator.push(ListingDetailScreen(effect.listingId))
             }
         }
 
@@ -171,8 +174,6 @@ private fun SavedListingRow(
     onRemove: () -> Unit,
 ) {
     val spacing = KupioThemeDefaults.spacing
-    val colorIndex = (listing.id.hashCode() and 0x7FFFFFFF) % listingPlaceholderColors.size
-    val bgColor = listingPlaceholderColors[colorIndex]
 
     KupioCardSurface(
         modifier = Modifier
@@ -184,13 +185,14 @@ private fun SavedListingRow(
                 .fillMaxWidth()
                 .padding(12.dp),
         ) {
-            Box(
+            ListingImage(
+                imageUrl = listing.primaryImageUrl,
+                contentDescription = listing.title,
                 modifier = Modifier
                     .size(80.dp)
-                    .aspectRatio(1f)
-                    .background(bgColor, shape = MaterialTheme.shapes.medium),
+                    .aspectRatio(1f),
+                shape = KupioShapes.Medium
             )
-
             Spacer(Modifier.width(spacing.md))
 
             Column(

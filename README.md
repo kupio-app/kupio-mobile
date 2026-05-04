@@ -13,14 +13,6 @@ Kupio Mobile is a Kotlin Multiplatform mobile application targeting Android and 
 - kotlinx.serialization
 - DataStore
 - KVault
-- Android Credential Manager + Google Identity for Android Google sign-in.
-- GoogleSignIn-iOS for iOS Google sign-in.
-
-Platform notes:
-
-- DataStore is used from shared code. Android stores the preferences file under the app files directory; iOS stores it under Application Support through the platform DataStore path factory.
-- Android Credential Manager is Android-only. It is used in `composeApp/src/androidMain/.../GoogleSignInBridge.android.kt` to launch Google sign-in and receive an ID token.
-- iOS does not use Android Credential Manager. It uses the native GoogleSignIn-iOS SDK in `iosApp/iosApp/GoogleSignInLauncher.swift`, then passes the ID token back into shared Kotlin through `GoogleSignInBridge`.
 
 ## Local Setup
 
@@ -73,14 +65,3 @@ Notes:
 - `Config.xcconfig` includes `Config.local.xcconfig` when present.
 - Keep `Config.local.xcconfig` untracked because it is machine/local-environment specific.
 - Before shipping iOS release builds, provide production values through CI or release-specific config instead of local defaults.
-
-## Localization
-
-Project code and documentation use English.
-
-The app currently has shared resources for:
-
-- English
-- Slovak
-
-Strings live under `composeApp/src/commonMain/composeResources`.

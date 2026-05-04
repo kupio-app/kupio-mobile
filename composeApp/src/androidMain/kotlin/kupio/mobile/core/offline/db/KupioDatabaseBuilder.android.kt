@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase
 
 fun getKupioDatabaseBuilder(context: Context): RoomDatabase.Builder<KupioDatabase> {
     val appContext = context.applicationContext
-    val dbFile = appContext.getDatabasePath("kupio_offline.db")
+    val dbFile = appContext.getDatabasePath("kupio.db")
     return Room.databaseBuilder<KupioDatabase>(
         context = appContext,
         name = dbFile.absolutePath,

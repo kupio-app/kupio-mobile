@@ -20,6 +20,6 @@ fun getKupioDatabaseBuilder(): RoomDatabase.Builder<KupioDatabase> {
         "Application Support path is unavailable."
     }
     return Room.databaseBuilder<KupioDatabase>(
-        name = "$basePath/kupio_offline.db",
+        name = "$basePath/kupio.db",
     )
 }

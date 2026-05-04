@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -77,12 +78,8 @@ internal fun FiltersBottomBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    start = spacing.lg,
-                    end = spacing.lg,
-                    bottom = spacing.lg,
-                    top = spacing.md
-                ),
+                .navigationBarsPadding()
+                .padding(horizontal = spacing.lg, vertical = spacing.md),
             horizontalArrangement = Arrangement.spacedBy(spacing.sm),
         ) {
             Surface(

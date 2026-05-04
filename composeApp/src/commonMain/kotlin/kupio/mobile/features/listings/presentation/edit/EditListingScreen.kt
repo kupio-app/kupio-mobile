@@ -47,6 +47,7 @@ import kupio.mobile.features.listings.presentation.components.ListingTopBar
 import kupio.mobile.features.listings.data.image.MaxListingImages
 import kupio.mobile.features.listings.presentation.create.components.DetailsSection
 import kupio.mobile.core.designsystem.KupioErrorText
+import kupio.mobile.core.designsystem.KupioThemeDefaults.spacing
 import kupio.mobile.features.listings.presentation.create.components.FiltersSection
 import kupio.mobile.features.listings.presentation.create.components.PriceSection
 import kupio.mobile.features.listings.presentation.create.toErrorMessage
@@ -185,7 +186,7 @@ private fun EditListingContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues),
-                    contentPadding = PaddingValues(bottom = KupioThemeDefaults.spacing.xl),
+                    contentPadding = PaddingValues(bottom = spacing.xl),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     item(key = "photos") {
@@ -255,7 +256,7 @@ private fun SaveBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(start = 18.dp, top = 10.dp, end = 18.dp, bottom = 24.dp)
+                .padding(horizontal = spacing.md, vertical = spacing.sm)
                 .height(48.dp),
             shape = KupioShapes.Medium,
             colors = ButtonDefaults.buttonColors(

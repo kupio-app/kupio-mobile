@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import kupio.mobile.core.designsystem.KupioErrorText
 import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
+import kupio.mobile.core.designsystem.KupioThemeDefaults.spacing
 import kupio.mobile.core.designsystem.bouncingDimClickable
 import kupio.mobile.features.listings.presentation.create.CreateError
 import kupio.mobile.features.listings.presentation.create.CreateField
@@ -305,7 +307,8 @@ internal fun PublishBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 18.dp, top = 10.dp, end = 18.dp, bottom = 24.dp),
+                .navigationBarsPadding()
+                .padding(horizontal = spacing.md, vertical = spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {

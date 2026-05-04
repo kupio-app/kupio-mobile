@@ -514,7 +514,6 @@ private fun CommentSection(
     }
 }
 
-// 5. Submit bar — styled like publish listing button
 @Composable
 private fun SubmitBar(
     isSubmitting: Boolean,
@@ -531,7 +530,7 @@ private fun SubmitBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = spacing.lg, vertical = spacing.md),
+                .padding(horizontal = spacing.lg, vertical = spacing.sm),
         ) {
             Button(
                 onClick = onSubmit,

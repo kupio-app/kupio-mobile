@@ -26,7 +26,7 @@ abstract class KupioDatabase : RoomDatabase() {
     abstract fun authenticatedUserDao(): CachedAuthenticatedUserDao
 }
 
-@Suppress("KotlinNoActualForExpect")
+@Suppress("KotlinNoActualForExpect", "EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 expect object KupioDatabaseConstructor : RoomDatabaseConstructor<KupioDatabase> {
     override fun initialize(): KupioDatabase
 }
@@ -35,5 +35,6 @@ fun createKupioDatabase(
     builder: RoomDatabase.Builder<KupioDatabase>,
 ): KupioDatabase = builder
     .setDriver(BundledSQLiteDriver())
+    .addMigrations(*KupioDatabaseMigrations.All)
     .setQueryCoroutineContext(Dispatchers.Default)
     .build()

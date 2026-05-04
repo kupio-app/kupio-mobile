@@ -14,8 +14,10 @@ import kotlinx.coroutines.Dispatchers
         PendingSyncOperationEntity::class,
         PendingListingImageEntity::class,
         CachedAuthenticatedUserEntity::class,
+        CachedCategoryEntity::class,
+        CachedCategoryFilterEntity::class,
     ],
-    version = 2,
+    version = 3,
 )
 @ConstructedBy(KupioDatabaseConstructor::class)
 abstract class KupioDatabase : RoomDatabase() {
@@ -24,6 +26,8 @@ abstract class KupioDatabase : RoomDatabase() {
     abstract fun pendingSyncDao(): PendingSyncDao
     abstract fun pendingImagesDao(): PendingListingImagesDao
     abstract fun authenticatedUserDao(): CachedAuthenticatedUserDao
+    abstract fun categoriesDao(): CachedCategoriesDao
+    abstract fun categoryFiltersDao(): CachedCategoryFiltersDao
 }
 
 @Suppress("KotlinNoActualForExpect", "EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")

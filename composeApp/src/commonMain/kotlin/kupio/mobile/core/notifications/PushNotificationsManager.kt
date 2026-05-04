@@ -26,14 +26,15 @@ class PushNotificationManager(
 
     fun start() {
         scope.launch {
-            val existingToken = NotifierManager.getPushNotifier().getToken()
-            existingToken?.let { preferences.savePushToken(it) }
+            runCatching {
+                NotifierManager.getPushNotifier().getToken()
+            }.getOrNull()?.let { preferences.savePushToken(it) }
 
             sessionManager.sessionState
                 .filterIsInstance<SessionState.SignedIn>()
                 .collect {
                     preferences.pushToken.first()?.let {
-                        notifRepository.sendPushToken(it)
+                        runCatching { notifRepository.sendPushToken(it) }
                     }
                 }
         }
@@ -43,7 +44,9 @@ class PushNotificationManager(
         preferences.savePushToken(token)
 
         if (sessionManager.sessionState.value is SessionState.SignedIn) {
-            scope.launch { notifRepository.sendPushToken(token) }
+            scope.launch {
+                runCatching { notifRepository.sendPushToken(token) }
+            }
         }
     }
 

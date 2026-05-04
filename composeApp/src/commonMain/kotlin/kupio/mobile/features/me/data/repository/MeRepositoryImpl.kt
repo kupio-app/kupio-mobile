@@ -2,7 +2,7 @@ package kupio.mobile.features.me.data.repository
 
 import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.core.offline.OfflineMutationStore
-import kupio.mobile.core.offline.OfflineSyncManager
+import kupio.mobile.core.offline.OfflineSyncScheduler
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.me.data.remote.MeApi
@@ -10,16 +10,13 @@ import kupio.mobile.features.me.domain.model.OwnedListing
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.domain.model.UserListingStats
 import kupio.mobile.features.me.domain.repository.MeRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 class MeRepositoryImpl(
     private val meApi: MeApi,
     private val apiClient: AuthenticatedApiClient,
     private val offlineStore: OfflineMutationStore,
-    private val offlineSyncManager: OfflineSyncManager,
+    private val offlineSyncScheduler: OfflineSyncScheduler,
     private val sessionManager: AuthSessionManager,
-    private val appScope: CoroutineScope,
 ) : MeRepository {
 
     override suspend fun getStats(): UserListingStats =
@@ -59,9 +56,7 @@ class MeRepositoryImpl(
             status = status.toListingStatus(),
             currentListing = offlineStore.getListing(listingId),
         )
-        appScope.launch {
-            runCatching { offlineSyncManager.syncPending() }
-        }
+        offlineSyncScheduler.requestSync()
     }
 
     private companion object {

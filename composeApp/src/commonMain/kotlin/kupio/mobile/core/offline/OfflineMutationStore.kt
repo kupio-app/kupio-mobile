@@ -43,11 +43,15 @@ class OfflineMutationStore(
     }
 
     suspend fun cacheFeed(feed: ListingFeed) {
-        listingsDao.upsertAll(feed.listings.map { it.toEntity(OfflineSyncState.SYNCED) })
+        listingsDao.upsertAll(
+            feed.listings.mapNotNull { listing ->
+                listing.toRemoteCacheEntity()
+            },
+        )
     }
 
     suspend fun cacheListing(listing: Listing) {
-        listingsDao.upsert(listing.toEntity(OfflineSyncState.SYNCED))
+        listing.toRemoteCacheEntity()?.let { listingsDao.upsert(it) }
     }
 
     suspend fun getListing(id: String): Listing? =
@@ -56,13 +60,50 @@ class OfflineMutationStore(
     suspend fun getOwnedListings(userId: String): List<OwnedListing> =
         listingsDao.getOwned(userId).map { it.toOwnedListing() }
 
+    suspend fun getFavouriteListings(): ListingFeed {
+        val desiredIds = favouritesDao.getDesired().map { it.listingId }
+        if (desiredIds.isEmpty()) return ListingFeed(emptyList(), nextCursor = null)
+
+        val listingsById = listingsDao.getByIdsOrServerIds(desiredIds)
+            .flatMap { entity ->
+                listOfNotNull(entity.id to entity, entity.serverId?.let { it to entity })
+            }
+            .toMap()
+
+        return ListingFeed(
+            listings = desiredIds.mapNotNull { listingsById[it]?.toDomain() },
+            nextCursor = null,
+        )
+    }
+
+    suspend fun applyFavouriteOverrides(feed: ListingFeed): ListingFeed {
+        val favouriteOverrides = favouritesDao.getAll()
+        if (favouriteOverrides.isEmpty()) return feed
+
+        val overridesById = favouriteOverrides.associateBy { it.listingId }
+        val removedIds = favouriteOverrides.filterNot { it.desired }.map { it.listingId }.toSet()
+        val localDesiredListings = getFavouriteListings().listings
+        val remoteListings = feed.listings.filterNot { it.id in removedIds || overridesById[it.id]?.desired == false }
+        val remoteIds = remoteListings.map { it.id }.toSet()
+
+        return feed.copy(
+            listings = remoteListings + localDesiredListings.filterNot { it.id in remoteIds },
+        )
+    }
+
     suspend fun cacheOwnedListings(
         listings: List<OwnedListing>,
         userId: String,
     ) {
+        val now = nowMs()
         listingsDao.upsertAll(
-            listings.map { listing ->
-                listing.toEntity(userId, nowMs())
+            listings.mapNotNull { listing ->
+                val existing = listingsDao.getByIdOrServerId(listing.id)
+                if (existing?.isLocallyModified() == true) {
+                    null
+                } else {
+                    listing.toEntity(userId, now, existing)
+                }
             },
         )
     }
@@ -72,6 +113,7 @@ class OfflineMutationStore(
 
     suspend fun replaceFavouriteIds(ids: Set<String>) {
         val now = nowMs()
+        val pendingOverrides = favouritesDao.getUnsynced()
         favouritesDao.clear()
         favouritesDao.replaceAll(
             ids.map { id ->
@@ -83,6 +125,7 @@ class OfflineMutationStore(
                 )
             },
         )
+        pendingOverrides.forEach { favouritesDao.upsert(it.copy(updatedAtMs = now)) }
     }
 
     suspend fun createLocalListing(
@@ -387,6 +430,18 @@ class OfflineMutationStore(
 
     private fun nowMs(): Long = Clock.System.now().toEpochMilliseconds()
 
+    private suspend fun Listing.toRemoteCacheEntity(): LocalListingEntity? {
+        val existing = listingsDao.getByIdOrServerId(id)
+        if (existing?.isLocallyModified() == true) return null
+        return copy(id = existing?.id ?: id).toEntity(
+            syncState = OfflineSyncState.SYNCED,
+            serverIdOverride = id,
+        )
+    }
+
+    private fun LocalListingEntity.isLocallyModified(): Boolean =
+        syncState != OfflineSyncState.SYNCED.name
+
     private fun CreateListing.toRequestDto(): ListingRequestDto = ListingRequestDto(
         title = title,
         description = description,
@@ -548,11 +603,12 @@ class OfflineMutationStore(
     private fun OwnedListing.toEntity(
         userId: String,
         modifiedAtMs: Long,
+        existing: LocalListingEntity?,
     ): LocalListingEntity = LocalListingEntity(
-        id = id,
+        id = existing?.id ?: id,
         serverId = id,
         title = title,
-        description = "",
+        description = existing?.description.orEmpty(),
         price = price,
         currency = currency.name,
         status = when (status) {
@@ -563,21 +619,21 @@ class OfflineMutationStore(
             OwnedListingStatus.SOLD -> ListingStatus.SOLD
         }.name,
         primaryImageUrl = primaryImageUrl,
-        imagesJson = primaryImageUrl
+        imagesJson = existing?.imagesJson ?: primaryImageUrl
             ?.let { json.encodeToString(listOf(CachedListingImage(id = "primary-$id", url = it, sortOrder = 0))) }
             ?: json.encodeToString(emptyList<CachedListingImage>()),
-        createdAt = modifiedAtMs.toString(),
-        updatedAt = null,
+        createdAt = existing?.createdAt ?: modifiedAtMs.toString(),
+        updatedAt = existing?.updatedAt,
         userId = userId,
-        categoryId = 0,
-        categoryName = "",
+        categoryId = existing?.categoryId ?: 0,
+        categoryName = existing?.categoryName.orEmpty(),
         seenCount = seenCount,
-        phone = null,
-        contactName = null,
-        isCallsDisabled = false,
-        isFree = false,
-        isTradable = false,
-        customFiltersJson = json.encodeToString(emptyMap<String, String>()),
+        phone = existing?.phone,
+        contactName = existing?.contactName,
+        isCallsDisabled = existing?.isCallsDisabled ?: false,
+        isFree = existing?.isFree ?: false,
+        isTradable = existing?.isTradable ?: false,
+        customFiltersJson = existing?.customFiltersJson ?: json.encodeToString(emptyMap<String, String>()),
         syncState = syncState.name,
         lastError = syncError,
         lastModifiedAtMs = modifiedAtMs,

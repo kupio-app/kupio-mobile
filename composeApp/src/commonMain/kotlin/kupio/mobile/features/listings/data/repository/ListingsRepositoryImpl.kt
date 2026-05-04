@@ -2,7 +2,7 @@ package kupio.mobile.features.listings.data.repository
 
 import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.core.offline.OfflineMutationStore
-import kupio.mobile.core.offline.OfflineSyncManager
+import kupio.mobile.core.offline.OfflineSyncScheduler
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.listings.data.remote.ListingsApi
 import kupio.mobile.features.listings.data.remote.toDomain
@@ -16,8 +16,6 @@ import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.search.domain.model.SearchFilters
 import kupio.mobile.features.search.domain.model.toApiParams
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -25,9 +23,8 @@ class ListingsRepositoryImpl(
     private val listingsApi: ListingsApi,
     private val authenticatedApiClient: AuthenticatedApiClient,
     private val offlineStore: OfflineMutationStore,
-    private val offlineSyncManager: OfflineSyncManager,
+    private val offlineSyncScheduler: OfflineSyncScheduler,
     private val sessionManager: AuthSessionManager,
-    private val appScope: CoroutineScope,
 ) : ListingsRepository {
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -163,8 +160,6 @@ class ListingsRepositoryImpl(
     }
 
     private fun launchSync() {
-        appScope.launch {
-            runCatching { offlineSyncManager.syncPending() }
-        }
+        offlineSyncScheduler.requestSync()
     }
 }

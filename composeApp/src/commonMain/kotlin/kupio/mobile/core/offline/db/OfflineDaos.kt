@@ -23,8 +23,11 @@ interface LocalListingsDao {
     @Query("SELECT * FROM local_listings ORDER BY lastModifiedAtMs DESC")
     suspend fun getAll(): List<LocalListingEntity>
 
-    @Query("SELECT * FROM local_listings WHERE userId = :userId OR syncState != 'SYNCED' ORDER BY lastModifiedAtMs DESC")
+    @Query("SELECT * FROM local_listings WHERE userId = :userId ORDER BY lastModifiedAtMs DESC")
     suspend fun getOwned(userId: String): List<LocalListingEntity>
+
+    @Query("SELECT * FROM local_listings WHERE id IN (:ids) OR serverId IN (:ids)")
+    suspend fun getByIdsOrServerIds(ids: List<String>): List<LocalListingEntity>
 
     @Query("DELETE FROM local_listings WHERE id = :id")
     suspend fun deleteById(id: String)
@@ -43,6 +46,12 @@ interface CachedFavouritesDao {
 
     @Query("SELECT * FROM cached_favourites WHERE desired = 1")
     suspend fun getDesired(): List<CachedFavouriteEntity>
+
+    @Query("SELECT * FROM cached_favourites")
+    suspend fun getAll(): List<CachedFavouriteEntity>
+
+    @Query("SELECT * FROM cached_favourites WHERE synced = 0")
+    suspend fun getUnsynced(): List<CachedFavouriteEntity>
 
     @Query("SELECT * FROM cached_favourites WHERE listingId = :listingId LIMIT 1")
     suspend fun get(listingId: String): CachedFavouriteEntity?
@@ -106,4 +115,34 @@ interface CachedAuthenticatedUserDao {
 
     @Query("DELETE FROM cached_authenticated_user")
     suspend fun clear()
+}
+
+@Dao
+interface CachedCategoriesDao {
+    @Upsert
+    suspend fun upsertAll(categories: List<CachedCategoryEntity>)
+
+    @Query("SELECT * FROM cached_categories WHERE depth = 0 ORDER BY name ASC LIMIT :limit")
+    suspend fun getRootCategories(limit: Int): List<CachedCategoryEntity>
+
+    @Query("SELECT * FROM cached_categories WHERE parentId = :categoryId ORDER BY name ASC LIMIT :limit")
+    suspend fun getSubcategories(categoryId: Int, limit: Int): List<CachedCategoryEntity>
+
+    @Query("DELETE FROM cached_categories WHERE depth = 0")
+    suspend fun deleteRootCategories()
+
+    @Query("DELETE FROM cached_categories WHERE parentId = :categoryId")
+    suspend fun deleteSubcategories(categoryId: Int)
+}
+
+@Dao
+interface CachedCategoryFiltersDao {
+    @Upsert
+    suspend fun upsertAll(filters: List<CachedCategoryFilterEntity>)
+
+    @Query("SELECT * FROM cached_category_filters WHERE categoryId = :categoryId ORDER BY displayOrder ASC")
+    suspend fun getForCategory(categoryId: Int): List<CachedCategoryFilterEntity>
+
+    @Query("DELETE FROM cached_category_filters WHERE categoryId = :categoryId")
+    suspend fun deleteForCategory(categoryId: Int)
 }

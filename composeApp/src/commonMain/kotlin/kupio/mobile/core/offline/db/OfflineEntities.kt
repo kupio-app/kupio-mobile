@@ -95,3 +95,37 @@ data class CachedAuthenticatedUserEntity(
     val avatarUrl: String?,
     val createdAt: String?,
 )
+
+@Entity(
+    tableName = "cached_categories",
+    indices = [
+        Index("parentId"),
+        Index("depth"),
+    ],
+)
+data class CachedCategoryEntity(
+    @PrimaryKey val id: Int,
+    val name: String,
+    val iconSlug: String?,
+    val depth: Int,
+    val parentId: Int?,
+    val updatedAtMs: Long,
+)
+
+@Entity(
+    tableName = "cached_category_filters",
+    indices = [
+        Index("categoryId"),
+    ],
+)
+data class CachedCategoryFilterEntity(
+    @PrimaryKey val id: Int,
+    val categoryId: Int,
+    val slug: String,
+    val label: String,
+    val type: String,
+    val optionsJson: String,
+    val isRequired: Boolean,
+    val displayOrder: Int,
+    val updatedAtMs: Long,
+)

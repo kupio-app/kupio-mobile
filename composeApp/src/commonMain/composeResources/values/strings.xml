@@ -94,10 +94,10 @@
     <string name="home_search_placeholder">Search "oak desk", "camera"…</string>
     <string name="home_filters">Filters</string>
     <string name="home_category_all">All</string>
-    <string name="home_categories_error">Couldn\'t load categories.</string>
+    <string name="home_categories_error">Couldn't load categories.</string>
     <string name="home_recommended_title">Recommended for you</string>
     <string name="home_recommended_count">%1$d new</string>
-    <string name="home_recommended_error">Couldn\'t load recommended listings.</string>
+    <string name="home_recommended_error">Couldn't load recommended listings.</string>
     <string name="home_listing_favorite">Favorite</string>
     <string name="listing_detail_title">Listing</string>
     <string name="listing_detail_photo_count">%1$d/%2$d</string>

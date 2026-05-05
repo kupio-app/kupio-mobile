@@ -29,8 +29,9 @@ internal fun KupioRangeSlider(
     valueRange: ClosedFloatingPointRange<Float>,
     onValueChange: (start: Float, end: Float) -> Unit,
     modifier: Modifier = Modifier.Companion,
+    isError: Boolean = false,
 ) {
-    val primaryColor = MaterialTheme.colorScheme.primary
+    val primaryColor = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
     val inactiveColor = MaterialTheme.colorScheme.outlineVariant
     val density = LocalDensity.current
     val thumbRadiusPx = with(density) { 10.dp.toPx() }

@@ -21,6 +21,7 @@ data class SearchFiltersState(
     val isLoadingFilters: Boolean = false,
     val filtersError: String? = null,
     val filterValues: Map<String, SearchFilterInput> = emptyMap(),
+    val isPriceRangeInvalid: Boolean = false,
 ) : UiState {
     val selectedCategoryId: Int? get() = draft.categoryId
     val selectedCategoryName: String? get() = draft.categoryName

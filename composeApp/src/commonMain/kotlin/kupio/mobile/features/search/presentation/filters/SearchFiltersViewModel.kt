@@ -60,7 +60,13 @@ class SearchFiltersViewModel(
         val filterValues = current.customFilters.mapValues { (_, v) ->
             SearchFilterInput.Text(v) as SearchFilterInput
         }
-        _state.update { it.copy(draft = current, filterValues = filterValues ) }
+        _state.update {
+            it.copy(
+                draft = current,
+                filterValues = filterValues,
+                isPriceRangeInvalid = isInvalidPriceRange(current.minPrice, current.maxPrice),
+            )
+        }
         categoryPicker.loadCategories()
     }
 
@@ -73,14 +79,14 @@ class SearchFiltersViewModel(
             SearchFiltersIntent.CategoryPickerReset -> categoryPicker.reset()
             is SearchFiltersIntent.PriceMinChanged -> {
                 val v = intent.value.toIntOrNull()
-                _state.update { it.copy(draft = it.draft.copy(minPrice = v)) }
+                updatePriceRange(v, _state.value.draft.maxPrice)
             }
             is SearchFiltersIntent.PriceMaxChanged -> {
                 val v = intent.value.toIntOrNull()
-                _state.update { it.copy(draft = it.draft.copy(maxPrice = v)) }
+                updatePriceRange(_state.value.draft.minPrice, v)
             }
             is SearchFiltersIntent.PriceRangeChanged ->
-                _state.update { it.copy(draft = it.draft.copy(minPrice = intent.min, maxPrice = intent.max)) }
+                updatePriceRange(intent.min, intent.max)
             is SearchFiltersIntent.DealTypeSelected -> {
                 val current = _state.value.draft.dealType
                 val newType = if (current == intent.dealType) DealType.ANY else intent.dealType
@@ -102,6 +108,9 @@ class SearchFiltersViewModel(
 
     private fun applyFilters() {
         val current = _state.value
+        if (current.isPriceRangeInvalid) {
+            return
+        }
         val customFilters = current.filterValues.mapNotNull { (slug, input) ->
             when (input) {
                 is SearchFilterInput.Text -> if (input.value.isNotBlank()) slug to input.value else null
@@ -121,6 +130,7 @@ class SearchFiltersViewModel(
                 categoryPath = emptyList(),
                 visibleSubcategories = emptyList(),
                 filterDefinitions = emptyList(),
+                isPriceRangeInvalid = false,
             )
         }
     }
@@ -138,5 +148,19 @@ class SearchFiltersViewModel(
                 filtersError = picker.filtersError,
             )
         }
+    }
+
+    private fun updatePriceRange(minPrice: Int?, maxPrice: Int?) {
+        val invalid = isInvalidPriceRange(minPrice, maxPrice)
+        _state.update {
+            it.copy(
+                draft = it.draft.copy(minPrice = minPrice, maxPrice = maxPrice),
+                isPriceRangeInvalid = invalid,
+            )
+        }
+    }
+
+    private fun isInvalidPriceRange(minPrice: Int?, maxPrice: Int?): Boolean {
+        return minPrice != null && maxPrice != null && minPrice > maxPrice
     }
 }

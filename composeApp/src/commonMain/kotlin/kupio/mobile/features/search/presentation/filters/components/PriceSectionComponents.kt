@@ -1,5 +1,6 @@
 package kupio.mobile.features.search.presentation.filters.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import kotlin.math.max
+import kotlin.math.min
 import kupio.mobile.core.designsystem.KupioRangeSlider
 import kupio.mobile.core.designsystem.KupioShapes
 import kupio.mobile.core.designsystem.KupioThemeDefaults
@@ -25,6 +28,7 @@ import kupio.mobile.features.search.presentation.filters.SearchFiltersState
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.search_filters_price_from
 import mobile.composeapp.generated.resources.search_filters_price_range
+import mobile.composeapp.generated.resources.search_filters_price_range_invalid
 import mobile.composeapp.generated.resources.search_filters_price_to
 import org.jetbrains.compose.resources.stringResource
 
@@ -37,6 +41,11 @@ internal fun PriceRangeSection(
     onIntent: (SearchFiltersIntent) -> Unit,
 ) {
     val spacing = KupioThemeDefaults.spacing
+    val isInvalidRange = state.isPriceRangeInvalid
+    val minValue = state.draft.minPrice?.toFloat() ?: 0f
+    val maxValue = state.draft.maxPrice?.toFloat() ?: PRICE_MAX_VALUE
+    val sliderStart = min(minValue, maxValue)
+    val sliderEnd = max(minValue, maxValue)
 
     Column(
         modifier = Modifier
@@ -61,23 +70,34 @@ internal fun PriceRangeSection(
                 label = stringResource(Res.string.search_filters_price_from),
                 value = state.draft.minPrice?.toString() ?: "",
                 onValueChange = { onIntent(SearchFiltersIntent.PriceMinChanged(it)) },
+                isError = isInvalidRange,
                 modifier = Modifier.weight(1f),
             )
             PriceInputField(
                 label = stringResource(Res.string.search_filters_price_to),
                 value = state.draft.maxPrice?.toString() ?: "",
                 onValueChange = { onIntent(SearchFiltersIntent.PriceMaxChanged(it)) },
+                isError = isInvalidRange,
                 modifier = Modifier.weight(1f),
             )
         }
 
+        if (isInvalidRange) {
+            Text(
+                text = stringResource(Res.string.search_filters_price_range_invalid),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+
         KupioRangeSlider(
-            startValue = state.draft.minPrice?.toFloat() ?: 0f,
-            endValue = state.draft.maxPrice?.toFloat() ?: PRICE_MAX_VALUE,
+            startValue = sliderStart,
+            endValue = sliderEnd,
             valueRange = 0f..PRICE_MAX_VALUE,
             onValueChange = { start, end ->
                 onIntent(SearchFiltersIntent.PriceRangeChanged(start.toInt(), end.toInt()))
             },
+            isError = isInvalidRange,
         )
     }
 }
@@ -88,12 +108,18 @@ private fun PriceInputField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier.Companion,
+    isError: Boolean = false,
 ) {
+    val border = if (isError) {
+        BorderStroke(KupioThemeDefaults.borderWidths.thin, MaterialTheme.colorScheme.error)
+    } else {
+        KupioThemeDefaults.defaultBorder
+    }
     Surface(
         modifier = modifier.height(52.dp),
         shape = KupioShapes.Large,
         color = MaterialTheme.colorScheme.surface,
-        border = KupioThemeDefaults.defaultBorder,
+        border = border,
     ) {
         Column(
             modifier = Modifier.padding(horizontal = KupioThemeDefaults.spacing.md, vertical = 8.dp),
@@ -101,7 +127,7 @@ private fun PriceInputField(
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium,
             )
             BasicTextField(

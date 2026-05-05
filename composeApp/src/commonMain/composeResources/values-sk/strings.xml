@@ -350,6 +350,7 @@
     <string name="search_filters_price_from">OD</string>
     <string name="search_filters_price_to">DO</string>
     <string name="search_filters_price_range">%1$d – %2$d €</string>
+    <string name="search_filters_price_range_invalid">Cena od musí byť menšia než cena do.</string>
     <string name="search_filters_section_deal_type">Typ ponuky</string>
     <string name="search_filters_deal_for_sale">Na predaj</string>
     <string name="search_filters_deal_free">Zadarmo</string>

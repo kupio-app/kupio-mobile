@@ -356,6 +356,7 @@
     <string name="search_filters_price_from">FROM</string>
     <string name="search_filters_price_to">TO</string>
     <string name="search_filters_price_range">%1$d – %2$d €</string>
+    <string name="search_filters_price_range_invalid">Price from must be less than price to.</string>
     <string name="search_filters_section_deal_type">Deal type</string>
     <string name="search_filters_deal_for_sale">For sale</string>
     <string name="search_filters_deal_free">Free</string>

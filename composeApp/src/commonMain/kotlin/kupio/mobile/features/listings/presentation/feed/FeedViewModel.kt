@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kupio.mobile.features.chats.data.ConversationsStore
 import kupio.mobile.features.listings.domain.model.Category
 import kupio.mobile.features.listings.domain.model.ListingFeed
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
@@ -29,6 +30,7 @@ class FeedViewModel(
     private val categoriesRepository: CategoriesRepository,
     private val favouritesRepository: FavouritesRepository,
     private val toggleFavouriteUseCase: ToggleFavouriteUseCase,
+    private val conversationsStore: ConversationsStore,
     private val analytics: AnalyticsService = NoOpAnalyticsService(),
 ) : ViewModel() {
 
@@ -138,12 +140,14 @@ class FeedViewModel(
                 coroutineScope {
                     val listingsDeferred = async { fetchRecommended() }
                     val categoriesDeferred = async { fetchCategories() }
+                    val unreadDeferred = async { conversationsStore.refreshUnreadCount() }
                     listingsDeferred.await()
                         .onSuccess { feed -> _state.update { it.copy(listings = feed.listings, listingsError = null) } }
                         .onFailure { t -> _state.update { it.copy(listingsError = t.message.orEmpty()) } }
                     categoriesDeferred.await()
                         .onSuccess { list -> _state.update { it.copy(categories = list, categoriesError = null) } }
                         .onFailure { t -> _state.update { it.copy(categoriesError = t.message.orEmpty()) } }
+                    unreadDeferred.await()
                 }
             } finally {
                 _state.update { it.copy(isRefreshing = false) }

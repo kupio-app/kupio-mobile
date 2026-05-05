@@ -93,9 +93,9 @@ private fun MeRoute(state: MeState, onIntent: (MeIntent) -> Unit) {
         PullToRefreshBox(
             isRefreshing = state.isRefreshing,
             onRefresh = { onIntent(MeIntent.Refresh) },
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+            modifier = Modifier.fillMaxSize().padding(
+                top = paddingValues.calculateTopPadding()
+            )
         ) {
             LazyColumn(
                 modifier = Modifier

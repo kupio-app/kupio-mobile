@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kupio.mobile.core.preferences.PreferencesRepository
 import kupio.mobile.core.preferences.ThemeMode
+import kupio.mobile.features.auth.domain.model.AuthSessionExpiredException
 import kupio.mobile.features.auth.domain.model.SessionState
+import kupio.mobile.features.auth.domain.repository.AuthRepository
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.me.domain.repository.MeRepository
 import kupio.mobile.features.reports.domain.repository.ReportsRepository
@@ -22,6 +24,7 @@ class MeViewModel(
     private val sessionManager: AuthSessionManager,
     private val meRepository: MeRepository,
     private val reportsRepository: ReportsRepository,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(MeState())
     val state = _state.asStateFlow()
@@ -95,6 +98,15 @@ class MeViewModel(
         viewModelScope.launch {
             _state.update { it.copy(isRefreshing = true) }
             try {
+                runCatching { authRepository.getCurrentUser() }
+                    .onSuccess { user -> sessionManager.updateAuthenticatedUser(user) }
+                    .onFailure { t ->
+                        if (t is AuthSessionExpiredException) {
+                            sessionManager.expireSession()
+                        }
+                        if (t is CancellationException) throw t
+                    }
+
                 runCatching { meRepository.getStats() }
                     .onSuccess { stats ->
                         _state.update { it.copy(stats = stats) }

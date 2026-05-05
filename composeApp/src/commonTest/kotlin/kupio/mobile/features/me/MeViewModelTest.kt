@@ -59,6 +59,7 @@ class MeViewModelTest {
             sessionManager = sessionManager,
             meRepository = FakeMeRepository(),
             reportsRepository = FakeReportsRepository(),
+            authRepository = FakeAuthRepository(),
         )
     }
 

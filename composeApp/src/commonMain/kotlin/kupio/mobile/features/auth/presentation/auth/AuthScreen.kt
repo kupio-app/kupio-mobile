@@ -42,6 +42,7 @@ import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.platform.testTag
 import org.koin.compose.viewmodel.koinViewModel
 import cafe.adriel.voyager.core.screen.Screen
 import kupio.mobile.core.designsystem.KupioScaffold
@@ -112,7 +113,11 @@ private fun AuthContent(
             AuthModeFooter(currentMode = state.mode, onSwitchMode = { onIntent(AuthIntent.ModeSelected(it)) })
         }
     ) { paddingValues ->
-        AuthViewport(modifier = Modifier.padding(paddingValues)) {
+        AuthViewport(
+            modifier = Modifier
+                .padding(paddingValues)
+                .testTag("auth.screen"),
+        ) {
             AuthHero()
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -133,6 +138,8 @@ private fun AuthContent(
                     onValueChange = { onIntent(AuthIntent.EmailChanged(it)) },
                     label = stringResource(Res.string.auth_email),
                     placeholder = stringResource(Res.string.auth_email_placeholder),
+                    inputModifier = Modifier.testTag("auth.email"),
+                    errorModifier = Modifier.testTag("auth.email-error"),
                     error = state.emailError?.toErrorMessage(),
                     required = true,
                     keyboardOptions = KeyboardOptions(
@@ -146,6 +153,8 @@ private fun AuthContent(
                     onValueChange = { onIntent(AuthIntent.PasswordChanged(it)) },
                     label = stringResource(Res.string.auth_password),
                     placeholder = stringResource(Res.string.auth_password_placeholder),
+                    inputModifier = Modifier.testTag("auth.password"),
+                    errorModifier = Modifier.testTag("auth.password-error"),
                     error = state.passwordError?.toErrorMessage(),
                     required = true,
                     trailingLabel = "8+ chars",
@@ -168,6 +177,8 @@ private fun AuthContent(
                             onValueChange = { onIntent(AuthIntent.ConfirmPasswordChanged(it)) },
                             label = stringResource(Res.string.auth_confirm_password),
                             placeholder = stringResource(Res.string.auth_confirm_password_placeholder),
+                            inputModifier = Modifier.testTag("auth.confirm-password"),
+                            errorModifier = Modifier.testTag("auth.confirm-password-error"),
                             error = state.confirmPasswordError?.toErrorMessage(),
                             required = true,
                             keyboardOptions = KeyboardOptions(
@@ -181,6 +192,8 @@ private fun AuthContent(
                             onValueChange = { onIntent(AuthIntent.UsernameChanged(it)) },
                             label = stringResource(Res.string.auth_username),
                             placeholder = stringResource(Res.string.auth_username_placeholder),
+                            inputModifier = Modifier.testTag("auth.username"),
+                            errorModifier = Modifier.testTag("auth.username-error"),
                             error = state.usernameError?.toErrorMessage(),
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Text,
@@ -212,6 +225,7 @@ private fun AuthContent(
             AuthActionButton(
                 text = if (state.mode == AuthMode.LOGIN) stringResource(Res.string.auth_login) else stringResource(Res.string.auth_continue),
                 onClick = { onIntent(AuthIntent.SubmitClicked) },
+                modifier = Modifier.testTag("auth.submit"),
                 enabled = !state.isBusy,
                 loading = state.isSubmitting,
                 trailingIcon = Icons.Outlined.ChevronRight,

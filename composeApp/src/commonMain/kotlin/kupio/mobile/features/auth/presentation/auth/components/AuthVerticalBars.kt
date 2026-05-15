@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kupio.mobile.core.designsystem.KupioThemeDefaults
@@ -84,7 +85,9 @@ fun AuthModeFooter(currentMode: AuthMode, onSwitchMode: (AuthMode) -> Unit) {
                     text = stringResource(linkText),
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.bouncingClickable { onSwitchMode(nextMode) }
+                    modifier = Modifier
+                        .testTag("auth.switch-mode")
+                        .bouncingClickable { onSwitchMode(nextMode) }
                 )
             }
         }

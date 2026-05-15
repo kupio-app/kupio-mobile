@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kupio.mobile.core.designsystem.KupioErrorRetryRow
@@ -55,6 +56,8 @@ internal fun DetailsSection(
             onValueChange = { onIntent(CreateIntent.TitleChanged(it)) },
             placeholder = stringResource(Res.string.create_title_placeholder),
             error = state.fieldErrors[CreateField.TITLE]?.toErrorMessage(),
+            inputModifier = Modifier.testTag("listing.create.title"),
+            errorModifier = Modifier.testTag("listing.create.title-error"),
             characterCount = "${state.title.length}/255",
             singleLine = true,
         )
@@ -64,6 +67,8 @@ internal fun DetailsSection(
             onValueChange = { onIntent(CreateIntent.DescriptionChanged(it)) },
             placeholder = stringResource(Res.string.create_description_placeholder),
             error = state.fieldErrors[CreateField.DESCRIPTION]?.toErrorMessage(),
+            inputModifier = Modifier.testTag("listing.create.description"),
+            errorModifier = Modifier.testTag("listing.create.description-error"),
             characterCount = "${state.description.length}/5000",
             minLines = 4,
         )
@@ -107,7 +112,12 @@ private fun CategorySelector(
             )
         }
     }
-    state.fieldErrors[CreateField.CATEGORY]?.let { KupioErrorText(it.toErrorMessage()) }
+    state.fieldErrors[CreateField.CATEGORY]?.let {
+        KupioErrorText(
+            text = it.toErrorMessage(),
+            modifier = Modifier.testTag("listing.create.category-error"),
+        )
+    }
 }
 
 @Composable
@@ -118,6 +128,7 @@ private fun CategoryField(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .testTag("listing.create.category")
             .bouncingDimClickable(shape = KupioShapes.Medium, onClick = onClick),
         shape = KupioShapes.Medium,
         color = MaterialTheme.colorScheme.surface,

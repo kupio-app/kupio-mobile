@@ -8,7 +8,7 @@ export const config = {
     port: 4723,
     path: "/",
 
-    specs: ["./tests/**/*.spec.ts"],
+    specs: ["./tests/ui/**/*.spec.ts"],
 
     maxInstances: 1,
 
@@ -33,6 +33,7 @@ export const config = {
 
     capabilities: [
             {
+                maxInstances: 1,
                 platformName: "Android",
                 "appium:automationName": "UiAutomator2",
                 "appium:deviceName": "Android Emulator",
@@ -41,6 +42,7 @@ export const config = {
                 "appium:appActivity": ".MainActivity",
                 "appium:appWaitActivity": ".MainActivity",
                 "appium:autoGrantPermissions": true,
+                "appium:autoLaunch": false,
                 "appium:noReset": false,
             },
     ],

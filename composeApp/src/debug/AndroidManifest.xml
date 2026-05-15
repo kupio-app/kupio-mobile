@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application android:networkSecurityConfig="@xml/debug_network_security_config" />
+    <application android:networkSecurityConfig="@xml/debug_network_security_config">
+        <receiver
+            android:name=".debug.TestAuthReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="kupio.mobile.test.SEED_AUTH" />
+                <action android:name="kupio.mobile.test.CLEAR_AUTH" />
+            </intent-filter>
+        </receiver>
+    </application>
 </manifest>

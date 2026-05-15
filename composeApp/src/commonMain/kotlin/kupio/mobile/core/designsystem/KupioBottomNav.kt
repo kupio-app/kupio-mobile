@@ -45,6 +45,7 @@ fun KupioBottomNav(
     onItemSelected: (Int) -> Unit,
     onCenterActionClick: () -> Unit,
     modifier: Modifier = Modifier,
+    centerActionModifier: Modifier = Modifier,
 ) {
     val spacing = KupioThemeDefaults.spacing
     val fabSize = 56.dp
@@ -91,7 +92,8 @@ fun KupioBottomNav(
             onClick = onCenterActionClick,
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .offset(y = -fabOverhang),
+                .offset(y = -fabOverhang)
+                .then(centerActionModifier),
         )
     }
 }

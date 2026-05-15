@@ -1,16 +1,9 @@
-const byTestTag = (tag: string) => $(`android=new UiSelector().resourceId("${tag}")`);
-
-async function hideKeyboardIfOpen() {
-    try {
-        await browser.hideKeyboard();
-    } catch {
-        // Keyboard may already be closed on some devices.
-    }
-}
+import { byTestTag, clearSignedInUser, hideKeyboardIfOpen, openApp } from "../support/app";
 
 describe("Auth validation", () => {
     it("validates login fields and reveals register-only fields", async () => {
-        await browser.activateApp("kupio.mobile");
+        await clearSignedInUser();
+        await openApp();
         await byTestTag("auth.screen").waitForDisplayed({ timeout: 15000 });
 
         await byTestTag("auth.submit").click();

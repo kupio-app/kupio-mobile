@@ -358,9 +358,13 @@ fun KupioFilterChip(
 }
 
 @Composable
-internal fun KupioErrorText(text: String) {
+internal fun KupioErrorText(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
     Text(
         text = text,
+        modifier = modifier,
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.error,
     )

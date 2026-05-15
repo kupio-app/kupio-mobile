@@ -3,6 +3,8 @@
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import kupio.mobile.core.designsystem.KupioCustomFilterInput
 import kupio.mobile.core.designsystem.KupioErrorRetryRow
 import kupio.mobile.core.designsystem.KupioLoadingRow
@@ -26,6 +28,7 @@ internal fun FiltersSection(
         when {
             state.selectedCategoryId == null -> Text(
                 text = stringResource(Res.string.create_filters_select_category),
+                modifier = Modifier.testTag("listing.create.filters-placeholder"),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -38,6 +41,7 @@ internal fun FiltersSection(
 
             state.filters.isEmpty() -> Text(
                 text = stringResource(Res.string.create_filters_empty),
+                modifier = Modifier.testTag("listing.create.filters-empty"),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

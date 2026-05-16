@@ -36,6 +36,7 @@ data class KupioBottomNavItem(
     val icon: ImageVector,
     val selectedIcon: ImageVector,
     val badgeCount: Int? = null,
+    val modifier: Modifier = Modifier,
 )
 
 @Composable
@@ -73,7 +74,7 @@ fun KupioBottomNav(
                         item = item,
                         selected = selectedIndex == index,
                         onClick = { onItemSelected(index) },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).then(item.modifier),
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
@@ -82,7 +83,7 @@ fun KupioBottomNav(
                         item = item,
                         selected = selectedIndex == index + 2,
                         onClick = { onItemSelected(index + 2) },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).then(item.modifier),
                     )
                 }
             }

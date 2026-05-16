@@ -38,10 +38,11 @@ internal fun MenuRow(
     label: String,
     onClick: (() -> Unit)?,
     trailingBadge: String? = null,
+    modifier: Modifier = Modifier,
 ) {
     val spacing = KupioThemeDefaults.spacing
     Row(
-        modifier = Modifier
+        modifier = modifier
             .bouncingDimClickableIf(onClick = onClick)
             .fillMaxWidth()
             .padding(horizontal = spacing.md, vertical = spacing.md),
@@ -85,10 +86,11 @@ internal fun ActivityRow(
     label: String,
     count: Int?,
     onClick: (() -> Unit)?,
+    modifier: Modifier = Modifier,
 ) {
     val spacing = KupioThemeDefaults.spacing
     Row(
-        modifier = Modifier
+        modifier = modifier
             .bouncingDimClickableIf(onClick = onClick)
             .fillMaxWidth()
             .padding(horizontal = spacing.md, vertical = spacing.md),

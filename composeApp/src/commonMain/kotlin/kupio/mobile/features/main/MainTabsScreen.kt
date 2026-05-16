@@ -93,22 +93,26 @@ class MainTabsScreen : Screen {
                     label = stringResource(Res.string.nav_home),
                     icon = Icons.Outlined.Home,
                     selectedIcon = Icons.Outlined.Home,
+                    modifier = Modifier.testTag("main.home"),
                 ),
                 KupioBottomNavItem(
                     label = stringResource(Res.string.nav_saved),
                     icon = Icons.Default.FavoriteBorder,
                     selectedIcon = Icons.Default.FavoriteBorder,
+                    modifier = Modifier.testTag("main.saved"),
                 ),
                 KupioBottomNavItem(
                     label = stringResource(Res.string.nav_chats),
                     icon = Icons.Default.ChatBubbleOutline,
                     selectedIcon = Icons.Default.ChatBubbleOutline,
                     badgeCount = totalUnread.takeIf { it > 0 },
+                    modifier = Modifier.testTag("main.chats"),
                 ),
                 KupioBottomNavItem(
                     label = stringResource(Res.string.nav_me),
                     icon = Icons.Default.PersonOutline,
                     selectedIcon = Icons.Default.PersonOutline,
+                    modifier = Modifier.testTag("main.me"),
                 ),
             )
 

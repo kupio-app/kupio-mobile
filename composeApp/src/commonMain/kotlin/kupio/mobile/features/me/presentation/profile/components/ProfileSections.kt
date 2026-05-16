@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -84,7 +85,9 @@ internal fun MyListingsSection(stats: UserListingStats?, onManageClick: () -> Un
                 modifier = Modifier.weight(1f),
             )
             Row(
-                modifier = Modifier.bouncingClickable(onClick = onManageClick),
+                modifier = Modifier
+                    .bouncingClickable(onClick = onManageClick)
+                    .testTag("profile.manage-listings"),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(2.dp),
             ) {
@@ -191,6 +194,7 @@ internal fun ActivitySection(
                 label = stringResource(Res.string.profile_chats),
                 count = stats?.chatsCount,
                 onClick = onChatsClick,
+                modifier = Modifier.testTag("profile.chats"),
             )
             HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
             ActivityRow(
@@ -198,6 +202,7 @@ internal fun ActivitySection(
                 label = stringResource(Res.string.profile_favourites),
                 count = stats?.favouritesCount,
                 onClick = onFavouritesClick,
+                modifier = Modifier.testTag("profile.favourites"),
             )
         }
     }
@@ -217,18 +222,21 @@ internal fun PaymentsSection(
                 icon = Icons.Outlined.AccountBalanceWallet,
                 label = stringResource(Res.string.profile_topup_balance),
                 onClick = onTopUpClick,
+                modifier = Modifier.testTag("profile.top-up-balance"),
             )
             HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
             MenuRow(
                 icon = Icons.Outlined.Payments,
                 label = stringResource(Res.string.profile_payments_history),
                 onClick = onPaymentsHistoryClick,
+                modifier = Modifier.testTag("profile.payments-history"),
             )
             HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
             MenuRow(
                 icon = Icons.Outlined.Bolt,
                 label = stringResource(Res.string.profile_promotions_packages),
                 onClick = onPromotionsClick,
+                modifier = Modifier.testTag("profile.promotions"),
             )
         }
     }
@@ -247,12 +255,14 @@ internal fun ProfileSection(
                 icon = Icons.Outlined.Edit,
                 label = stringResource(Res.string.profile_edit),
                 onClick = onEditProfileClick,
+                modifier = Modifier.testTag("profile.edit"),
             )
             HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
             MenuRow(
                 icon = Icons.Outlined.Settings,
                 label = stringResource(Res.string.profile_settings),
                 onClick = onSettingsClick,
+                modifier = Modifier.testTag("profile.settings"),
             )
         }
     }

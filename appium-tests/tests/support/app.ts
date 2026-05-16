@@ -15,6 +15,11 @@ export async function scrollToTestTag(tag: string) {
 }
 
 export async function openApp() {
+    try {
+        await browser.terminateApp(appId);
+    } catch {
+        // The app may not be running yet in a fresh Appium session.
+    }
     await browser.activateApp(appId);
 }
 

@@ -36,8 +36,11 @@ class SavedViewModel(
     private val effectChannel = Channel<SavedEffect>(Channel.BUFFERED)
     val effects: Flow<SavedEffect> = effectChannel.receiveAsFlow()
 
+    private var lastKnownFavouriteIds: Set<String>? = null
+
     init {
         load()
+        observeFavouriteIds()
     }
 
     fun onIntent(intent: SavedIntent) {
@@ -120,6 +123,28 @@ class SavedViewModel(
                     }
                 }
             _state.update { it.copy(removingIds = it.removingIds - listingId) }
+        }
+    }
+
+    private fun observeFavouriteIds() {
+        viewModelScope.launch {
+            favouritesRepository.favouriteIds.collect { ids ->
+                val previous = lastKnownFavouriteIds
+                lastKnownFavouriteIds = ids
+                if (previous == null) return@collect
+
+                val removedExternally = (previous - ids) - _state.value.removingIds
+                val addedExternally = ids - previous
+
+                if (removedExternally.isNotEmpty()) {
+                    _state.update { current ->
+                        current.copy(listings = current.listings.filterNot { it.id in removedExternally })
+                    }
+                }
+                if (addedExternally.isNotEmpty() && _state.value.listings.isNotEmpty()) {
+                    load(reset = true)
+                }
+            }
         }
     }
 

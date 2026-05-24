@@ -44,7 +44,7 @@ class FeedViewModel(
     init {
         loadCategories()
         loadRecommended()
-        loadFavouriteIds()
+        observeFavouriteIds()
     }
 
     fun onIntent(intent: FeedIntent) {
@@ -132,10 +132,11 @@ class FeedViewModel(
         }
     }
 
-    private fun loadFavouriteIds() {
+    private fun observeFavouriteIds() {
         viewModelScope.launch {
-            runCatching { favouritesRepository.getFavouriteIds() }
-                .onSuccess { ids -> _state.update { it.copy(favouritedIds = ids) } }
+            favouritesRepository.favouriteIds.collect { ids ->
+                _state.update { it.copy(favouritedIds = ids) }
+            }
         }
     }
 

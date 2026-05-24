@@ -46,7 +46,7 @@ class SearchResultsViewModel(
 
     init {
         searchSharedState.updateFilters(initialFilters)
-        loadFavouriteIds()
+        observeFavouriteIds()
         observeFilters()
         saveToHistory(initialFilters)
         fetch(reset = true)
@@ -158,10 +158,11 @@ class SearchResultsViewModel(
         }
     }
 
-    private fun loadFavouriteIds() {
+    private fun observeFavouriteIds() {
         viewModelScope.launch {
-            runCatching { favouritesRepository.getFavouriteIds() }
-                .onSuccess { ids -> _state.update { it.copy(favouritedIds = ids) } }
+            favouritesRepository.favouriteIds.collect { ids ->
+                _state.update { it.copy(favouritedIds = ids) }
+            }
         }
     }
 

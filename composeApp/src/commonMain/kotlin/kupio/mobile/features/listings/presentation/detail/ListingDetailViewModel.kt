@@ -49,7 +49,10 @@ class ListingDetailViewModel(
     private val effectChannel = Channel<ListingDetailEffect>(Channel.BUFFERED)
     val effects: Flow<ListingDetailEffect> = effectChannel.receiveAsFlow()
 
-    init { load() }
+    init {
+        load()
+        observeFavouriteIds()
+    }
 
     fun onIntent(intent: ListingDetailIntent) {
         when (intent) {
@@ -190,6 +193,17 @@ class ListingDetailViewModel(
                     )
                 }
                 analytics.recordException(t, mapOf("action" to "send_message"))
+            }
+        }
+    }
+
+    private fun observeFavouriteIds() {
+        viewModelScope.launch {
+            favouritesRepository.favouriteIds.collect { ids ->
+                val current = _state.value
+                if (current.listing != null && !current.isOwnListing && !current.isTogglingFavourite) {
+                    _state.update { it.copy(isFavourited = listingId in ids) }
+                }
             }
         }
     }

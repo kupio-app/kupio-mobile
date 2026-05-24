@@ -79,6 +79,9 @@ struct iOSApp: App {
             ContentView()
                 .onOpenURL { url in
                     GIDSignIn.sharedInstance.handle(url)
+                    if url.scheme == "kupio" {
+                        DeepLinkBridgeKt.handleDeepLinkUri(uri: url.absoluteString)
+                    }
                 }
         }
     }

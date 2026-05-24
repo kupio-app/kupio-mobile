@@ -23,6 +23,7 @@ import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.presentation.auth.AuthScreen
 import kupio.mobile.features.auth.presentation.username.UsernameScreen
 import kupio.mobile.features.main.MainTabsScreen
+import kupio.mobile.features.payments.presentation.success.PaymentSuccessScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.auth_bootstrap_failed
 import mobile.composeapp.generated.resources.retry
@@ -63,6 +64,7 @@ fun KupioNavigator() {
 @Composable
 private fun KupioDefaultNavigator(screen: Screen) {
     val notificationNavigator = koinInject<NotificationNavigator>()
+    val deepLinkNavigator = koinInject<DeepLinkNavigator>()
     val analytics = koinInject<AnalyticsService>()
 
     Navigator(screen) { navigator ->
@@ -75,10 +77,19 @@ private fun KupioDefaultNavigator(screen: Screen) {
             ))
         }
 
-        // Listen to the Event Bus for Deep Links
         LaunchedEffect(Unit) {
             notificationNavigator.navigationEvents.collect { targetScreen ->
                 navigator.push(targetScreen)
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            deepLinkNavigator.events.collect { event ->
+                when (event) {
+                    is DeepLinkEvent.PaymentSuccess -> navigator.push(
+                        PaymentSuccessScreen(amountCents = event.amountCents)
+                    )
+                }
             }
         }
 

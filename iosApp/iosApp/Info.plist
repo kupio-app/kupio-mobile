@@ -18,6 +18,7 @@
                 <key>CFBundleURLSchemes</key>
                 <array>
                     <string>$(KUPIO_GOOGLE_REVERSED_CLIENT_ID)</string>
+                    <string>kupio</string>
                 </array>
             </dict>
         </array>

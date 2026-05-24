@@ -11,11 +11,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.mmk.kmpnotifier.extensions.onCreateOrOnNewIntent
 import com.mmk.kmpnotifier.notification.NotifierManager
 import kupio.mobile.app.App
+import kupio.mobile.core.navigation.DeepLinkNavigator
+import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { /* granted or denied - nothing to do here */ }
+
+    private val deepLinkNavigator: DeepLinkNavigator by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -25,6 +29,7 @@ class MainActivity : ComponentActivity() {
             requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
         NotifierManager.onCreateOrOnNewIntent(intent)
+        intent.data?.toString()?.let { deepLinkNavigator.handle(it) }
 
         setContent { App() }
     }
@@ -32,5 +37,6 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         NotifierManager.onCreateOrOnNewIntent(intent)
+        intent.data?.toString()?.let { deepLinkNavigator.handle(it) }
     }
 }

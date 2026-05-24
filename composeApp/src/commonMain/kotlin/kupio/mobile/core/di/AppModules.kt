@@ -62,6 +62,13 @@ import kupio.mobile.features.me.data.repository.MeRepositoryImpl
 import kupio.mobile.features.me.domain.repository.MeRepository
 import kupio.mobile.features.me.presentation.mylistings.MyListingsViewModel
 import kupio.mobile.features.me.presentation.profile.MeViewModel
+import kupio.mobile.features.payments.data.remote.PaymentsApi
+import kupio.mobile.features.payments.data.repository.PaymentsRepositoryImpl
+import kupio.mobile.features.payments.domain.repository.PaymentsRepository
+import kupio.mobile.core.navigation.DeepLinkNavigator
+import kupio.mobile.features.payments.presentation.history.PaymentsHistoryViewModel
+import kupio.mobile.features.payments.presentation.success.PaymentSuccessViewModel
+import kupio.mobile.features.payments.presentation.topup.TopUpViewModel
 import kupio.mobile.features.saved.presentation.SavedViewModel
 import kupio.mobile.features.saved.data.remote.FavouritesApi
 import kupio.mobile.features.saved.data.repository.FavouritesRepositoryImpl
@@ -94,6 +101,7 @@ val kupioAppModules: List<Module> = listOf(
     module {
         single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
         single { SnackbarManager() }
+        single { DeepLinkNavigator() }
         single<HttpClient> {
             val config = get<BackendConfig>()
             val analyticsService = get<AnalyticsService>()
@@ -120,6 +128,8 @@ val kupioAppModules: List<Module> = listOf(
         single { ToggleFavouriteUseCase(get(), get()) }
         single { MeApi(get()) }
         single<MeRepository> { MeRepositoryImpl(get(), get(), get(), get(), get()) }
+        single { PaymentsApi(get()) }
+        single<PaymentsRepository> { PaymentsRepositoryImpl(get(), get()) }
         single { ReportsApi(get()) }
         single<ReportsRepository> { ReportsRepositoryImpl(get(), get()) }
         single<ChatsRepository> { ChatsRepositoryImpl(get(), get()) }
@@ -152,6 +162,9 @@ val kupioAppModules: List<Module> = listOf(
         viewModelOf(::CreateViewModel)
         viewModelOf(::MeViewModel)
         viewModelOf(::MyListingsViewModel)
+        viewModelOf(::PaymentsHistoryViewModel)
+        viewModel { params -> TopUpViewModel(params.get(), get()) }
+        viewModel { params -> PaymentSuccessViewModel(params.get(), get(), get()) }
         single { SearchSharedState() }
         single<SearchHistoryRepository> { SearchHistoryRepositoryImpl(get()) }
         viewModelOf(::SearchFiltersViewModel)

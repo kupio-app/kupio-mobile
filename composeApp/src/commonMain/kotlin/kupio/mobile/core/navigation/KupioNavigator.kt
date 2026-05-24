@@ -23,6 +23,7 @@ import kupio.mobile.features.auth.domain.model.SessionState
 import kupio.mobile.features.auth.presentation.auth.AuthScreen
 import kupio.mobile.features.auth.presentation.username.UsernameScreen
 import kupio.mobile.features.main.MainTabsScreen
+import kupio.mobile.features.payments.presentation.success.PaymentSuccessScreen
 import mobile.composeapp.generated.resources.Res
 import mobile.composeapp.generated.resources.auth_bootstrap_failed
 import mobile.composeapp.generated.resources.retry
@@ -56,13 +57,14 @@ fun KupioNavigator() {
 
         SessionState.SignedOut -> key(SessionState.SignedOut::class) { KupioDefaultNavigator(AuthScreen()) }
         is SessionState.NeedsUsername -> key(current::class) { KupioDefaultNavigator(UsernameScreen()) }
-        is SessionState.SignedIn -> key(current::class) { KupioDefaultNavigator(MainTabsScreen()) }
+        is SessionState.SignedIn -> key(current::class) { KupioDefaultNavigator(MainTabsScreen(), handleDeepLinks = true) }
     }
 }
 
 @Composable
-private fun KupioDefaultNavigator(screen: Screen) {
+private fun KupioDefaultNavigator(screen: Screen, handleDeepLinks: Boolean = false) {
     val notificationNavigator = koinInject<NotificationNavigator>()
+    val deepLinkNavigator = koinInject<DeepLinkNavigator>()
     val analytics = koinInject<AnalyticsService>()
 
     Navigator(screen) { navigator ->
@@ -75,10 +77,20 @@ private fun KupioDefaultNavigator(screen: Screen) {
             ))
         }
 
-        // Listen to the Event Bus for Deep Links
         LaunchedEffect(Unit) {
             notificationNavigator.navigationEvents.collect { targetScreen ->
                 navigator.push(targetScreen)
+            }
+        }
+
+        LaunchedEffect(handleDeepLinks) {
+            if (!handleDeepLinks) return@LaunchedEffect
+            deepLinkNavigator.events.collect { event ->
+                when (event) {
+                    is DeepLinkEvent.PaymentSuccess -> navigator.push(
+                        PaymentSuccessScreen(amountCents = event.amountCents)
+                    )
+                }
             }
         }
 

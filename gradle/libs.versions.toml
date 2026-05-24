@@ -28,6 +28,7 @@ room = "2.8.4"
 sqlite = "2.6.2"
 googleid = "1.2.0"
 imagepickerkmp = "1.0.39"
+androidx-browser = "1.8.0"
 voyager = "1.0.1"
 kmpnotifier = "1.6.1"
 firebase-kotlin-sdk = "2.4.0"
@@ -85,6 +86,7 @@ voyager-tab-navigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", 
 kmpnotifier = { module = "io.github.mirzemehdi:kmpnotifier", version.ref = "kmpnotifier" }
 firebase-analytics = { module = "dev.gitlive:firebase-analytics", version.ref = "firebase-kotlin-sdk" }
 firebase-crashlytics = { module = "dev.gitlive:firebase-crashlytics", version.ref = "firebase-kotlin-sdk" }
+androidx-browser = { module = "androidx.browser:browser", version.ref = "androidx-browser" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

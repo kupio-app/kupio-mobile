@@ -36,4 +36,6 @@ sealed interface MeEffect : UiEffect {
     data object NavigateToChats : MeEffect
     data object NavigateToFavourites : MeEffect
     data object NavigateToReportsDashboard : MeEffect
+    data object NavigateToTopUp : MeEffect
+    data object NavigateToPaymentsHistory : MeEffect
 }

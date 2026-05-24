@@ -18,9 +18,18 @@ class DeepLinkNavigator {
 
     private fun parseUri(uri: String): DeepLinkEvent? = when {
         uri.startsWith("kupio://payment/success") -> {
-            val amountCents = uri.substringAfter("amount=", "").toIntOrNull() ?: 0
+            val amountCents = queryParam(uri, "amount")?.toIntOrNull()?.takeIf { it > 0 }
+                ?: return null
             DeepLinkEvent.PaymentSuccess(amountCents)
         }
         else -> null
+    }
+
+    private fun queryParam(uri: String, key: String): String? {
+        val query = uri.substringAfter("?", "")
+        return query.split("&")
+            .map { it.split("=", limit = 2) }
+            .firstOrNull { it.size == 2 && it[0] == key }
+            ?.get(1)
     }
 }

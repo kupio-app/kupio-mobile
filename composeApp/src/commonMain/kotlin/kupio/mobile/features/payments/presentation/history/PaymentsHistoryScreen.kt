@@ -66,6 +66,7 @@ import mobile.composeapp.generated.resources.payments_status_refunded
 import mobile.composeapp.generated.resources.payments_subtitle
 import mobile.composeapp.generated.resources.payments_title
 import mobile.composeapp.generated.resources.payments_txn_count
+import mobile.composeapp.generated.resources.payments_unknown_date
 import mobile.composeapp.generated.resources.payments_type_payment
 import mobile.composeapp.generated.resources.payments_type_refund
 import mobile.composeapp.generated.resources.payments_type_topup
@@ -111,10 +112,10 @@ private fun PaymentsHistoryContent(state: PaymentsHistoryState, onIntent: (Payme
         filteredTransactions
             .groupBy { transaction ->
                 val date = transaction.createdAt.toLocalDate()
-                if (date != null) Pair(date.year, date.month.number) else Pair(0, 0)
+                if (date != null) Pair(date.year, date.month.number) else null
             }
             .entries
-            .sortedByDescending { (key, _) -> key.first * 12 + key.second }
+            .sortedByDescending { (key, _) -> key?.let { it.first * 12 + it.second } ?: Int.MIN_VALUE }
     }
 
     Scaffold(
@@ -190,14 +191,13 @@ private fun PaymentsHistoryContent(state: PaymentsHistoryState, onIntent: (Payme
                         }
                     } else {
                         groupedTransactions.forEach { (monthYear, transactions) ->
-                            item(key = "${monthYear.first}-${monthYear.second}-header") {
+                            item(key = "${monthYear?.first}-${monthYear?.second}-header") {
                                 MonthGroupHeader(
-                                    year = monthYear.first,
-                                    month = monthYear.second,
+                                    monthYear = monthYear,
                                     count = transactions.size,
                                 )
                             }
-                            item(key = "${monthYear.first}-${monthYear.second}-card") {
+                            item(key = "${monthYear?.first}-${monthYear?.second}-card") {
                                 MonthGroupCard(transactions = transactions)
                             }
                         }
@@ -254,14 +254,19 @@ private fun FilterRow(selectedFilter: PaymentsFilter, onFilterSelected: (Payment
 }
 
 @Composable
-private fun MonthGroupHeader(year: Int, month: Int, count: Int) {
+private fun MonthGroupHeader(monthYear: Pair<Int, Int>?, count: Int) {
     val spacing = KupioThemeDefaults.spacing
+    val title = if (monthYear != null) {
+        "${monthName(monthYear.second).uppercase()} ${monthYear.first}"
+    } else {
+        stringResource(Res.string.payments_unknown_date).uppercase()
+    }
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = "${monthName(month).uppercase()} $year",
+            text = title,
             style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.sp),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f),

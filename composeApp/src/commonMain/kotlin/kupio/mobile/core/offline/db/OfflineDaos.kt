@@ -4,7 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LocalListingsDao {
@@ -58,6 +60,15 @@ interface CachedFavouritesDao {
 
     @Query("UPDATE cached_favourites SET synced = :synced, updatedAtMs = :updatedAtMs WHERE listingId = :listingId")
     suspend fun setSynced(listingId: String, synced: Boolean, updatedAtMs: Long)
+
+    @Query("SELECT listingId FROM cached_favourites WHERE desired = 1")
+    fun observeDesiredIds(): Flow<List<String>>
+
+    @Transaction
+    suspend fun clearAndReplaceAll(favourites: List<CachedFavouriteEntity>) {
+        clear()
+        replaceAll(favourites)
+    }
 }
 
 @Dao

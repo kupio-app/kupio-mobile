@@ -1,5 +1,6 @@
 package kupio.mobile.features.saved.data.repository
 
+import kotlinx.coroutines.flow.Flow
 import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.core.offline.OfflineMutationStore
 import kupio.mobile.core.offline.OfflineSyncScheduler
@@ -14,6 +15,8 @@ class FavouritesRepositoryImpl(
     private val offlineStore: OfflineMutationStore,
     private val offlineSyncScheduler: OfflineSyncScheduler,
 ) : FavouritesRepository {
+
+    override val favouriteIds: Flow<Set<String>> = offlineStore.observeFavouriteIds()
 
     override suspend fun getFavourites(limit: Int, cursor: String?): ListingFeed =
         runCatching {

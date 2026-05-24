@@ -1,6 +1,7 @@
 package kupio.mobile.core.offline
 
-import kotlinx.serialization.encodeToString
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -11,11 +12,7 @@ import kupio.mobile.core.offline.db.LocalListingEntity
 import kupio.mobile.core.offline.db.PendingListingImageEntity
 import kupio.mobile.core.offline.db.PendingSyncOperationEntity
 import kupio.mobile.core.offline.files.OfflineFileStore
-import kupio.mobile.features.listings.data.remote.CategorySlimDto
-import kupio.mobile.features.listings.data.remote.ListingImageResponseDto
 import kupio.mobile.features.listings.data.remote.ListingRequestDto
-import kupio.mobile.features.listings.data.remote.ListingResponseDto
-import kupio.mobile.features.listings.data.remote.ListingStatusDto
 import kupio.mobile.features.listings.data.remote.toDomain
 import kupio.mobile.features.listings.data.remote.toDto
 import kupio.mobile.features.listings.domain.model.CreateListing
@@ -30,7 +27,7 @@ import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kotlin.time.Clock
 
 class OfflineMutationStore(
-    database: KupioDatabase,
+    private val database: KupioDatabase,
     private val fileStore: OfflineFileStore,
 ) {
     private val listingsDao = database.listingsDao()
@@ -111,11 +108,13 @@ class OfflineMutationStore(
     suspend fun getCachedFavourites(): Set<String> =
         favouritesDao.getDesired().map { it.listingId }.toSet()
 
+    fun observeFavouriteIds(): Flow<Set<String>> =
+        favouritesDao.observeDesiredIds().map { it.toSet() }
+
     suspend fun replaceFavouriteIds(ids: Set<String>) {
         val now = nowMs()
         val pendingOverrides = favouritesDao.getUnsynced()
-        favouritesDao.clear()
-        favouritesDao.replaceAll(
+        favouritesDao.clearAndReplaceAll(
             ids.map { id ->
                 CachedFavouriteEntity(
                     listingId = id,

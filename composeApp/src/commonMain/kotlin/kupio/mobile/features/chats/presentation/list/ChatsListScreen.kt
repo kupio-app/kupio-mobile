@@ -15,12 +15,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +31,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
@@ -166,26 +171,56 @@ private fun ChatsListContent(
                         )
                     }
 
-                    else -> LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = spacing.xl),
-                    ) {
-                        items(state.visibleChats, key = { it.id }) { chat ->
-                            ChatCard(chat = chat, onClick = { onIntent(ChatsListIntent.OpenChat(chat.id)) })
-                            HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
+                    else -> {
+                        val listState = rememberLazyListState()
+                        val shouldLoadMore by remember {
+                            derivedStateOf {
+                                val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: return@derivedStateOf false
+                                val total = listState.layoutInfo.totalItemsCount
+                                lastVisible >= total - 3
+                            }
                         }
-                        item(key = "footer") {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(spacing.xl),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    text = stringResource(Res.string.chats_empty_footer),
-                                    style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                        LaunchedEffect(shouldLoadMore) {
+                            snapshotFlow { shouldLoadMore }.collect { if (it) onIntent(ChatsListIntent.LoadMore) }
+                        }
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = spacing.xl),
+                        ) {
+                            items(state.visibleChats, key = { it.id }) { chat ->
+                                ChatCard(chat = chat, onClick = { onIntent(ChatsListIntent.OpenChat(chat.id)) })
+                                HorizontalDivider(color = KupioThemeDefaults.softDividerColor)
+                            }
+                            if (state.isLoadingMore) {
+                                item(key = "load_more") {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = spacing.md),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(24.dp),
+                                            color = MaterialTheme.colorScheme.primary,
+                                            strokeWidth = 2.dp,
+                                        )
+                                    }
+                                }
+                            }
+                            item(key = "footer") {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(spacing.xl),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        text = stringResource(Res.string.chats_empty_footer),
+                                        style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                             }
                         }
                     }

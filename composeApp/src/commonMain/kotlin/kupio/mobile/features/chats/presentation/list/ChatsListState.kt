@@ -13,6 +13,8 @@ data class ChatsListState(
     val filter: ChatsFilter = ChatsFilter.ALL,
     val isLoading: Boolean = true,
     val isRefreshing: Boolean = false,
+    val isLoadingMore: Boolean = false,
+    val hasMore: Boolean = false,
     val errorMessage: String? = null,
     val totalUnread: Int = 0,
 ) : UiState {
@@ -35,6 +37,7 @@ sealed interface ChatsListIntent : UiAction {
     data class OpenChat(val id: String) : ChatsListIntent
     data object LoadConversations : ChatsListIntent
     data object RefreshChats : ChatsListIntent
+    data object LoadMore : ChatsListIntent
     data object OpenSearch : ChatsListIntent
     data object OpenFilters : ChatsListIntent
     data object RetryLoad : ChatsListIntent

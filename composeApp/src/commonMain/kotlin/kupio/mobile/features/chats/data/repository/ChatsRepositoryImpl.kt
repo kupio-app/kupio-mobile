@@ -6,6 +6,7 @@ import kupio.mobile.features.chats.data.remote.ConversationRoleDto
 import kupio.mobile.features.chats.data.remote.ConversationResponseDto
 import kupio.mobile.features.chats.domain.model.ChatRole
 import kupio.mobile.features.chats.domain.model.ConversationData
+import kupio.mobile.features.chats.domain.model.ConversationsPage
 import kupio.mobile.features.chats.domain.repository.ChatsRepository
 
 class ChatsRepositoryImpl(
@@ -21,6 +22,20 @@ class ChatsRepositoryImpl(
         return authenticatedApiClient.request { authorize ->
             chatApi.listConversations(authorize, dtoRole, limit)
         }.conversations.map { it.toDomain() }
+    }
+
+    override suspend fun listConversationsPage(role: ChatRole, limit: Int, cursor: String?): ConversationsPage {
+        val dtoRole = when (role) {
+            ChatRole.BUYING -> ConversationRoleDto.BUYER
+            ChatRole.SELLING -> ConversationRoleDto.SELLER
+        }
+        val response = authenticatedApiClient.request { authorize ->
+            chatApi.listConversations(authorize, dtoRole, limit, cursor)
+        }
+        return ConversationsPage(
+            conversations = response.conversations.map { it.toDomain() },
+            nextCursor = response.nextCursor,
+        )
     }
 
     override suspend fun startConversation(listingId: String, message: String): ConversationData =

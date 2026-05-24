@@ -25,6 +25,8 @@ class ChatsListViewModel(
     init {
         viewModelScope.launch { store.chats.collect { chats -> _state.update { it.copy(chats = chats) } } }
         viewModelScope.launch { store.isLoading.collect { loading -> _state.update { it.copy(isLoading = loading) } } }
+        viewModelScope.launch { store.isLoadingMore.collect { loading -> _state.update { it.copy(isLoadingMore = loading) } } }
+        viewModelScope.launch { store.hasMore.collect { more -> _state.update { it.copy(hasMore = more) } } }
         viewModelScope.launch { store.error.collect { error -> _state.update { it.copy(errorMessage = error) } } }
         viewModelScope.launch { store.unreadCount.collect { count -> _state.update { it.copy(totalUnread = count) } } }
     }
@@ -42,6 +44,9 @@ class ChatsListViewModel(
                 _state.update { it.copy(isRefreshing = true) }
                 store.refresh()
                 _state.update { it.copy(isRefreshing = false) }
+            }
+            ChatsListIntent.LoadMore -> viewModelScope.launch {
+                store.loadMore()
             }
             ChatsListIntent.OpenSearch -> {}
             ChatsListIntent.OpenFilters -> {}

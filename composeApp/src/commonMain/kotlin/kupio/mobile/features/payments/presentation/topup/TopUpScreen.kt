@@ -73,7 +73,6 @@ class TopUpScreen(private val currentBalanceCents: Int) : Screen {
             when (effect) {
                 TopUpEffect.NavigateBack -> navigator.pop()
                 is TopUpEffect.OpenUrl -> urlOpener.openUrl(effect.url)
-                is TopUpEffect.ShowError -> Unit
             }
         }
 
@@ -273,9 +272,9 @@ private fun TopUpBottomBar(state: TopUpState, onIntent: (TopUpIntent) -> Unit) {
                 .padding(horizontal = spacing.md, vertical = spacing.sm),
             verticalArrangement = Arrangement.spacedBy(spacing.sm),
         ) {
-            state.errorMessage?.let { message ->
+            state.error?.let { error ->
                 Text(
-                    text = message,
+                    text = error.toErrorMessage(),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                 )

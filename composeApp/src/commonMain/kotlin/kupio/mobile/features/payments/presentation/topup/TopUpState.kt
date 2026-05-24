@@ -8,7 +8,7 @@ data class TopUpState(
     val currentBalanceCents: Int = 0,
     val selectedAmountCents: Int = 2000,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null,
+    val error: TopUpError? = null,
 ) : UiState
 
 sealed interface TopUpIntent : UiAction {
@@ -20,5 +20,4 @@ sealed interface TopUpIntent : UiAction {
 sealed interface TopUpEffect : UiEffect {
     data object NavigateBack : TopUpEffect
     data class OpenUrl(val url: String) : TopUpEffect
-    data class ShowError(val message: String) : TopUpEffect
 }

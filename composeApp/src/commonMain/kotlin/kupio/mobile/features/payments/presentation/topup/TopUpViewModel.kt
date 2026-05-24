@@ -33,7 +33,7 @@ class TopUpViewModel(
 
     private fun checkout() {
         if (_state.value.isLoading) return
-        _state.update { it.copy(isLoading = true, errorMessage = null) }
+        _state.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             runCatching {
                 paymentsRepository.createCheckout(_state.value.selectedAmountCents)
@@ -42,9 +42,7 @@ class TopUpViewModel(
                 effectChannel.send(TopUpEffect.OpenUrl(url))
             }.onFailure { t ->
                 if (t is CancellationException) throw t
-                val message = t.message ?: "Something went wrong."
-                _state.update { it.copy(isLoading = false, errorMessage = message) }
-                effectChannel.send(TopUpEffect.ShowError(message))
+                _state.update { it.copy(isLoading = false, error = TopUpError.Generic) }
             }
         }
     }

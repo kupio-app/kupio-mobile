@@ -402,4 +402,6 @@
     <string name="payment_success_title">Platba úspešná</string>
     <string name="payment_success_new_balance">Nový zostatok · %1$s</string>
     <string name="payment_success_done">Hotovo</string>
+    <string name="topup_error_generic">Niečo sa pokazilo. Skús to znova.</string>
+    <string name="payments_unknown_date">Neznámy dátum</string>
 </resources>

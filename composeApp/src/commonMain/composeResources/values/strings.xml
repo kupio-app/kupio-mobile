@@ -404,4 +404,6 @@
     <string name="payment_success_title">Payment successful</string>
     <string name="payment_success_new_balance">New balance · %1$s</string>
     <string name="payment_success_done">Done</string>
+    <string name="topup_error_generic">Something went wrong. Please try again.</string>
+    <string name="payments_unknown_date">Unknown date</string>
 </resources>

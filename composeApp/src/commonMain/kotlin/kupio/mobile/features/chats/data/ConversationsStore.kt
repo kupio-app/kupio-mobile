@@ -36,8 +36,12 @@ class ConversationsStore(
 ) : ConversationsRefresher {
     private val _chats = MutableStateFlow<List<ChatSummary>>(emptyList())
     private val _isLoading = MutableStateFlow(false)
+    private val _isLoadingMore = MutableStateFlow(false)
     private val _error = MutableStateFlow<String?>(null)
     private val _unreadCount = MutableStateFlow(0)
+    private val _hasMore = MutableStateFlow(false)
+    private var nextCursorBuying: String? = null
+    private var nextCursorSelling: String? = null
 
     init {
         sessionCleaner.register(::clearState)
@@ -48,12 +52,18 @@ class ConversationsStore(
         _unreadCount.value = 0
         _error.value = null
         _isLoading.value = false
+        _isLoadingMore.value = false
+        _hasMore.value = false
+        nextCursorBuying = null
+        nextCursorSelling = null
     }
 
     val chats: StateFlow<List<ChatSummary>> = _chats.asStateFlow()
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    val isLoadingMore: StateFlow<Boolean> = _isLoadingMore.asStateFlow()
     val error: StateFlow<String?> = _error.asStateFlow()
     val unreadCount: StateFlow<Int> = _unreadCount.asStateFlow()
+    val hasMore: StateFlow<Boolean> = _hasMore.asStateFlow()
 
     fun observeConversation(id: String): Flow<ChatSummary?> =
         _chats.map { list -> list.find { it.id == id } }
@@ -61,16 +71,21 @@ class ConversationsStore(
     override suspend fun refresh() {
         _isLoading.value = true
         _error.value = null
+        nextCursorBuying = null
+        nextCursorSelling = null
         try {
             runCatching {
                 coroutineScope {
-                    val buyingDeferred = async {
-                        chatsRepository.listConversations(ChatRole.BUYING).map { it to ChatRole.BUYING }
-                    }
-                    val sellingDeferred = async {
-                        chatsRepository.listConversations(ChatRole.SELLING).map { it to ChatRole.SELLING }
-                    }
-                    val merged = (buyingDeferred.await() + sellingDeferred.await())
+                    val buyingDeferred = async { chatsRepository.listConversationsPage(ChatRole.BUYING) }
+                    val sellingDeferred = async { chatsRepository.listConversationsPage(ChatRole.SELLING) }
+                    val buyingPage = buyingDeferred.await()
+                    val sellingPage = sellingDeferred.await()
+                    nextCursorBuying = buyingPage.nextCursor
+                    nextCursorSelling = sellingPage.nextCursor
+                    _hasMore.value = buyingPage.nextCursor != null || sellingPage.nextCursor != null
+
+                    val merged = (buyingPage.conversations.map { it to ChatRole.BUYING } +
+                                  sellingPage.conversations.map { it to ChatRole.SELLING })
                         .sortedByDescending { (conv, _) -> conv.createdAt }
 
                     val summaries = merged.map { (conv, role) ->
@@ -86,6 +101,45 @@ class ConversationsStore(
             }
         } finally {
             _isLoading.value = false
+        }
+    }
+
+    suspend fun loadMore() {
+        if (_isLoadingMore.value || !_hasMore.value) return
+        _isLoadingMore.value = true
+        try {
+            runCatching {
+                coroutineScope {
+                    val buyingDeferred = nextCursorBuying?.let { cursor ->
+                        async { chatsRepository.listConversationsPage(ChatRole.BUYING, cursor = cursor) }
+                    }
+                    val sellingDeferred = nextCursorSelling?.let { cursor ->
+                        async { chatsRepository.listConversationsPage(ChatRole.SELLING, cursor = cursor) }
+                    }
+                    val buyingPage = buyingDeferred?.await()
+                    val sellingPage = sellingDeferred?.await()
+
+                    if (buyingPage != null) nextCursorBuying = buyingPage.nextCursor
+                    if (sellingPage != null) nextCursorSelling = sellingPage.nextCursor
+                    _hasMore.value = nextCursorBuying != null || nextCursorSelling != null
+
+                    val newConversations = (
+                        (buyingPage?.conversations?.map { it to ChatRole.BUYING } ?: emptyList()) +
+                        (sellingPage?.conversations?.map { it to ChatRole.SELLING } ?: emptyList())
+                    ).sortedByDescending { (conv, _) -> conv.createdAt }
+
+                    val newSummaries = newConversations.map { (conv, role) ->
+                        async { buildSummary(conv, role) }
+                    }.awaitAll()
+
+                    _chats.update { it + newSummaries }
+                    _unreadCount.update { it + newSummaries.sumOf { s -> s.unreadCount } }
+                }
+            }.onFailure { t ->
+                if (t is CancellationException) throw t
+            }
+        } finally {
+            _isLoadingMore.value = false
         }
     }
 

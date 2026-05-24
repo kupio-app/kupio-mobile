@@ -42,8 +42,11 @@ class SavedViewModel(
 
     fun onIntent(intent: SavedIntent) {
         when (intent) {
-            SavedIntent.Load -> load(isRefresh = false)
-            SavedIntent.Refresh -> load(isRefresh = true)
+            SavedIntent.Load -> load(reset = true)
+            SavedIntent.Refresh -> load(reset = true, isRefresh = true)
+            SavedIntent.LoadMore -> {
+                if (!_state.value.isLoadingMore && _state.value.hasMore) load(reset = false)
+            }
             is SavedIntent.RemoveFavourite -> removeFavourite(intent.listingId)
             is SavedIntent.OpenListing -> viewModelScope.launch {
                 effectChannel.send(SavedEffect.OpenListing(intent.listingId))
@@ -51,20 +54,35 @@ class SavedViewModel(
         }
     }
 
-    private fun load(isRefresh: Boolean = false) {
-        if (isRefresh) {
-            _state.update { it.copy(isRefreshing = true, errorMessage = null) }
-        } else {
-            _state.update { it.copy(isLoading = true, errorMessage = null) }
+    private fun load(reset: Boolean = true, isRefresh: Boolean = false) {
+        val cursor = if (reset) null else _state.value.nextCursor
+        when {
+            isRefresh -> _state.update { it.copy(isRefreshing = true, errorMessage = null) }
+            reset -> _state.update { it.copy(isLoading = true, errorMessage = null, nextCursor = null, hasMore = false) }
+            else -> _state.update { it.copy(isLoadingMore = true) }
         }
         viewModelScope.launch {
-            runCatching { favouritesRepository.getFavourites() }
+            runCatching { favouritesRepository.getFavourites(cursor = cursor) }
                 .onSuccess { feed ->
-                    _state.update { it.copy(listings = feed.listings, isLoading = false, isRefreshing = false) }
+                    _state.update { current ->
+                        val accumulated = if (reset) feed.listings else current.listings + feed.listings
+                        current.copy(
+                            listings = accumulated,
+                            isLoading = false,
+                            isRefreshing = false,
+                            isLoadingMore = false,
+                            nextCursor = feed.nextCursor,
+                            hasMore = feed.nextCursor != null,
+                        )
+                    }
                 }
                 .onFailure { t ->
                     if (t is CancellationException) throw t
-                    _state.update { it.copy(isLoading = false, isRefreshing = false, errorMessage = t.message.orEmpty()) }
+                    if (reset) {
+                        _state.update { it.copy(isLoading = false, isRefreshing = false, errorMessage = t.message.orEmpty()) }
+                    } else {
+                        _state.update { it.copy(isLoadingMore = false) }
+                    }
                     analytics.recordException(t, mapOf("screen" to "saved"))
                 }
         }

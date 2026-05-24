@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -29,7 +30,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -147,18 +152,48 @@ private fun SavedContent(
                     )
                 }
 
-                else -> LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = spacing.lg, vertical = spacing.md),
-                    verticalArrangement = Arrangement.spacedBy(spacing.md),
-                ) {
-                    items(state.listings, key = { it.id }) { listing ->
-                        SavedListingRow(
-                            listing = listing,
-                            isRemoving = listing.id in state.removingIds,
-                            onClick = { onIntent(SavedIntent.OpenListing(listing.id)) },
-                            onRemove = { onIntent(SavedIntent.RemoveFavourite(listing.id)) },
-                        )
+                else -> {
+                    val listState = rememberLazyListState()
+                    val shouldLoadMore by remember {
+                        derivedStateOf {
+                            val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: return@derivedStateOf false
+                            val total = listState.layoutInfo.totalItemsCount
+                            lastVisible >= total - 3
+                        }
+                    }
+                    LaunchedEffect(shouldLoadMore) {
+                        snapshotFlow { shouldLoadMore }.collect { if (it) onIntent(SavedIntent.LoadMore) }
+                    }
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(horizontal = spacing.lg, vertical = spacing.md),
+                        verticalArrangement = Arrangement.spacedBy(spacing.md),
+                    ) {
+                        items(state.listings, key = { it.id }) { listing ->
+                            SavedListingRow(
+                                listing = listing,
+                                isRemoving = listing.id in state.removingIds,
+                                onClick = { onIntent(SavedIntent.OpenListing(listing.id)) },
+                                onRemove = { onIntent(SavedIntent.RemoveFavourite(listing.id)) },
+                            )
+                        }
+                        if (state.isLoadingMore) {
+                            item(key = "load_more") {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = spacing.md),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        strokeWidth = 2.dp,
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }

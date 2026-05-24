@@ -57,12 +57,12 @@ fun KupioNavigator() {
 
         SessionState.SignedOut -> key(SessionState.SignedOut::class) { KupioDefaultNavigator(AuthScreen()) }
         is SessionState.NeedsUsername -> key(current::class) { KupioDefaultNavigator(UsernameScreen()) }
-        is SessionState.SignedIn -> key(current::class) { KupioDefaultNavigator(MainTabsScreen()) }
+        is SessionState.SignedIn -> key(current::class) { KupioDefaultNavigator(MainTabsScreen(), handleDeepLinks = true) }
     }
 }
 
 @Composable
-private fun KupioDefaultNavigator(screen: Screen) {
+private fun KupioDefaultNavigator(screen: Screen, handleDeepLinks: Boolean = false) {
     val notificationNavigator = koinInject<NotificationNavigator>()
     val deepLinkNavigator = koinInject<DeepLinkNavigator>()
     val analytics = koinInject<AnalyticsService>()
@@ -83,7 +83,8 @@ private fun KupioDefaultNavigator(screen: Screen) {
             }
         }
 
-        LaunchedEffect(Unit) {
+        LaunchedEffect(handleDeepLinks) {
+            if (!handleDeepLinks) return@LaunchedEffect
             deepLinkNavigator.events.collect { event ->
                 when (event) {
                     is DeepLinkEvent.PaymentSuccess -> navigator.push(

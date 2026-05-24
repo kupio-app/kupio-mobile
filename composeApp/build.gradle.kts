@@ -100,6 +100,7 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.androidx.work.runtime.ktx)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.androidx.browser)
         }
         commonMain.dependencies {
             implementation(libs.koin.core)

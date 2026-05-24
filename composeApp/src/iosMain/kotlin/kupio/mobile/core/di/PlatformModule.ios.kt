@@ -6,7 +6,9 @@ import com.liftric.kvault.KVault
 import kotlinx.cinterop.ExperimentalForeignApi
 import kupio.mobile.core.config.BackendConfig
 import kupio.mobile.core.platform.IosPhoneDialer
+import kupio.mobile.core.platform.IosUrlOpener
 import kupio.mobile.core.platform.PhoneDialer
+import kupio.mobile.core.platform.UrlOpener
 import kupio.mobile.core.preferences.KupioPreferencesFileName
 import kupio.mobile.core.preferences.createPreferencesDataStore
 import kupio.mobile.core.notifications.BackgroundSyncScheduler
@@ -49,6 +51,7 @@ actual val platformModule = module {
     single<OfflineFileStore> { IosOfflineFileStore() }
     single { KVault("kupio.mobile.secure_store") }
     single<PhoneDialer> { IosPhoneDialer() }
+    single<UrlOpener> { IosUrlOpener() }
     single<DataStore<Preferences>> {
         createPreferencesDataStore(
             producePath = {

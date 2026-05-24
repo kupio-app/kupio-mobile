@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -67,7 +68,9 @@ private fun SettingsRoute(
         },
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag("settings.screen"),
             verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
         ) {
             KupioText(text = stringResource(Res.string.settings_body))
@@ -76,6 +79,7 @@ private fun SettingsRoute(
                     text = stringResource(Res.string.settings_user_id_label, state.userId),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.testTag("settings.user-id"),
                 )
             }
             SettingsThemeModeSection(
@@ -87,6 +91,7 @@ private fun SettingsRoute(
                 text = stringResource(Res.string.settings_logout),
                 onClick = { onAction(SettingsAction.LogoutClicked) },
                 enabled = !state.isSigningOut,
+                modifier = Modifier.testTag("settings.logout"),
             )
         }
     }

@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
@@ -130,7 +131,7 @@ private fun CreateContent(
         )
     }
 
-    Box {
+    Box(modifier = Modifier.testTag("listing.create.screen")) {
         Scaffold(
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             bottomBar = {
@@ -199,7 +200,10 @@ private fun CreateContent(
         ListingTopBar(
             listState = listState,
             onBack = { onIntent(CreateIntent.Back) },
-            modifier = Modifier.align(Alignment.TopCenter),
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .testTag("listing.create.topbar"),
+            backButtonModifier = Modifier.testTag("listing.create.back"),
         )
     }
 }

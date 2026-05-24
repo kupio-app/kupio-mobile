@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application android:networkSecurityConfig="@xml/debug_network_security_config" />
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:name=".debug.TestKupioApplication"
+        android:networkSecurityConfig="@xml/debug_network_security_config"
+        tools:replace="android:name">
+        <receiver
+            android:name=".debug.TestAuthReceiver"
+            android:exported="true" />
+    </application>
 </manifest>

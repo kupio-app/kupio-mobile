@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -92,32 +93,38 @@ class MainTabsScreen : Screen {
                     label = stringResource(Res.string.nav_home),
                     icon = Icons.Outlined.Home,
                     selectedIcon = Icons.Outlined.Home,
+                    modifier = Modifier.testTag("main.home"),
                 ),
                 KupioBottomNavItem(
                     label = stringResource(Res.string.nav_saved),
                     icon = Icons.Default.FavoriteBorder,
                     selectedIcon = Icons.Default.FavoriteBorder,
+                    modifier = Modifier.testTag("main.saved"),
                 ),
                 KupioBottomNavItem(
                     label = stringResource(Res.string.nav_chats),
                     icon = Icons.Default.ChatBubbleOutline,
                     selectedIcon = Icons.Default.ChatBubbleOutline,
                     badgeCount = totalUnread.takeIf { it > 0 },
+                    modifier = Modifier.testTag("main.chats"),
                 ),
                 KupioBottomNavItem(
                     label = stringResource(Res.string.nav_me),
                     icon = Icons.Default.PersonOutline,
                     selectedIcon = Icons.Default.PersonOutline,
+                    modifier = Modifier.testTag("main.me"),
                 ),
             )
 
             Scaffold(
+                modifier = Modifier.testTag("main.tabs"),
                 bottomBar = {
                     KupioBottomNav(
                         items = navItems,
                         selectedIndex = selectedIndex,
                         onItemSelected = { index -> tabNavigator.current = tabs[index] },
                         onCenterActionClick = { rootNavigator.push(CreateScreen()) },
+                        centerActionModifier = Modifier.testTag("main.create"),
                     )
                 },
             ) { paddingValues ->

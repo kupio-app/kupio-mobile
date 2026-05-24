@@ -162,6 +162,8 @@ fun KupioTextField(
     label: String,
     placeholder: String,
     modifier: Modifier = Modifier,
+    inputModifier: Modifier = Modifier,
+    errorModifier: Modifier = Modifier,
     error: String? = null,
     required: Boolean = false,
     trailingLabel: String? = null,
@@ -194,7 +196,7 @@ fun KupioTextField(
             OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = inputModifier.fillMaxWidth(),
                 placeholder = { Text(placeholder, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)) },
                 trailingIcon = trailingSlot,
                 visualTransformation = visualTransformation,
@@ -215,7 +217,7 @@ fun KupioTextField(
                 text = error,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = 2.dp)
+                modifier = errorModifier.padding(top = 2.dp)
             )
         }
     }
@@ -356,9 +358,13 @@ fun KupioFilterChip(
 }
 
 @Composable
-internal fun KupioErrorText(text: String) {
+internal fun KupioErrorText(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
     Text(
         text = text,
+        modifier = modifier,
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.error,
     )

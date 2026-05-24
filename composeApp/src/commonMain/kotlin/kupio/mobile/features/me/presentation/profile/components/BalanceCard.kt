@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,7 +34,9 @@ import org.jetbrains.compose.resources.stringResource
 internal fun BalanceCard(user: AuthenticatedUser?, onTopUp: () -> Unit) {
     val spacing = KupioThemeDefaults.spacing
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("profile.balance-card"),
         shape = KupioShapes.ExtraLarge,
         color = MaterialTheme.colorScheme.onSurface,
     ) {
@@ -67,11 +70,14 @@ internal fun BalanceCard(user: AuthenticatedUser?, onTopUp: () -> Unit) {
                     text = formatBalance(user?.balance ?: 0),
                     style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.testTag("profile.balance"),
                 )
             }
             Spacer(modifier = Modifier.weight(1f))
             Surface(
-                modifier = Modifier.bouncingClickable(onClick = onTopUp),
+                modifier = Modifier
+                    .bouncingClickable(onClick = onTopUp)
+                    .testTag("profile.top-up"),
                 shape = KupioShapes.Full,
                 color = MaterialTheme.colorScheme.primary,
             ) {

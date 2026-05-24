@@ -52,6 +52,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -118,11 +119,16 @@ fun ListingFormPhotosSection(
         }
     }
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .testTag("listing.form.photos"),
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(HeroHeight),
+                .height(HeroHeight)
+                .testTag("listing.form.photos.hero"),
         ) {
             HorizontalPager(
                 state = pagerState,
@@ -474,6 +480,7 @@ private fun AddImageTile(onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .size(ThumbnailSize)
+            .testTag("listing.form.photos.add")
             .bouncingDimClickable(shape = KupioShapes.Small, onClick = onClick),
         shape = KupioShapes.Small,
         color = Color.Transparent,

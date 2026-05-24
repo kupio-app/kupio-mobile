@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -84,14 +85,18 @@ internal fun PriceSection(
                 title = stringResource(Res.string.create_free_title),
                 subtitle = stringResource(Res.string.create_free_subtitle),
                 onClick = { onIntent(CreateIntent.ToggleFree) },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .testTag("listing.create.free-toggle"),
             )
             ToggleRow(
                 checked = state.isTradable,
                 title = stringResource(Res.string.create_open_trades_title),
                 subtitle = stringResource(Res.string.create_open_trades_subtitle),
                 onClick = { onIntent(CreateIntent.ToggleTradable) },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .testTag("listing.create.tradable-toggle"),
             )
         }
     }
@@ -131,7 +136,9 @@ private fun CreatePriceField(
             OutlinedTextField(
                 value = price,
                 onValueChange = onPriceChange,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .testTag("listing.create.price"),
                 enabled = enabled,
                 placeholder = { Text("0") },
                 isError = error != null,
@@ -147,7 +154,12 @@ private fun CreatePriceField(
             )
         }
     }
-    error?.let { KupioErrorText(it.toErrorMessage()) }
+    error?.let {
+        KupioErrorText(
+            text = it.toErrorMessage(),
+            modifier = Modifier.testTag("listing.create.price-error"),
+        )
+    }
 }
 
 @Composable
@@ -179,6 +191,7 @@ private fun CurrencyMenu(
         Surface(
             modifier = Modifier
                 .size(48.dp)
+                .testTag("listing.create.currency")
                 .bouncingDimClickable(shape = KupioShapes.Medium) { expanded = true },
             shape = KupioShapes.Medium,
             color = MaterialTheme.colorScheme.surfaceVariant,
@@ -315,7 +328,9 @@ internal fun PublishBar(
             Button(
                 onClick = onSaveDraft,
                 enabled = !state.isSubmitting,
-                modifier = Modifier.height(48.dp),
+                modifier = Modifier
+                    .height(48.dp)
+                    .testTag("listing.create.save-draft"),
                 shape = KupioShapes.Medium,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
@@ -332,7 +347,8 @@ internal fun PublishBar(
                 enabled = state.canSubmit && !state.isSubmitting,
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp),
+                    .height(48.dp)
+                    .testTag("listing.create.publish"),
                 shape = KupioShapes.Medium,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.onSurface,

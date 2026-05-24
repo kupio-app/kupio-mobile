@@ -29,6 +29,7 @@ fun ListingTopBar(
     onBack: () -> Unit,
     listState: LazyListState,
     modifier: Modifier = Modifier,
+    backButtonModifier: Modifier = Modifier,
     actions: @Composable () -> Unit = {},
 ) {
     val backgroundAlpha by remember {
@@ -60,6 +61,7 @@ fun ListingTopBar(
             ListingFloatingIconButton(
                 onClick = onBack,
                 contentDescription = stringResource(Res.string.back),
+                modifier = backButtonModifier,
             ) {
                 Icon(
                     Icons.Default.ChevronLeft,

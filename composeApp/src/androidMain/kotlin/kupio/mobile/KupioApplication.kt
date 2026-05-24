@@ -10,11 +10,12 @@ import kupio.mobile.core.offline.OfflineSyncScheduler
 import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.core.module.Module
 
-class KupioApplication : Application() {
+open class KupioApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        initKoin {
+        initKoin(additionalModules = additionalKoinModules()) {
             androidLogger()
             androidContext(this@KupioApplication)
         }
@@ -33,4 +34,6 @@ class KupioApplication : Application() {
         get<BackgroundSyncScheduler>().schedule()
         get<OfflineSyncScheduler>().start()
     }
+
+    protected open fun additionalKoinModules(): List<Module> = emptyList()
 }

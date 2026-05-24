@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,7 +31,9 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun UserInfoSection(user: AuthenticatedUser?) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("profile.user-info"),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
     ) {
@@ -44,6 +47,7 @@ internal fun UserInfoSection(user: AuthenticatedUser?) {
                     fontWeight = FontWeight.Bold,
                 ),
                 color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.testTag("profile.display-name"),
             )
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 user?.username?.let { username ->
@@ -51,6 +55,7 @@ internal fun UserInfoSection(user: AuthenticatedUser?) {
                         text = "@$username",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.testTag("profile.username"),
                     )
                 }
                 val memberSince = memberSinceMonthYear(user?.createdAt)

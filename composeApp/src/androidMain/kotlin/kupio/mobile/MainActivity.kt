@@ -8,6 +8,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import com.mmk.kmpnotifier.extensions.onCreateOrOnNewIntent
 import com.mmk.kmpnotifier.notification.NotifierManager
 import kupio.mobile.app.App
@@ -31,7 +36,15 @@ class MainActivity : ComponentActivity() {
         NotifierManager.onCreateOrOnNewIntent(intent)
         intent.data?.toString()?.let { deepLinkNavigator.handle(it) }
 
-        setContent { App() }
+        setContent {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .appiumTestTagsAsResourceIds(),
+            ) {
+                App()
+            }
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -40,3 +53,10 @@ class MainActivity : ComponentActivity() {
         intent.data?.toString()?.let { deepLinkNavigator.handle(it) }
     }
 }
+
+private fun Modifier.appiumTestTagsAsResourceIds(): Modifier =
+    if (BuildConfig.DEBUG) {
+        semantics { testTagsAsResourceId = true }
+    } else {
+        this
+    }

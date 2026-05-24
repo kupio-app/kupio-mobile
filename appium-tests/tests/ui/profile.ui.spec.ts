@@ -1,4 +1,4 @@
-import { byTestTag, openApp, scrollToTestTag, seedSignedInUser } from "../support/app";
+import { byTestTag, openApp, scrollToTestTag, seedSignedInUser, tapByTestTag } from "../support/app";
 
 describe("Profile", () => {
     it("shows the signed-in user's account state", async () => {
@@ -6,7 +6,7 @@ describe("Profile", () => {
         await openApp();
 
         await byTestTag("main.tabs").waitForDisplayed({ timeout: 15000 });
-        await byTestTag("main.me").click();
+        await tapByTestTag("main.me");
 
         await byTestTag("profile.screen").waitForDisplayed({ timeout: 15000 });
         await byTestTag("profile.username").waitForDisplayed({ timeout: 15000 });

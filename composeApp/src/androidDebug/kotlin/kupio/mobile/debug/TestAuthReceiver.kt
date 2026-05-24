@@ -5,6 +5,14 @@ import android.content.Context
 import android.content.Intent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kupio.mobile.debug.TestAuthContract.AccessToken
+import kupio.mobile.debug.TestAuthContract.ClearAuthAction
+import kupio.mobile.debug.TestAuthContract.ExtraEmail
+import kupio.mobile.debug.TestAuthContract.ExtraUserId
+import kupio.mobile.debug.TestAuthContract.ExtraUsername
+import kupio.mobile.debug.TestAuthContract.RefreshToken
+import kupio.mobile.debug.TestAuthContract.SeedAuthAction
+import kupio.mobile.debug.TestAuthContract.TokenLifetimeSeconds
 import kupio.mobile.features.auth.domain.model.AuthSession
 import kupio.mobile.features.auth.domain.model.AuthenticatedUser
 import kupio.mobile.features.auth.domain.model.UserRole
@@ -36,8 +44,8 @@ class TestAuthReceiver : BroadcastReceiver(), KoinComponent {
         runBlocking(Dispatchers.IO) {
             secureSessionStore.writeSession(
                 AuthSession(
-                    accessToken = "appium-access-token",
-                    refreshToken = "appium-refresh-token",
+                    accessToken = AccessToken,
+                    refreshToken = RefreshToken,
                     accessExpiresAt = nowSeconds + TokenLifetimeSeconds,
                     refreshExpiresAt = nowSeconds + TokenLifetimeSeconds,
                 )
@@ -55,14 +63,5 @@ class TestAuthReceiver : BroadcastReceiver(), KoinComponent {
                 )
             )
         }
-    }
-
-    private companion object {
-        const val SeedAuthAction = "kupio.mobile.test.SEED_AUTH"
-        const val ClearAuthAction = "kupio.mobile.test.CLEAR_AUTH"
-        const val ExtraUserId = "userId"
-        const val ExtraEmail = "email"
-        const val ExtraUsername = "username"
-        const val TokenLifetimeSeconds = 60L * 60L
     }
 }

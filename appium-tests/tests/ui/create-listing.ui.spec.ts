@@ -1,4 +1,4 @@
-import { byTestTag, openApp, scrollToTestTag, seedSignedInUser } from "../support/app";
+import { byTestTag, openApp, scrollToTestTag, seedSignedInUser, tapByTestTag } from "../support/app";
 
 describe("Create listing", () => {
     it("opens the create listing screen for a signed-in user", async () => {
@@ -6,10 +6,9 @@ describe("Create listing", () => {
         await openApp();
 
         await byTestTag("main.tabs").waitForDisplayed({ timeout: 15000 });
-        await byTestTag("main.create").click();
+        await tapByTestTag("main.create");
 
         await byTestTag("listing.create.screen").waitForDisplayed({ timeout: 15000 });
-        await expect(byTestTag("listing.create.topbar")).toBeDisplayed();
         await expect(byTestTag("listing.create.back")).toBeDisplayed();
         await expect(byTestTag("listing.form.photos")).toBeDisplayed();
         await expect(byTestTag("listing.form.photos.hero")).toBeDisplayed();

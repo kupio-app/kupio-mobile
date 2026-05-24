@@ -32,18 +32,18 @@ export const config = {
     ],
 
     capabilities: [
-            {
-                maxInstances: 1,
-                platformName: "Android",
-                "appium:automationName": "UiAutomator2",
-                "appium:deviceName": "Android Emulator",
-                "appium:app": appPath,
-                "appium:appPackage": "kupio.mobile",
-                "appium:appActivity": ".MainActivity",
-                "appium:appWaitActivity": ".MainActivity",
-                "appium:autoGrantPermissions": true,
-                "appium:autoLaunch": false,
-                "appium:noReset": false,
-            },
+        {
+            maxInstances: 1,
+            platformName: "Android",
+            "appium:automationName": "UiAutomator2",
+            "appium:deviceName": "Android Emulator",
+            "appium:app": appPath,
+            "appium:appPackage": "kupio.mobile",
+            "appium:appActivity": ".MainActivity",
+            "appium:appWaitActivity": ".MainActivity",
+            "appium:autoGrantPermissions": true,
+            "appium:autoLaunch": false,
+            "appium:noReset": false,
+        },
     ],
 };

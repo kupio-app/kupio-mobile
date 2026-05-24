@@ -7,6 +7,12 @@ export const appId = "kupio.mobile";
 
 export const byTestTag = (tag: string) => $(`android=new UiSelector().resourceId("${tag}")`);
 
+export async function tapByTestTag(tag: string) {
+    const element = await byTestTag(tag);
+    await element.waitForDisplayed({ timeout: 15000 });
+    await element.click();
+}
+
 export async function scrollToTestTag(tag: string) {
     await $(
         `android=new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId("${tag}"))`

@@ -5,19 +5,28 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -135,7 +144,19 @@ private fun MyListingsRoute(state: MyListingsState, onIntent: (MyListingsIntent)
                         }
                     }
                     else -> {
+                        val listState = rememberLazyListState()
+                        val shouldLoadMore by remember {
+                            derivedStateOf {
+                                val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: return@derivedStateOf false
+                                val total = listState.layoutInfo.totalItemsCount
+                                lastVisible >= total - 3
+                            }
+                        }
+                        LaunchedEffect(shouldLoadMore) {
+                            snapshotFlow { shouldLoadMore }.collect { if (it) onIntent(MyListingsIntent.LoadMore) }
+                        }
                         LazyColumn(
+                            state = listState,
                             modifier = Modifier.fillMaxSize(),
                             verticalArrangement = Arrangement.spacedBy(KupioThemeDefaults.spacing.md),
                         ) {
@@ -150,6 +171,22 @@ private fun MyListingsRoute(state: MyListingsState, onIntent: (MyListingsIntent)
                                     isStatusActionEnabled =
                                         state.updatingListingId == null && listing.status.canToggleStatus(),
                                 )
+                            }
+                            if (state.isLoadingMore) {
+                                item(key = "load_more") {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = KupioThemeDefaults.spacing.md),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(24.dp),
+                                            color = MaterialTheme.colorScheme.primary,
+                                            strokeWidth = 2.dp,
+                                        )
+                                    }
+                                }
                             }
                             item { Spacer(modifier = Modifier.height(KupioThemeDefaults.spacing.xl)) }
                         }

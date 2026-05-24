@@ -51,8 +51,11 @@ class MyListingsViewModel(
             is MyListingsIntent.ToggleActiveClicked -> prepareStatusChange(intent.id)
             MyListingsIntent.ConfirmStatusChange -> confirmStatusChange()
             MyListingsIntent.DismissStatusChange -> _state.update { it.copy(statusChangeConfirmation = null) }
-            MyListingsIntent.RetryLoad -> loadListings()
-            MyListingsIntent.RefreshListings -> loadListings(refresh = true)
+            MyListingsIntent.RetryLoad -> loadListings(reset = true)
+            MyListingsIntent.RefreshListings -> loadListings(reset = true, isRefresh = true)
+            MyListingsIntent.LoadMore -> {
+                if (!_state.value.isLoadingMore && _state.value.hasMore) loadListings(reset = false)
+            }
         }
     }
 
@@ -120,37 +123,40 @@ class MyListingsViewModel(
         }
     }
 
-    private fun loadListings(refresh: Boolean = false) {
+    private fun loadListings(reset: Boolean = true, isRefresh: Boolean = false) {
+        val cursor = if (reset) null else _state.value.nextCursor
         _state.update {
-            if (refresh) {
-                it.copy(isRefreshing = true, errorMessage = null)
-            } else {
-                it.copy(isLoading = true, errorMessage = null)
+            when {
+                isRefresh -> it.copy(isRefreshing = true, errorMessage = null)
+                reset -> it.copy(isLoading = true, errorMessage = null, nextCursor = null, hasMore = false)
+                else -> it.copy(isLoadingMore = true)
             }
         }
         viewModelScope.launch {
-            runCatching { meRepository.getMyListings() }
-                .onSuccess { listings ->
-                    val active = listings.count { it.status == OwnedListingStatus.ACTIVE }
-                    val inactive = listings.count { it.status == OwnedListingStatus.INACTIVE }
-                    _state.update {
-                        it.copy(
-                            listings = listings,
+            runCatching { meRepository.getMyListingsPage(cursor = cursor) }
+                .onSuccess { page ->
+                    _state.update { current ->
+                        val accumulated = if (reset) page.listings else current.listings + page.listings
+                        val active = accumulated.count { it.status == OwnedListingStatus.ACTIVE }
+                        val inactive = accumulated.count { it.status == OwnedListingStatus.INACTIVE }
+                        current.copy(
+                            listings = accumulated,
                             activeCount = active,
                             inactiveCount = inactive,
                             isLoading = false,
                             isRefreshing = false,
+                            isLoadingMore = false,
+                            nextCursor = page.nextCursor,
+                            hasMore = page.nextCursor != null,
                         )
                     }
                 }
                 .onFailure { t ->
                     if (t is CancellationException) throw t
-                    _state.update {
-                        it.copy(
-                            isLoading = false,
-                            isRefreshing = false,
-                            errorMessage = t.message,
-                        )
+                    if (reset) {
+                        _state.update { it.copy(isLoading = false, isRefreshing = false, errorMessage = t.message) }
+                    } else {
+                        _state.update { it.copy(isLoadingMore = false) }
                     }
                     analytics.recordException(t, mapOf("screen" to "my_listings"))
                 }

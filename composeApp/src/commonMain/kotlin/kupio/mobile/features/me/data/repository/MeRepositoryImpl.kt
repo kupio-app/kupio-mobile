@@ -8,6 +8,7 @@ import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.me.data.remote.MeApi
 import kupio.mobile.features.me.domain.model.OwnedListing
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
+import kupio.mobile.features.me.domain.model.OwnedListingsPage
 import kupio.mobile.features.me.domain.model.UserListingStats
 import kupio.mobile.features.me.domain.repository.MeRepository
 
@@ -28,6 +29,20 @@ class MeRepositoryImpl(
                 .also { offlineStore.cacheOwnedListings(it, sessionManager.currentUserId()) }
         }.getOrElse {
             offlineStore.getOwnedListings(sessionManager.currentUserId())
+        }
+
+    override suspend fun getMyListingsPage(cursor: String?, limit: Int): OwnedListingsPage =
+        runCatching {
+            apiClient.request { meApi.getMyListingsPage(it, limit, cursor) }
+                .also { page ->
+                    if (cursor == null) offlineStore.cacheOwnedListings(page.listings, sessionManager.currentUserId())
+                }
+        }.getOrElse { e ->
+            if (cursor == null) {
+                OwnedListingsPage(offlineStore.getOwnedListings(sessionManager.currentUserId()), null)
+            } else {
+                throw e
+            }
         }
 
     override suspend fun getMyListing(listingId: String): OwnedListing? {

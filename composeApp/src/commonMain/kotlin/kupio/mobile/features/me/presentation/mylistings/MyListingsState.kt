@@ -11,6 +11,9 @@ data class MyListingsState(
     val filter: MyListingsFilter = MyListingsFilter.ACTIVE,
     val isLoading: Boolean = true,
     val isRefreshing: Boolean = false,
+    val isLoadingMore: Boolean = false,
+    val nextCursor: String? = null,
+    val hasMore: Boolean = false,
     val errorMessage: String? = null,
     val activeCount: Int = 0,
     val inactiveCount: Int = 0,
@@ -45,6 +48,7 @@ sealed interface MyListingsIntent : UiAction {
     data object BackClicked : MyListingsIntent
     data object RetryLoad : MyListingsIntent
     data object RefreshListings : MyListingsIntent
+    data object LoadMore : MyListingsIntent
 }
 
 sealed interface MyListingsEffect : UiEffect {

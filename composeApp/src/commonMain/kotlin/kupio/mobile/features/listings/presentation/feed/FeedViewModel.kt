@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kupio.mobile.features.chats.data.ConversationsStore
 import kupio.mobile.features.listings.domain.model.Category
-import kupio.mobile.features.listings.domain.model.ListingFeed
 import kupio.mobile.features.listings.domain.repository.CategoriesRepository
 import kupio.mobile.features.listings.domain.repository.ListingsRepository
 import kupio.mobile.features.listings.presentation.feed.FeedEffect.*
@@ -55,7 +54,7 @@ class FeedViewModel(
                 if (intent.id == _state.value.selectedCategoryId) return
                 _state.update { it.copy(selectedCategoryId = intent.id) }
                 analytics.logEvent("select_content", mapOf("content_type" to "category", "item_id" to intent.id))
-                loadRecommended()
+                loadRecommended(reset = true)
             }
             is FeedIntent.OpenListing -> viewModelScope.launch {
                 analytics.logEvent("select_item", mapOf("item_id" to intent.id))
@@ -68,9 +67,12 @@ class FeedViewModel(
                 viewModelScope.launch { effectChannel.send(OpenSearch(query)) }
             }
             FeedIntent.OpenSearchBar -> viewModelScope.launch { effectChannel.send(OpenSearch("")) }
-            FeedIntent.RetryLoadListings -> loadRecommended()
+            FeedIntent.RetryLoadListings -> loadRecommended(reset = true)
             FeedIntent.RetryLoadCategories -> loadCategories()
             FeedIntent.RefreshFeed -> refreshFeed()
+            FeedIntent.LoadMore -> {
+                if (!_state.value.isLoadingMore && _state.value.hasMore) loadRecommended(reset = false)
+            }
             FeedIntent.OpenFilters -> viewModelScope.launch { effectChannel.send(OpenSearchFilters) }
             FeedIntent.OpenNotifications -> {}
             FeedIntent.SelectDelivery -> {}
@@ -78,18 +80,42 @@ class FeedViewModel(
         }
     }
 
-    private fun loadRecommended() {
+    private fun loadRecommended(reset: Boolean = true) {
         loadRecommendedJob?.cancel()
-        _state.update { it.copy(isLoadingListings = true, listingsError = null) }
+        val cursor = if (reset) null else _state.value.nextCursor
+        if (reset) {
+            _state.update { it.copy(isLoadingListings = true, listingsError = null, nextCursor = null, hasMore = false) }
+        } else {
+            _state.update { it.copy(isLoadingMore = true) }
+        }
         loadRecommendedJob = viewModelScope.launch {
-            fetchRecommended()
-                .onSuccess { feed ->
-                    _state.update { it.copy(listings = feed.listings, isLoadingListings = false) }
+            runCatching {
+                val categoryId = _state.value.selectedCategoryId
+                    .takeUnless { it == FeedCategoryItem.ALL_ID }
+                    ?.removePrefix("cat_")
+                    ?.toIntOrNull()
+                listingsRepository.getFeed(limit = 20, cursor = cursor, categoryId = categoryId)
+            }.onSuccess { feed ->
+                _state.update { current ->
+                    val accumulated = if (reset) feed.listings else current.listings + feed.listings
+                    current.copy(
+                        listings = accumulated,
+                        isLoadingListings = false,
+                        isLoadingMore = false,
+                        listingsError = null,
+                        nextCursor = feed.nextCursor,
+                        hasMore = feed.nextCursor != null,
+                    )
                 }
-                .onFailure { t ->
+            }.onFailure { t ->
+                if (t is CancellationException) throw t
+                if (reset) {
                     _state.update { it.copy(isLoadingListings = false, listingsError = t.message.orEmpty()) }
-                    analytics.recordException(t, mapOf("screen" to "feed"))
+                } else {
+                    _state.update { it.copy(isLoadingMore = false) }
                 }
+                analytics.recordException(t, mapOf("screen" to "feed"))
+            }
         }
     }
 
@@ -138,11 +164,26 @@ class FeedViewModel(
             _state.update { it.copy(isRefreshing = true) }
             try {
                 coroutineScope {
-                    val listingsDeferred = async { fetchRecommended() }
+                    val listingsDeferred = async {
+                        runCatching {
+                            val categoryId = _state.value.selectedCategoryId
+                                .takeUnless { it == FeedCategoryItem.ALL_ID }
+                                ?.removePrefix("cat_")
+                                ?.toIntOrNull()
+                            listingsRepository.getFeed(limit = 20, cursor = null, categoryId = categoryId)
+                        }.onFailure { if (it is CancellationException) throw it }
+                    }
                     val categoriesDeferred = async { fetchCategories() }
                     val unreadDeferred = async { conversationsStore.refreshUnreadCount() }
                     listingsDeferred.await()
-                        .onSuccess { feed -> _state.update { it.copy(listings = feed.listings, listingsError = null) } }
+                        .onSuccess { feed ->
+                            _state.update { it.copy(
+                                listings = feed.listings,
+                                listingsError = null,
+                                nextCursor = feed.nextCursor,
+                                hasMore = feed.nextCursor != null,
+                            ) }
+                        }
                         .onFailure { t -> _state.update { it.copy(listingsError = t.message.orEmpty()) } }
                     categoriesDeferred.await()
                         .onSuccess { list -> _state.update { it.copy(categories = list, categoriesError = null) } }
@@ -154,14 +195,6 @@ class FeedViewModel(
             }
         }
     }
-
-    private suspend fun fetchRecommended(): Result<ListingFeed> = runCatching {
-        val categoryId = _state.value.selectedCategoryId
-            .takeUnless { it == FeedCategoryItem.ALL_ID }
-            ?.removePrefix("cat_")
-            ?.toIntOrNull()
-        listingsRepository.getFeed(limit = 10, categoryId = categoryId)
-    }.onFailure { if (it is CancellationException) throw it }
 
     private suspend fun fetchCategories(): Result<List<Category>> = runCatching {
         categoriesRepository.getRootCategories()

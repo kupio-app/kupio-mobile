@@ -7,6 +7,50 @@ export const appId = "kupio.mobile";
 
 export const byTestTag = (tag: string) => $(`android=new UiSelector().resourceId("${tag}")`);
 
+const uiSelectorText = (text: string) => text.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+
+export const byText = (text: string) => $(`android=new UiSelector().text("${uiSelectorText(text)}")`);
+
+export async function firstDisplayedText(texts: string[]) {
+    for (const text of texts) {
+        const element = byText(text);
+        if (await element.isDisplayed().catch(() => false)) {
+            return element;
+        }
+    }
+    throw new Error(`None of the expected texts are displayed: ${texts.join(", ")}`);
+}
+
+export async function waitForFirstDisplayedText(texts: string[], timeout = 15000) {
+    let displayedText: string | null = null;
+
+    await browser.waitUntil(
+        async () => {
+            for (const text of texts) {
+                const element = byText(text);
+                if (await element.isDisplayed().catch(() => false)) {
+                    displayedText = text;
+                    return true;
+                }
+            }
+            return false;
+        },
+        {
+            timeout,
+            timeoutMsg: `None of the expected texts are displayed: ${texts.join(", ")}`,
+        }
+    );
+
+    return byText(displayedText!);
+}
+
+export async function scrollToText(text: string) {
+    await $(
+        `android=new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().text("${uiSelectorText(text)}"))`
+    );
+    return byText(text);
+}
+
 export async function tapByTestTag(tag: string) {
     const element = await byTestTag(tag);
     await element.waitForDisplayed({ timeout: 15000 });

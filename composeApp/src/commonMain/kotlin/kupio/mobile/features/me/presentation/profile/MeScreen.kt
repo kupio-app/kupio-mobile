@@ -29,6 +29,8 @@ import kupio.mobile.core.presentation.CollectEffect
 import kupio.mobile.features.main.tabs.ChatsTab
 import kupio.mobile.features.main.tabs.SavedTab
 import kupio.mobile.features.me.presentation.mylistings.MyListingsScreen
+import kupio.mobile.features.payments.presentation.history.PaymentsHistoryScreen
+import kupio.mobile.features.payments.presentation.topup.TopUpScreen
 import kupio.mobile.features.me.presentation.profile.components.ActivitySection
 import kupio.mobile.features.me.presentation.profile.components.BalanceCard
 import kupio.mobile.features.me.presentation.profile.components.MyListingsSection
@@ -60,6 +62,8 @@ class MeScreen : Screen {
                 MeEffect.NavigateToChats -> tabNavigator.current = ChatsTab
                 MeEffect.NavigateToFavourites -> tabNavigator.current = SavedTab
                 MeEffect.NavigateToReportsDashboard -> rootNavigator.push(ModeratorReportsDashboardScreen())
+                MeEffect.NavigateToTopUp -> rootNavigator.push(TopUpScreen(currentBalanceCents = state.user?.balance ?: 0))
+                MeEffect.NavigateToPaymentsHistory -> rootNavigator.push(PaymentsHistoryScreen())
             }
         }
 

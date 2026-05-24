@@ -63,8 +63,8 @@ class MeViewModel(
             MeIntent.FavouritesClicked -> emitEffect(MeEffect.NavigateToFavourites)
             MeIntent.SettingsClicked -> emitEffect(MeEffect.NavigateToSettings)
             MeIntent.ReportsDashboardClicked -> emitEffect(MeEffect.NavigateToReportsDashboard)
-            MeIntent.TopUpBalanceClicked,
-            MeIntent.PaymentsHistoryClicked,
+            MeIntent.TopUpBalanceClicked -> emitEffect(MeEffect.NavigateToTopUp)
+            MeIntent.PaymentsHistoryClicked -> emitEffect(MeEffect.NavigateToPaymentsHistory)
             MeIntent.PromotionsPackagesClicked,
             MeIntent.EditProfileClicked -> Unit
         }

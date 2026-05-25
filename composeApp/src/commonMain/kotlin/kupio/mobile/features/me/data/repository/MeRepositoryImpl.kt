@@ -22,13 +22,16 @@ class MeRepositoryImpl(
     override suspend fun getStats(): UserListingStats =
         apiClient.request { meApi.getStats(it) }
 
-    override suspend fun getMyListings(): List<OwnedListing> =
-        runCatching {
+    override suspend fun getMyListings(): List<OwnedListing> {
+        val userId = sessionManager.currentUserId()
+        return runCatching {
             apiClient.request { meApi.getMyListings(it) }
-                .also { offlineStore.cacheOwnedListings(it, sessionManager.currentUserId()) }
+                .also { offlineStore.cacheOwnedListings(it, userId) }
+            offlineStore.getOwnedListings(userId)
         }.getOrElse {
-            offlineStore.getOwnedListings(sessionManager.currentUserId())
+            offlineStore.getOwnedListings(userId)
         }
+    }
 
     override suspend fun getMyListing(listingId: String): OwnedListing? {
         offlineStore.getOwnedListings(sessionManager.currentUserId())

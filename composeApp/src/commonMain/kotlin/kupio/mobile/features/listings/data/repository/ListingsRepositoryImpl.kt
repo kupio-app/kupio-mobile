@@ -1,5 +1,7 @@
 package kupio.mobile.features.listings.data.repository
 
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kupio.mobile.core.network.AuthenticatedApiClient
 import kupio.mobile.core.offline.OfflineMutationStore
 import kupio.mobile.core.offline.OfflineSyncScheduler
@@ -26,6 +28,9 @@ class ListingsRepositoryImpl(
     private val offlineSyncScheduler: OfflineSyncScheduler,
     private val sessionManager: AuthSessionManager,
 ) : ListingsRepository {
+
+    private val _listingUpdates = MutableSharedFlow<Listing>(replay = 1, extraBufferCapacity = 8)
+    override val listingUpdates: SharedFlow<Listing> = _listingUpdates
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -75,18 +80,22 @@ class ListingsRepositoryImpl(
 
     override suspend fun getListing(id: String): Listing =
         runCatching {
-            authenticatedApiClient.request { authorize ->
+            val remote = authenticatedApiClient.request { authorize ->
                 listingsApi.getListing(authorize, id)
-            }.toDomain().also { offlineStore.cacheListing(it) }
+            }.toDomain()
+            offlineStore.cacheListing(remote)
+            offlineStore.getListing(id) ?: remote
         }.getOrElse { throwable ->
             offlineStore.getListing(id) ?: throw throwable
         }
 
     override suspend fun getListingDetail(id: String): Listing =
         runCatching {
-            authenticatedApiClient.request { authorize ->
+            val remote = authenticatedApiClient.request { authorize ->
                 listingsApi.getListing(authorize, id, countSeen = true)
-            }.toDomain().also { offlineStore.cacheListing(it) }
+            }.toDomain()
+            offlineStore.cacheListing(remote)
+            offlineStore.getListing(id) ?: remote
         }.getOrElse { throwable ->
             offlineStore.getListing(id) ?: throw throwable
         }
@@ -118,6 +127,7 @@ class ListingsRepositoryImpl(
             ),
             currentListing = currentListing,
         )
+        _listingUpdates.tryEmit(updated)
         launchSync()
         return updated
     }

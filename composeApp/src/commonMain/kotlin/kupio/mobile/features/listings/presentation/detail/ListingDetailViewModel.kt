@@ -49,7 +49,16 @@ class ListingDetailViewModel(
     private val effectChannel = Channel<ListingDetailEffect>(Channel.BUFFERED)
     val effects: Flow<ListingDetailEffect> = effectChannel.receiveAsFlow()
 
-    init { load() }
+    init {
+        load()
+        viewModelScope.launch {
+            listingsRepository.listingUpdates.collect { updated ->
+                if (updated.id == listingId) {
+                    _state.update { it.copy(listing = updated) }
+                }
+            }
+        }
+    }
 
     fun onIntent(intent: ListingDetailIntent) {
         when (intent) {

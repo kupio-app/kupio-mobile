@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kupio.mobile.features.auth.domain.model.AuthSessionExpiredException
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
+import kupio.mobile.features.listings.domain.model.Listing
+import kupio.mobile.features.listings.domain.repository.ListingsRepository
+import kupio.mobile.features.me.domain.model.OwnedListing
 import kupio.mobile.features.me.domain.model.OwnedListingStatus
 import kupio.mobile.features.me.domain.repository.MeRepository
 import kupio.mobile.core.analytics.AnalyticsService
@@ -19,6 +22,7 @@ import kupio.mobile.core.analytics.NoOpAnalyticsService
 
 class MyListingsViewModel(
     private val meRepository: MeRepository,
+    private val listingsRepository: ListingsRepository,
     private val sessionManager: AuthSessionManager,
     private val analytics: AnalyticsService = NoOpAnalyticsService(),
 ) : ViewModel() {
@@ -30,6 +34,15 @@ class MyListingsViewModel(
 
     init {
         loadListings()
+        viewModelScope.launch {
+            listingsRepository.listingUpdates.collect { updated ->
+                _state.update { state ->
+                    state.copy(listings = state.listings.map { listing ->
+                        if (listing.id == updated.id) listing.applyUpdate(updated) else listing
+                    })
+                }
+            }
+        }
     }
 
     fun onIntent(intent: MyListingsIntent) {
@@ -157,6 +170,13 @@ class MyListingsViewModel(
         }
     }
 }
+
+private fun OwnedListing.applyUpdate(listing: Listing): OwnedListing = copy(
+    title = listing.title,
+    price = listing.price,
+    currency = listing.currency,
+    primaryImageUrl = listing.primaryImageUrl,
+)
 
 private fun OwnedListingStatus.nextToggleStatus(): OwnedListingStatus? = when (this) {
     OwnedListingStatus.ACTIVE -> OwnedListingStatus.INACTIVE

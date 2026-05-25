@@ -1,5 +1,6 @@
 package kupio.mobile.features.listings.domain.repository
 
+import kotlinx.coroutines.flow.SharedFlow
 import kupio.mobile.features.listings.domain.model.CreateListing
 import kupio.mobile.features.listings.domain.model.Listing
 import kupio.mobile.features.listings.domain.model.ListingFeed
@@ -9,6 +10,7 @@ import kupio.mobile.features.listings.domain.model.ListingStatus
 import kupio.mobile.features.search.domain.model.SearchFilters
 
 interface ListingsRepository {
+    val listingUpdates: SharedFlow<Listing>
     suspend fun searchListings(
         filters: SearchFilters,
         cursor: String? = null,

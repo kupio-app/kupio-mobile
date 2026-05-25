@@ -19,7 +19,7 @@ describe("Create listing", () => {
         await expect(await scrollToTestTag("listing.create.filters-placeholder")).toBeDisplayed();
         await expect(await scrollToTestTag("listing.create.price")).toBeDisplayed();
         await expect(byTestTag("listing.create.currency")).toBeDisplayed();
-        await expect(byTestTag("listing.create.free-toggle")).toBeDisplayed();
+        await expect(await scrollToTestTag("listing.create.free-toggle")).toBeDisplayed();
         await expect(byTestTag("listing.create.tradable-toggle")).toBeDisplayed();
         await expect(byTestTag("listing.create.save-draft")).toBeDisplayed();
         await expect(byTestTag("listing.create.publish")).toBeDisplayed();

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kupio.mobile.core.offline.OfflineSyncState
 import kupio.mobile.core.platform.PhoneDialer
 import kupio.mobile.features.auth.domain.session.AuthSessionManager
 import kupio.mobile.features.chats.domain.repository.ChatsRepository
@@ -125,8 +126,15 @@ class ListingDetailViewModel(
             }
                 .onSuccess { loaded ->
                     _state.update {
+                        // Preserve a locally-edited (PENDING) listing; it is more up-to-date
+                        // than the server response, which may have raced with the sync.
+                        val listing = if (it.listing?.syncState == OfflineSyncState.PENDING) {
+                            it.listing
+                        } else {
+                            loaded.listing
+                        }
                         it.copy(
-                            listing = loaded.listing,
+                            listing = listing,
                             ownerMetadata = loaded.ownerMetadata,
                             seller = loaded.listing.toSellerUi(),
                             isOwnListing = loaded.isOwnListing,
